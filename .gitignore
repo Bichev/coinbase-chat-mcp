@@ -18,6 +18,8 @@ next-env.d.ts
 # Production
 /build
 /dist
+frontend/dist/
+**/dist/
 
 # Environment files
 .env*

@@ -1,38 +1,37 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2, RefreshCw } from 'lucide-react';
+import { Send, Bot, User, Loader2, RefreshCw, History } from 'lucide-react';
 import { aiService } from '../services/aiService';
-
-interface ChatMessage {
-  id: string;
-  type: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-  toolCalls?: ToolCall[];
-}
-
-interface ToolCall {
-  tool: string;
-  parameters: Record<string, any>;
-  result?: any;
-  error?: string;
-}
+import { chatSessionService, ChatMessage, ToolCall } from '../services/chatSessionService';
+import ChatSessionHistory from '../components/ChatSessionHistory';
 
 const ChatInterface: React.FC = () => {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: '1',
-      type: 'assistant',
-      content: 'Hello! I\'m your Coinbase MCP assistant. I can help you with cryptocurrency prices, market analysis, and trading insights using real-time Coinbase data.\n\nTry asking me things like:\n• "What\'s the current Bitcoin price?"\n• "Show me popular trading pairs"\n• "Get Ethereum price"\n• "Bitcoin price"\n\n💡 **AI Mode**: For advanced conversational AI, add your OpenAI API key to `.env`\n🔧 **Basic Mode**: I can still help with crypto data using pattern matching!',
-      timestamp: new Date()
-    }
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // Load current session on component mount
+  useEffect(() => {
+    const currentSession = chatSessionService.getCurrentSession();
+    if (currentSession) {
+      setMessages(currentSession.messages);
+    }
+
+    // Subscribe to session updates
+    const unsubscribe = chatSessionService.subscribe(() => {
+      const updatedSession = chatSessionService.getCurrentSession();
+      if (updatedSession) {
+        setMessages([...updatedSession.messages]);
+      }
+    });
+
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
@@ -65,7 +64,8 @@ const ChatInterface: React.FC = () => {
       timestamp: new Date()
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    // Add user message to persistent session
+    chatSessionService.addMessage(userMessage);
     const userInput = input;
     setInput('');
     setIsLoading(true);
@@ -82,7 +82,8 @@ const ChatInterface: React.FC = () => {
         toolCalls: aiResponse.toolCalls
       };
 
-      setMessages(prev => [...prev, assistantMessage]);
+      // Add assistant message to persistent session
+      chatSessionService.addMessage(assistantMessage);
     } catch (error) {
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
@@ -91,22 +92,15 @@ const ChatInterface: React.FC = () => {
         timestamp: new Date()
       };
 
-      setMessages(prev => [...prev, errorMessage]);
+      // Add error message to persistent session
+      chatSessionService.addMessage(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
   const resetConversation = () => {
-    aiService.resetConversation();
-    setMessages([
-      {
-        id: '1',
-        type: 'assistant',
-        content: 'Hello! I\'m your Coinbase MCP assistant. I can help you with cryptocurrency prices, market analysis, and trading insights using real-time Coinbase data.\n\nTry asking me things like:\n• "What\'s the current Bitcoin price?"\n• "Show me popular trading pairs"\n• "Get Ethereum price"\n• "Bitcoin price"\n\n💡 **AI Mode**: For advanced conversational AI, add your OpenAI API key to `.env`\n🔧 **Basic Mode**: I can still help with crypto data using pattern matching!',
-        timestamp: new Date()
-      }
-    ]);
+    chatSessionService.clearCurrentSession();
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -130,14 +124,24 @@ const ChatInterface: React.FC = () => {
               <p className="text-sm text-gray-500">AI-powered cryptocurrency assistant</p>
             </div>
           </div>
-          <button
-            onClick={resetConversation}
-            className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-            title="Reset conversation"
-          >
-            <RefreshCw className="w-4 h-4" />
-            <span>Reset</span>
-          </button>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setShowHistory(true)}
+              className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Chat History"
+            >
+              <History className="w-4 h-4" />
+              <span>History</span>
+            </button>
+            <button
+              onClick={resetConversation}
+              className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Reset conversation"
+            >
+              <RefreshCw className="w-4 h-4" />
+              <span>Reset</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -223,9 +227,14 @@ const ChatInterface: React.FC = () => {
           </button>
         </div>
         <div className="mt-2 text-xs text-gray-500">
-          💡 Powered by OpenAI GPT-4 + MCP Tools | Try: "What's the Bitcoin price?", "Compare BTC and ETH", "How is the crypto market today?"
+          💡 Powered by GPT-4 + MCP Tools | Try: "What's the Bitcoin price?", "Compare BTC and ETH", "How is the crypto market today?"
         </div>
       </div>
+
+      {/* Chat Session History Modal */}
+      {showHistory && (
+        <ChatSessionHistory onClose={() => setShowHistory(false)} />
+      )}
     </div>
   );
 };

@@ -290,6 +290,8 @@ If a user asks about a cryptocurrency, try to infer the correct trading pair (us
     return this.conversation.length;
   }
 
+
+
   // Fallback method when OpenAI is not available
   private async processMessageFallback(userMessage: string): Promise<AIResponse> {
     const lowerMessage = userMessage.toLowerCase();
