@@ -141,6 +141,22 @@ app.get('/health', (_req, res) => {
  *       500:
  *         description: Internal server error
  */
+// Get spot price
+app.get('/api/v1/prices/:currencyPair/spot', async (req, res) => {
+    try {
+        const { currencyPair } = req.params;
+        const data = await coinbaseClient.getSpotPrice(currencyPair);
+        res.json(data);
+    }
+    catch (error) {
+        logger.error('Error fetching spot price:', error);
+        res.status(500).json({
+            error: 'Failed to fetch spot price',
+            message: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+// Legacy route for compatibility
 app.get('/api/v1/prices/:currencyPair', async (req, res) => {
     try {
         const { currencyPair } = req.params;
@@ -195,6 +211,23 @@ app.get('/api/v1/prices/:currencyPair', async (req, res) => {
  *       500:
  *         description: Internal server error
  */
+// Get historical prices - new route
+app.get('/api/v1/prices/:currencyPair/historic', async (req, res) => {
+    try {
+        const { currencyPair } = req.params;
+        const { start, end, period = 'day' } = req.query;
+        const data = await coinbaseClient.getHistoricalPrices(currencyPair, start, end, period);
+        res.json(data);
+    }
+    catch (error) {
+        logger.error('Error fetching historical prices:', error);
+        res.status(500).json({
+            error: 'Failed to fetch historical prices',
+            message: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+// Legacy route
 app.get('/api/v1/prices/:currencyPair/historical', async (req, res) => {
     try {
         const { currencyPair } = req.params;
@@ -275,6 +308,26 @@ app.get('/api/v1/exchange-rates', async (req, res) => {
  *       500:
  *         description: Internal server error
  */
+// Search assets route
+app.get('/api/v1/assets/search', async (req, res) => {
+    try {
+        const { query, limit = '50' } = req.query;
+        if (!query) {
+            return res.status(400).json({
+                error: 'Query parameter is required'
+            });
+        }
+        const data = await coinbaseClient.searchAssets(query, parseInt(limit));
+        res.json({ data });
+    }
+    catch (error) {
+        logger.error('Error searching assets:', error);
+        res.status(500).json({
+            error: 'Failed to search assets',
+            message: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
 app.get('/api/v1/assets', async (req, res) => {
     try {
         const { search, limit = '50' } = req.query;

@@ -107,7 +107,22 @@ PORT=3002
 # frontend/.env
 REACT_APP_API_URL=http://localhost:3002
 REACT_APP_MCP_URL=http://localhost:3001
+
+# For AI-Powered Chat (Optional)
+VITE_OPENAI_API_KEY=your_openai_api_key_here
 ```
+
+### 🤖 AI Chat Setup (Optional)
+To enable the AI-powered chat interface:
+
+1. **Get OpenAI API Key**: Visit [OpenAI Platform](https://platform.openai.com/api-keys)
+2. **Create frontend/.env file**:
+   ```bash
+   VITE_OPENAI_API_KEY=sk-your-actual-api-key-here
+   ```
+3. **Restart the frontend**: The chat will now use GPT-4 for intelligent responses!
+
+**Note**: Without the API key, the chat interface will show a helpful message and fallback to basic functionality.
 
 ## 📚 Usage
 

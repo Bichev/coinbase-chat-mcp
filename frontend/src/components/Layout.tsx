@@ -6,7 +6,8 @@ import {
   BeakerIcon, 
   CodeBracketIcon,
   HomeIcon,
-  CubeIcon
+  CubeIcon,
+  ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
 
@@ -15,6 +16,7 @@ const navigation = [
   { name: 'Markets', href: '/markets', icon: ChartBarIcon },
   { name: 'Assets', href: '/assets', icon: CubeIcon },
   { name: 'Analysis', href: '/analysis', icon: BeakerIcon },
+  { name: 'MCP Chat', href: '/chat', icon: ChatBubbleLeftRightIcon },
   { name: 'MCP Tester', href: '/mcp-tester', icon: CodeBracketIcon },
   { name: 'API Explorer', href: '/api-explorer', icon: CurrencyDollarIcon },
 ];

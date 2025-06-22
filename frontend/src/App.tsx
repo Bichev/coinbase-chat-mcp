@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import Markets from './pages/Markets';
 import Assets from './pages/Assets';
 import Analysis from './pages/Analysis';
+import ChatInterface from './pages/ChatInterface';
 import MCPTester from './pages/MCPTester';
 import APIExplorer from './pages/APIExplorer';
 
@@ -32,6 +33,7 @@ function App() {
               <Route path="/markets" element={<Markets />} />
               <Route path="/assets" element={<Assets />} />
               <Route path="/analysis" element={<Analysis />} />
+              <Route path="/chat" element={<ChatInterface />} />
               <Route path="/mcp-tester" element={<MCPTester />} />
               <Route path="/api-explorer" element={<APIExplorer />} />
             </Routes>

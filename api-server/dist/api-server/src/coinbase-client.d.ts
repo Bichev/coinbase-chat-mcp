@@ -26,7 +26,7 @@ export declare class CoinbaseClient {
         data: CoinbaseAsset[];
     }>;
     /**
-     * Get 24hr stats for a currency pair
+     * Get 24hr stats for a currency pair (simulated from available data)
      */
     getStats(currencyPair: string): Promise<CoinbaseStats>;
     /**
@@ -41,6 +41,7 @@ export declare class CoinbaseClient {
      * Get detailed information about a specific asset
      */
     getAssetDetails(assetId: string): Promise<CoinbaseAsset | null>;
+    private getCryptoName;
     /**
      * Analyze price data for trends and patterns
      */
