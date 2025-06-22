@@ -1,0 +1,501 @@
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import compression from 'compression';
+import rateLimit from 'express-rate-limit';
+import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
+import { config } from 'dotenv';
+import { createLogger, format, transports } from 'winston';
+import { CoinbaseClient } from './coinbase-client.js';
+// Load environment variables
+config();
+// Logger setup
+const logger = createLogger({
+    level: process.env.LOG_LEVEL || 'info',
+    format: format.combine(format.timestamp(), format.errors({ stack: true }), format.json()),
+    transports: [
+        new transports.File({ filename: 'logs/error.log', level: 'error' }),
+        new transports.File({ filename: 'logs/combined.log' }),
+        new transports.Console({
+            format: format.combine(format.colorize(), format.simple())
+        })
+    ]
+});
+// Express app setup
+const app = express();
+const PORT = process.env.PORT || 3002;
+// Middleware
+app.use(helmet());
+app.use(cors());
+app.use(compression());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Rate limiting
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+    message: {
+        error: 'Too many requests from this IP, please try again later.',
+        retryAfter: '15 minutes'
+    },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+app.use('/api/', limiter);
+// Coinbase client
+const coinbaseClient = new CoinbaseClient(process.env.COINBASE_API_URL);
+// Swagger documentation setup
+const swaggerOptions = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Coinbase Chat MCP API',
+            version: '1.0.0',
+            description: 'REST API for Coinbase public cryptocurrency data',
+            license: {
+                name: 'MIT',
+                url: 'https://opensource.org/licenses/MIT'
+            }
+        },
+        servers: [
+            {
+                url: `http://localhost:${PORT}`,
+                description: 'Development server'
+            }
+        ]
+    },
+    apis: ['./src/routes/*.ts', './src/index.ts']
+};
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Health check endpoint
+/**
+ * @swagger
+ * /health:
+ *   get:
+ *     summary: Health check endpoint
+ *     description: Returns the health status of the API server
+ *     responses:
+ *       200:
+ *         description: API is healthy
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "healthy"
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *                 uptime:
+ *                   type: number
+ *                   description: Server uptime in seconds
+ */
+app.get('/health', (_req, res) => {
+    res.json({
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+    });
+});
+// API Routes
+/**
+ * @swagger
+ * /api/v1/prices/{currencyPair}:
+ *   get:
+ *     summary: Get current spot price
+ *     description: Get the current spot price for a cryptocurrency pair
+ *     parameters:
+ *       - in: path
+ *         name: currencyPair
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Currency pair (e.g., BTC-USD)
+ *         example: BTC-USD
+ *     responses:
+ *       200:
+ *         description: Current spot price
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     amount:
+ *                       type: string
+ *                       example: "45000.00"
+ *                     base:
+ *                       type: string
+ *                       example: "BTC"
+ *                     currency:
+ *                       type: string
+ *                       example: "USD"
+ *       400:
+ *         description: Invalid currency pair
+ *       500:
+ *         description: Internal server error
+ */
+app.get('/api/v1/prices/:currencyPair', async (req, res) => {
+    try {
+        const { currencyPair } = req.params;
+        const data = await coinbaseClient.getSpotPrice(currencyPair);
+        res.json(data);
+    }
+    catch (error) {
+        logger.error('Error fetching spot price:', error);
+        res.status(500).json({
+            error: 'Failed to fetch spot price',
+            message: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+/**
+ * @swagger
+ * /api/v1/prices/{currencyPair}/historical:
+ *   get:
+ *     summary: Get historical prices
+ *     description: Get historical price data for a cryptocurrency pair
+ *     parameters:
+ *       - in: path
+ *         name: currencyPair
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Currency pair (e.g., BTC-USD)
+ *       - in: query
+ *         name: start
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Start date (YYYY-MM-DD)
+ *       - in: query
+ *         name: end
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: End date (YYYY-MM-DD)
+ *       - in: query
+ *         name: period
+ *         schema:
+ *           type: string
+ *           enum: [hour, day]
+ *           default: day
+ *         description: Data granularity
+ *     responses:
+ *       200:
+ *         description: Historical price data
+ *       400:
+ *         description: Invalid parameters
+ *       500:
+ *         description: Internal server error
+ */
+app.get('/api/v1/prices/:currencyPair/historical', async (req, res) => {
+    try {
+        const { currencyPair } = req.params;
+        const { start, end, period = 'day' } = req.query;
+        const data = await coinbaseClient.getHistoricalPrices(currencyPair, start, end, period);
+        res.json(data);
+    }
+    catch (error) {
+        logger.error('Error fetching historical prices:', error);
+        res.status(500).json({
+            error: 'Failed to fetch historical prices',
+            message: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+/**
+ * @swagger
+ * /api/v1/exchange-rates:
+ *   get:
+ *     summary: Get exchange rates
+ *     description: Get exchange rates for a base currency
+ *     parameters:
+ *       - in: query
+ *         name: currency
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Base currency code
+ *         example: USD
+ *     responses:
+ *       200:
+ *         description: Exchange rates data
+ *       400:
+ *         description: Missing currency parameter
+ *       500:
+ *         description: Internal server error
+ */
+app.get('/api/v1/exchange-rates', async (req, res) => {
+    try {
+        const { currency } = req.query;
+        if (!currency) {
+            return res.status(400).json({
+                error: 'Currency parameter is required'
+            });
+        }
+        const data = await coinbaseClient.getExchangeRates(currency);
+        res.json(data);
+    }
+    catch (error) {
+        logger.error('Error fetching exchange rates:', error);
+        res.status(500).json({
+            error: 'Failed to fetch exchange rates',
+            message: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+/**
+ * @swagger
+ * /api/v1/assets:
+ *   get:
+ *     summary: Get all available assets
+ *     description: Get list of all available cryptocurrencies and fiat currencies
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search query for asset filtering
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 50
+ *         description: Maximum number of results
+ *     responses:
+ *       200:
+ *         description: List of assets
+ *       500:
+ *         description: Internal server error
+ */
+app.get('/api/v1/assets', async (req, res) => {
+    try {
+        const { search, limit = '50' } = req.query;
+        if (search) {
+            const data = await coinbaseClient.searchAssets(search, parseInt(limit));
+            res.json({ data });
+        }
+        else {
+            const data = await coinbaseClient.getCurrencies();
+            const limitedData = {
+                ...data,
+                data: data.data.slice(0, parseInt(limit))
+            };
+            res.json(limitedData);
+        }
+    }
+    catch (error) {
+        logger.error('Error fetching assets:', error);
+        res.status(500).json({
+            error: 'Failed to fetch assets',
+            message: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+/**
+ * @swagger
+ * /api/v1/assets/{assetId}:
+ *   get:
+ *     summary: Get asset details
+ *     description: Get detailed information about a specific asset
+ *     parameters:
+ *       - in: path
+ *         name: assetId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Asset ID or symbol
+ *         example: BTC
+ *     responses:
+ *       200:
+ *         description: Asset details
+ *       404:
+ *         description: Asset not found
+ *       500:
+ *         description: Internal server error
+ */
+app.get('/api/v1/assets/:assetId', async (req, res) => {
+    try {
+        const { assetId } = req.params;
+        const data = await coinbaseClient.getAssetDetails(assetId);
+        if (!data) {
+            return res.status(404).json({
+                error: 'Asset not found'
+            });
+        }
+        res.json({ data });
+    }
+    catch (error) {
+        logger.error('Error fetching asset details:', error);
+        res.status(500).json({
+            error: 'Failed to fetch asset details',
+            message: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+/**
+ * @swagger
+ * /api/v1/markets/{currencyPair}/stats:
+ *   get:
+ *     summary: Get market statistics
+ *     description: Get 24-hour market statistics for a currency pair
+ *     parameters:
+ *       - in: path
+ *         name: currencyPair
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Currency pair
+ *         example: BTC-USD
+ *     responses:
+ *       200:
+ *         description: Market statistics
+ *       500:
+ *         description: Internal server error
+ */
+app.get('/api/v1/markets/:currencyPair/stats', async (req, res) => {
+    try {
+        const { currencyPair } = req.params;
+        const data = await coinbaseClient.getStats(currencyPair);
+        res.json(data);
+    }
+    catch (error) {
+        logger.error('Error fetching market stats:', error);
+        res.status(500).json({
+            error: 'Failed to fetch market stats',
+            message: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+/**
+ * @swagger
+ * /api/v1/popular-pairs:
+ *   get:
+ *     summary: Get popular trading pairs
+ *     description: Get a list of popular cryptocurrency trading pairs
+ *     responses:
+ *       200:
+ *         description: List of popular trading pairs
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                     example: "BTC-USD"
+ */
+app.get('/api/v1/popular-pairs', async (_req, res) => {
+    try {
+        const data = await coinbaseClient.getPopularPairs();
+        res.json({ data });
+    }
+    catch (error) {
+        logger.error('Error fetching popular pairs:', error);
+        res.status(500).json({
+            error: 'Failed to fetch popular pairs',
+            message: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+/**
+ * @swagger
+ * /api/v1/analysis/{currencyPair}:
+ *   get:
+ *     summary: Analyze price data
+ *     description: Perform technical analysis on cryptocurrency price data
+ *     parameters:
+ *       - in: path
+ *         name: currencyPair
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Currency pair
+ *         example: BTC-USD
+ *       - in: query
+ *         name: period
+ *         schema:
+ *           type: string
+ *           enum: [1d, 7d, 30d, 1y]
+ *           default: 1d
+ *         description: Analysis period
+ *       - in: query
+ *         name: metrics
+ *         schema:
+ *           type: array
+ *           items:
+ *             type: string
+ *             enum: [volatility, trend, support_resistance, volume]
+ *         description: Analysis metrics to include
+ *         style: form
+ *         explode: false
+ *     responses:
+ *       200:
+ *         description: Price analysis results
+ *       500:
+ *         description: Internal server error
+ */
+app.get('/api/v1/analysis/:currencyPair', async (req, res) => {
+    try {
+        const { currencyPair } = req.params;
+        const { period = '1d', metrics } = req.query;
+        const validMetrics = ['volatility', 'trend', 'support_resistance', 'volume'];
+        const metricsArray = metrics
+            ? (Array.isArray(metrics) ? metrics : [metrics]).filter((m) => validMetrics.includes(m))
+            : ['volatility', 'trend'];
+        const data = await coinbaseClient.analyzePriceData(currencyPair, period, metricsArray);
+        res.json({ data });
+    }
+    catch (error) {
+        logger.error('Error analyzing price data:', error);
+        res.status(500).json({
+            error: 'Failed to analyze price data',
+            message: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+// Error handling middleware
+app.use((err, _req, res, _next) => {
+    logger.error('Unhandled error:', err);
+    res.status(500).json({
+        error: 'Internal server error',
+        message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+    });
+});
+// 404 handler
+app.use('*', (req, res) => {
+    res.status(404).json({
+        error: 'Route not found',
+        path: req.originalUrl
+    });
+});
+// Start server
+const server = app.listen(PORT, () => {
+    logger.info(`API Server running on port ${PORT}`);
+    logger.info(`API Documentation available at http://localhost:${PORT}/api-docs`);
+});
+// Graceful shutdown
+process.on('SIGTERM', () => {
+    logger.info('SIGTERM received, shutting down gracefully');
+    server.close(() => {
+        logger.info('Process terminated');
+        process.exit(0);
+    });
+});
+process.on('SIGINT', () => {
+    logger.info('SIGINT received, shutting down gracefully');
+    server.close(() => {
+        logger.info('Process terminated');
+        process.exit(0);
+    });
+});
+export default app;
