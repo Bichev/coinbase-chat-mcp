@@ -16,5 +16,5 @@
       "dest": "/api-server/src/index.ts"
     }
   ],
-  "buildCommand": "cd frontend && npm install && npm run build && cd ../api-server && npm install && npm run build"
+  "buildCommand": "npm run build --workspace=frontend && npm run build --workspace=api-server"
 } 
