@@ -5,22 +5,26 @@
   "installCommand": "npm install",
   "framework": null,
   "functions": {
-    "api/*.js": {
+    "api/server.js": {
       "runtime": "nodejs18.x"
     }
   },
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
+      "src": "/health",
+      "dest": "/api/server.js"
     },
     {
-      "source": "/health",
-      "destination": "/api/health"
+      "src": "/api-docs(.*)",
+      "dest": "/api/server.js"
     },
     {
-      "source": "/(.*)",
-      "destination": "/$1"
+      "src": "/api/(.*)",
+      "dest": "/api/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
     }
   ]
 } 
