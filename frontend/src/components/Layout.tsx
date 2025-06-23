@@ -1,12 +1,8 @@
 import { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
-  ChartBarIcon, 
   CurrencyDollarIcon, 
-  BeakerIcon, 
   CodeBracketIcon,
-  HomeIcon,
-  CubeIcon,
   ChatBubbleLeftRightIcon,
   SparklesIcon,
   BookOpenIcon

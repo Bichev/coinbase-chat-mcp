@@ -3,7 +3,6 @@ import {
   Play, 
   Copy, 
   CheckCircle, 
-  AlertCircle, 
   Code2, 
   Globe, 
   Database,

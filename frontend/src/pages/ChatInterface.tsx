@@ -10,7 +10,7 @@ import {
   ArrowTrendingUpIcon
 } from '@heroicons/react/24/outline';
 import { aiService } from '../services/aiService';
-import { chatSessionService, ChatMessage, ToolCall } from '../services/chatSessionService';
+import { chatSessionService, ChatMessage } from '../services/chatSessionService';
 import ChatSessionHistory from '../components/ChatSessionHistory';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
@@ -36,7 +36,7 @@ const ChatInterface: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Fetch popular pairs for dashboard widgets
-  const { data: popularPairs, isLoading: pairsLoading } = useQuery({
+  const { data: popularPairs } = useQuery({
     queryKey: ['popular-pairs'],
     queryFn: async (): Promise<PopularPairsResponse> => {
       const response = await axios.get(`${API_BASE_URL}/api/v1/popular-pairs`);
