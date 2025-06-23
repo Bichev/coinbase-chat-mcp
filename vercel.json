@@ -1,30 +1,26 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    },
-    {
-      "src": "api/*.js",
-      "use": "@vercel/node"
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm install",
+  "framework": null,
+  "functions": {
+    "api/*.js": {
+      "runtime": "nodejs18.x"
     }
-  ],
-  "routes": [
+  },
+  "rewrites": [
     {
-      "src": "/health",
-      "dest": "/api/health.js"
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
     },
     {
-      "src": "/api/v1/(.*)",
-      "dest": "/api/index.js"
+      "source": "/health",
+      "destination": "/api/health"
     },
     {
-      "src": "/(.*)",
-      "dest": "/dist/$1"
+      "source": "/(.*)",
+      "destination": "/$1"
     }
   ]
 } 
