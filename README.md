@@ -4,7 +4,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3+-blue.svg)](https://www.typescriptlang.org/)
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Compatible-orange.svg)](https://modelcontextprotocol.io/)
 
-A professional-grade, open-source **Model Context Protocol (MCP)** server and web application for seamless integration with Coinbase's public API. This project enables AI agents, LLMs, and developers to interact with cryptocurrency data, market information, and trading insights through a standardized, secure interface.
+An open-source **Model Context Protocol (MCP)** server and web application for seamless integration with Coinbase's public API. This project enables AI agents, LLMs, and developers to interact with cryptocurrency data, market information, and trading insights through a standardized, secure interface.
 
 ## 🌟 Features
 

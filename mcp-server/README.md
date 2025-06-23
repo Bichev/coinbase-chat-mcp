@@ -1,6 +1,6 @@
 # Coinbase MCP Server
 
-A professional Model Context Protocol (MCP) server for Coinbase's public API, enabling AI agents to securely interact with cryptocurrency data.
+A Model Context Protocol (MCP) server for Coinbase's public API, enabling AI agents to securely interact with cryptocurrency data.
 
 ## Overview
 

@@ -14,40 +14,33 @@ import { clsx } from 'clsx';
 
 const navigation = [
   { 
-    name: 'Dashboard', 
-    href: '/', 
-    icon: HomeIcon,
-    description: 'Market overview',
-    gradient: 'from-blue-500 to-indigo-600'
-  },
-  { 
-    name: 'Markets', 
-    href: '/markets', 
-    icon: ChartBarIcon,
-    description: 'Trading data',
-    gradient: 'from-green-500 to-emerald-600'
-  },
-  { 
-    name: 'Assets', 
-    href: '/assets', 
-    icon: CubeIcon,
-    description: 'Crypto assets',
-    gradient: 'from-purple-500 to-violet-600'
-  },
-  { 
-    name: 'Analysis', 
-    href: '/analysis', 
-    icon: BeakerIcon,
-    description: 'Market insights',
-    gradient: 'from-orange-500 to-red-600'
-  },
-  { 
     name: 'MCP Chat', 
-    href: '/chat', 
+    href: '/', 
     icon: ChatBubbleLeftRightIcon,
     description: 'AI conversations',
     gradient: 'from-cyan-500 to-blue-600'
   },
+  // { 
+  //   name: 'Markets', 
+  //   href: '/markets', 
+  //   icon: ChartBarIcon,
+  //   description: 'Trading data',
+  //   gradient: 'from-green-500 to-emerald-600'
+  // },
+  // { 
+  //   name: 'Assets', 
+  //   href: '/assets', 
+  //   icon: CubeIcon,
+  //   description: 'Crypto assets',
+  //   gradient: 'from-purple-500 to-violet-600'
+  // },
+  // { 
+  //   name: 'Analysis', 
+  //   href: '/analysis', 
+  //   icon: BeakerIcon,
+  //   description: 'Market insights',
+  //   gradient: 'from-orange-500 to-red-600'
+  // },
   { 
     name: 'MCP Tester', 
     href: '/mcp-tester', 
@@ -84,7 +77,7 @@ export default function Layout({ children }: LayoutProps) {
             </div>
             <div>
               <h1 className="text-xl font-bold text-white">Coinbase MCP</h1>
-              <p className="text-blue-100 text-xs">Professional Edition</p>
+              <p className="text-blue-100 text-xs">Educational Demo</p>
             </div>
           </div>
         </div>

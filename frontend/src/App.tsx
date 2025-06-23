@@ -29,11 +29,11 @@ function App() {
         <div className="min-h-screen bg-gray-50">
           <Layout>
             <Routes>
-              <Route path="/" element={<Dashboard />} />
+              <Route path="/" element={<ChatInterface />} />
               <Route path="/markets" element={<Markets />} />
               <Route path="/assets" element={<Assets />} />
               <Route path="/analysis" element={<Analysis />} />
-              <Route path="/chat" element={<ChatInterface />} />
+              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/mcp-tester" element={<MCPTester />} />
               <Route path="/api-explorer" element={<APIExplorer />} />
             </Routes>

@@ -67,7 +67,7 @@ export default function Dashboard() {
                 Dashboard
               </h1>
               <p className="text-gray-600 mt-1">
-                Welcome to Coinbase Chat MCP - Your professional cryptocurrency data portal
+                Welcome to Coinbase Chat MCP
               </p>
             </div>
           </div>
