@@ -1,4 +1,4 @@
-// Vercel serverless wrapper for the full Express API server
+// Vercel serverless wrapper for the compiled api-server
 import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -7,17 +7,26 @@ const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Import the built API server
 let app;
 
 try {
-  // Try to import the built TypeScript version
+  // Import the compiled API server
   const apiServerPath = join(__dirname, '..', 'api-server', 'dist', 'index.js');
-  app = (await import(apiServerPath)).default;
-} catch (error) {
-  console.error('Failed to import built API server, falling back to simple implementation:', error);
+  const apiServerModule = await import(apiServerPath);
   
-  // Fallback to simple Express app if the full server fails
+  // Get the Express app (should be the default export)
+  app = apiServerModule.default;
+  
+  if (!app) {
+    throw new Error('No default export found from api-server');
+  }
+  
+  console.log('✅ Successfully loaded api-server');
+  
+} catch (error) {
+  console.error('❌ Failed to load api-server:', error);
+  
+  // Fallback: create a simple Express app
   const express = require('express');
   const cors = require('cors');
   
@@ -25,16 +34,15 @@ try {
   app.use(cors());
   app.use(express.json());
   
-  // Simple health check
   app.get('/health', (req, res) => {
     res.json({
-      status: 'healthy',
+      status: 'fallback',
+      message: 'API server not loaded, using fallback',
       timestamp: new Date().toISOString(),
-      service: 'coinbase-mcp-api-fallback'
+      error: error.message
     });
   });
   
-  // Simple Bitcoin price endpoint
   app.get('/api/v1/prices/:currencyPair/spot', async (req, res) => {
     try {
       const { currencyPair } = req.params;
@@ -49,11 +57,11 @@ try {
     }
   });
   
-  // Fallback for other endpoints
-  app.use('/api/*', (req, res) => {
+  app.use('*', (req, res) => {
     res.status(503).json({
       error: 'API server not fully loaded',
-      message: 'Please try again in a moment'
+      message: 'Using fallback implementation',
+      path: req.originalUrl
     });
   });
 }

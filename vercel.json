@@ -4,22 +4,22 @@
   "outputDirectory": "dist",
   "installCommand": "npm install",
   "functions": {
-    "api/index.ts": {
+    "api/server.js": {
       "runtime": "nodejs18.x"
     }
   },
   "routes": [
     {
       "src": "/health",
-      "dest": "/api/index.ts"
+      "dest": "/api/server.js"
     },
     {
       "src": "/api-docs(.*)",
-      "dest": "/api/index.ts"
+      "dest": "/api/server.js"
     },
     {
       "src": "/api/(.*)",
-      "dest": "/api/index.ts"
+      "dest": "/api/server.js"
     },
     {
       "src": "/(.*)",
