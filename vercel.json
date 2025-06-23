@@ -3,18 +3,18 @@
   "outputDirectory": "dist",
   "installCommand": "npm install",
   "functions": {
-    "api/index.js": {
+    "api/*.js": {
       "runtime": "nodejs18.x"
     }
   },
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/index.js"
+      "source": "/api/v1/(.*)",
+      "destination": "/api/index"
     },
     {
       "source": "/health",
-      "destination": "/api/index.js"
+      "destination": "/api/health"
     }
   ]
 } 
