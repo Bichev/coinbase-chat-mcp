@@ -4,28 +4,36 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3+-blue.svg)](https://www.typescriptlang.org/)
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Compatible-orange.svg)](https://modelcontextprotocol.io/)
 
-A professional-grade, open-source **Model Context Protocol (MCP)** agent for seamless integration with Coinbase's public API. This project enables AI agents and LLMs to interact with cryptocurrency data, market information, and trading insights through a standardized, secure interface.
+A professional-grade, open-source **Model Context Protocol (MCP)** server and web application for seamless integration with Coinbase's public API. This project enables AI agents, LLMs, and developers to interact with cryptocurrency data, market information, and trading insights through a standardized, secure interface.
 
 ## 🌟 Features
 
 ### 🔌 MCP Server
 - **Full MCP Compliance** - Implements complete Model Context Protocol specification
-- **Real-time Data** - Live cryptocurrency prices, market data, and exchange rates
-- **Secure Tools** - Execute Coinbase API queries safely through MCP tools
-- **Rich Resources** - Access historical data, market trends, and asset information
-- **Smart Prompts** - Pre-built prompts for common crypto analysis tasks
+- **8 Powerful Tools** - Real-time prices, historical data, market stats, asset search, and technical analysis
+- **Cursor Integration** - Pre-configured for Cursor IDE with `.cursor/mcp.json`
+- **Claude Desktop Compatible** - Works with any MCP-compatible client
+- **Secure & Fast** - Built-in rate limiting and intelligent caching
 
-### 🚀 API Server
-- **RESTful Endpoints** - Clean, documented API for direct integration
-- **Rate Limiting** - Built-in protection against API abuse
-- **Caching** - Intelligent caching for improved performance
-- **OpenAPI Spec** - Complete API documentation with Swagger UI
+### 💬 Interactive Chat Interface
+- **AI-Powered Conversations** - GPT-4 integration for intelligent crypto discussions
+- **Session Persistence** - Chat history saved across browser tabs and restarts
+- **Session Management** - Create, switch, and manage multiple chat sessions
+- **Auto-Titling** - Sessions automatically titled from first user message
+- **Real-time Sync** - Live updates when switching between sessions
 
-### 💻 Frontend
-- **Modern UI** - Beautiful React-based interface
-- **Real-time Updates** - Live data streaming and WebSocket support
-- **Interactive Charts** - Comprehensive market visualization
-- **Responsive Design** - Works perfectly on desktop and mobile
+### 🚀 API Explorer
+- **Interactive Documentation** - Live testing interface for all 8 MCP tools
+- **Real-time Testing** - Execute API calls directly from the browser
+- **Code Generation** - Auto-generated cURL and JavaScript examples
+- **Copy-to-Clipboard** - Easy code sharing and integration
+- **Comprehensive Coverage** - All endpoints documented with parameters and examples
+
+### 🎨 Modern Frontend
+- **Beautiful UI** - Clean, responsive design with TailwindCSS
+- **Real-time Data** - Live cryptocurrency prices and market updates
+- **Multiple Pages** - Dashboard, Markets, Assets, Analysis, Chat, and API Explorer
+- **Mobile Friendly** - Responsive design works on all devices
 
 ## 🚀 Quick Start
 
@@ -43,74 +51,109 @@ A professional-grade, open-source **Model Context Protocol (MCP)** agent for sea
 
 2. **Install dependencies**
    ```bash
-   npm run install:all
+   npm install
+   # Install dependencies for all workspaces
+   cd mcp-server && npm install && cd ..
+   cd frontend && npm install && cd ..
+   cd api-server && npm install && cd ..
    ```
 
-3. **Start development servers**
+3. **Build the MCP server**
    ```bash
-   npm run dev
+   cd mcp-server
+   npm run build
+   cd ..
    ```
 
-This will start:
-- MCP Server on port 3001
-- API Server on port 3002  
-- Frontend on port 3000
+4. **Start development servers**
+   ```bash
+   # Start API server (port 3002)
+   cd api-server && npm run dev &
+   
+   # Start frontend (port 5173)
+   cd frontend && npm run dev &
+   ```
+
+## 🤖 MCP Integration
+
+### Cursor IDE Setup (Recommended)
+The project includes pre-configured Cursor MCP settings:
+
+1. **Automatic Configuration** - `.cursor/mcp.json` is already configured
+2. **Restart Cursor** - MCP server will auto-load with 8 tools available
+3. **Test Integration** - Try asking: "What's the current Bitcoin price?"
+
+### Claude Desktop Setup
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "coinbase-mcp": {
+      "command": "node",
+      "args": ["/path/to/coinbase-chat-mcp/mcp-server/dist/index.js"],
+      "env": {
+        "COINBASE_API_URL": "https://api.coinbase.com/v2",
+        "LOG_LEVEL": "info"
+      }
+    }
+  }
+}
+```
+
+### Available MCP Tools
+1. **get_spot_price** - Current cryptocurrency prices
+2. **get_historical_prices** - Historical price data with time ranges
+3. **get_exchange_rates** - Fiat currency exchange rates
+4. **search_assets** - Find cryptocurrencies and assets
+5. **get_asset_details** - Detailed asset information
+6. **get_market_stats** - 24-hour market statistics
+7. **get_popular_pairs** - Popular trading pairs
+8. **analyze_price_data** - Technical analysis (volatility, trends, support/resistance)
 
 ## 🏗️ Architecture
 
 ```
 coinbase-chat-mcp/
-├── mcp-server/          # MCP Protocol Server
-├── api-server/          # REST API Server  
-├── frontend/            # React Frontend
-├── docs/                # Documentation
-└── shared/              # Shared utilities
+├── mcp-server/          # MCP Protocol Server (8 tools)
+├── api-server/          # Express REST API Server  
+├── frontend/            # React + TypeScript Frontend
+│   ├── src/pages/       # Dashboard, Chat, API Explorer, etc.
+│   ├── src/components/  # Reusable UI components
+│   └── src/services/    # Chat sessions & AI integration
+├── docs/                # Documentation & MCP setup notes
+└── .cursor/             # Cursor IDE MCP configuration
 ```
 
 ### MCP Server
-The core MCP server exposes Coinbase data through three main MCP primitives:
+The core MCP server exposes Coinbase data through 8 specialized tools:
 
-- **🔧 Tools**: Execute API calls (get prices, search assets, market data)
-- **📄 Resources**: Access static data (asset details, exchange info)  
-- **💬 Prompts**: Pre-built templates for crypto analysis
+- **Price Tools**: Real-time and historical cryptocurrency prices
+- **Market Tools**: Trading statistics and popular pairs
+- **Asset Tools**: Search and detailed asset information  
+- **Analysis Tools**: Technical analysis and market insights
+- **Exchange Tools**: Fiat currency exchange rates
 
-### API Server
-RESTful API providing:
-- `/api/v1/prices` - Current cryptocurrency prices
-- `/api/v1/assets` - Asset information and metadata
-- `/api/v1/markets` - Market data and statistics
-- `/api/v1/exchange-rates` - Fiat exchange rates
-
-### Frontend
+### Frontend Application
 Modern React application featuring:
-- Real-time price dashboard
-- Interactive market charts
-- MCP server testing interface
-- API documentation viewer
+- **Dashboard** - Market overview and price widgets
+- **Chat Interface** - AI-powered crypto conversations with session persistence
+- **API Explorer** - Interactive documentation and testing for all MCP tools
+- **Markets** - Real-time market data and statistics
+- **Assets** - Cryptocurrency search and detailed information
+- **Analysis** - Technical analysis and market insights
 
 ## 🔧 Configuration
 
 ### Environment Variables
-Create `.env` files in each workspace:
+Create `.env` files for AI chat functionality:
 
 ```bash
-# mcp-server/.env
-COINBASE_API_URL=https://api.coinbase.com/v2
-LOG_LEVEL=info
-PORT=3001
-
-# api-server/.env  
-COINBASE_API_URL=https://api.coinbase.com/v2
-REDIS_URL=redis://localhost:6379
-PORT=3002
-
-# frontend/.env
-REACT_APP_API_URL=http://localhost:3002
-REACT_APP_MCP_URL=http://localhost:3001
-
-# For AI-Powered Chat (Optional)
+# frontend/.env (Optional - for AI chat)
 VITE_OPENAI_API_KEY=your_openai_api_key_here
 ```
+
+**Security Note**: The frontend includes built-in warnings about client-side API key usage and only enables AI features in development mode.
 
 ### 🤖 AI Chat Setup (Optional)
 To enable the AI-powered chat interface:
@@ -120,91 +163,100 @@ To enable the AI-powered chat interface:
    ```bash
    VITE_OPENAI_API_KEY=sk-your-actual-api-key-here
    ```
-3. **Restart the frontend**: The chat will now use GPT-4 for intelligent responses!
+3. **Restart the frontend**: Chat will use GPT-4 for intelligent crypto discussions!
 
-**Note**: Without the API key, the chat interface will show a helpful message and fallback to basic functionality.
+**Note**: Without the API key, the chat interface provides a helpful setup message and basic functionality.
 
-## 📚 Usage
+## 📚 Usage Examples
 
-### With MCP Clients
+### MCP Tools in Cursor/Claude
+```
+User: "What's the current Bitcoin price?"
+Response: Current BTC-USD price: $100,608.65 USD
 
-The server is compatible with any MCP client. For Claude Desktop:
+User: "Show me Ethereum's price trend over the last 7 days"
+Response: [Historical price data with analysis]
 
-1. Add to your Claude Desktop config:
-   ```json
-   {
-     "mcpServers": {
-       "coinbase": {
-         "command": "node",
-         "args": ["path/to/coinbase-chat-mcp/mcp-server/dist/index.js"],
-         "env": {}
-       }
-     }
-   }
-   ```
+User: "Analyze Bitcoin's volatility this month"
+Response: [Technical analysis with volatility metrics]
+```
 
-2. Restart Claude Desktop and start using Coinbase tools!
+### Frontend Web Application
+- **Visit**: `http://localhost:5173`
+- **Chat**: Persistent conversations with session management
+- **API Explorer**: Test all 8 MCP tools interactively
+- **Dashboard**: Real-time market overview
+- **Markets**: Detailed trading statistics
 
 ### Direct API Usage
-
 ```bash
 # Get current Bitcoin price
 curl http://localhost:3002/api/v1/prices/BTC-USD
 
-# List available cryptocurrencies  
-curl http://localhost:3002/api/v1/assets
-
-# Get market data
-curl http://localhost:3002/api/v1/markets/BTC-USD/stats
-```
-
-### Programmatic Usage
-
-```typescript
-import { CoinbaseMCPServer } from './mcp-server/src/index.js';
-
-const server = new CoinbaseMCPServer({
-  name: 'coinbase-mcp',
-  version: '1.0.0'
-});
-
-await server.start();
+# Search for assets
+curl http://localhost:3002/api/v1/assets/search?query=bitcoin
 ```
 
 ## 🛠️ Development
 
-### Scripts
-- `npm run dev` - Start all services in development mode
-- `npm run build` - Build all packages for production
-- `npm run test` - Run test suites
-- `npm run lint` - Lint all code
-- `npm run clean` - Clean build artifacts
+### Key Features Implemented
+- ✅ **MCP Server** - 8 tools, full protocol compliance
+- ✅ **Cursor Integration** - Pre-configured MCP setup
+- ✅ **Chat Sessions** - Persistent conversations with localStorage
+- ✅ **API Explorer** - Interactive documentation for all tools
+- ✅ **Session Management** - Create, switch, delete chat sessions
+- ✅ **AI Integration** - GPT-4 powered conversations
+- ✅ **Security** - Client-side API key warnings and protections
+
+### Development Scripts
+```bash
+# Build MCP server
+cd mcp-server && npm run build
+
+# Start API server (development)
+cd api-server && npm run dev
+
+# Start frontend (development)  
+cd frontend && npm run dev
+
+# Test MCP server
+cd mcp-server && npm test
+```
 
 ### Project Structure
-Each workspace is independently managed:
-- **mcp-server/**: TypeScript MCP server implementation
+- **mcp-server/**: TypeScript MCP server with 8 Coinbase tools
 - **api-server/**: Express.js REST API server
-- **frontend/**: React + TypeScript frontend
-- **shared/**: Common utilities and types
-
-### Testing
-```bash
-# Test MCP server
-npm run test --workspace=mcp-server
-
-# Test API endpoints  
-npm run test --workspace=api-server
-
-# Test frontend components
-npm run test --workspace=frontend
-```
+- **frontend/**: React + TypeScript with TailwindCSS
+- **docs/**: MCP setup notes and documentation
+- **.cursor/**: Cursor IDE MCP configuration
 
 ## 📖 Documentation
 
-- **[MCP Server Documentation](./mcp-server/README.md)** - Detailed MCP implementation guide
-- **[API Documentation](./api-server/README.md)** - REST API reference
-- **[Frontend Guide](./frontend/README.md)** - UI development guide  
-- **[Deployment Guide](./docs/deployment.md)** - Production deployment instructions
+- **[MCP Setup Notes](./MCP_SETUP_NOTES.md)** - Complete MCP integration guide
+- **[API Explorer](http://localhost:5173/api-explorer)** - Interactive tool documentation
+- **[Contributing Guide](./CONTRIBUTING.md)** - Development contribution guidelines
+
+## ✨ Recent Updates
+
+### Chat Session Management
+- Persistent chat sessions across browser tabs
+- Session history with auto-titling
+- Real-time session switching
+- localStorage-based persistence
+- Observer pattern for live updates
+
+### API Explorer
+- Interactive testing for all 8 MCP tools
+- Real-time API responses
+- Code generation (cURL, JavaScript)
+- Copy-to-clipboard functionality
+- Comprehensive parameter documentation
+
+### Cursor MCP Integration
+- Pre-configured `.cursor/mcp.json`
+- Auto-loading of 8 MCP tools
+- Ready-to-use cryptocurrency queries
+- Professional development workflow
 
 ## 🤝 Contributing
 
@@ -218,16 +270,19 @@ We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md)
 
 ## 📋 Roadmap
 
-- [ ] **v1.1**: Advanced charting and technical indicators
-- [ ] **v1.2**: WebSocket real-time streaming
-- [ ] **v1.3**: Portfolio tracking (public data only)
-- [ ] **v1.4**: DeFi protocol integration
+- [x] **v1.0**: Core MCP server with 8 tools
+- [x] **v1.1**: Chat session persistence
+- [x] **v1.2**: Interactive API explorer
+- [x] **v1.3**: Cursor IDE integration
+- [ ] **v1.4**: WebSocket real-time streaming
+- [ ] **v1.5**: Advanced charting and technical indicators
 - [ ] **v2.0**: Multi-exchange support
 
 ## 🐛 Known Issues
 
-- Rate limiting on Coinbase public API may affect real-time features
-- Some historical data requires pagination for large datasets
+- Rate limiting on Coinbase public API (60 requests/hour for some endpoints)
+- Chat sessions limited to localStorage (10 sessions max for performance)
+- Client-side API keys should only be used in development
 
 ## 📄 License
 
@@ -237,14 +292,17 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [Model Context Protocol](https://modelcontextprotocol.io/) team for the excellent specification
 - [Coinbase](https://coinbase.com/) for providing robust public APIs
+- [Cursor](https://cursor.sh/) for excellent MCP integration
 - The open-source community for invaluable tools and libraries
 
 ## 📞 Support
 
 - 🐛 **Bug Reports**: [GitHub Issues](https://github.com/your-username/coinbase-chat-mcp/issues)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/your-username/coinbase-chat-mcp/discussions)
-- 📧 **Email**: support@your-domain.com
+- 📧 **Questions**: Create an issue with the "question" label
 
 ---
 
 **Made with ❤️ for the crypto and AI communities**
+
+*Successfully tested with Bitcoin at $100,608.65 - MCP integration working perfectly! 🚀*

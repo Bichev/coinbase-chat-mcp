@@ -1,0 +1,3735 @@
+Directory structure:
+└── msfeldstein-mcp-test-servers/
+    ├── README.md
+    ├── package.json
+    ├── pnpm-lock.yaml
+    ├── .npmrc
+    ├── src/
+    │   ├── all-types-server.js
+    │   ├── bad-param-server.js
+    │   ├── big-response-server.js
+    │   ├── broken-tool-server.js
+    │   ├── cli.js
+    │   ├── combined-server.js
+    │   ├── crash-on-startup-server.js
+    │   ├── duplicate-names-server.js
+    │   ├── dynamic-tools-server.js
+    │   ├── enum-param-server.js
+    │   ├── env-check-server.js
+    │   ├── env-echo-server.js
+    │   ├── file-ops-server.js
+    │   ├── headers-server.py
+    │   ├── http-ping-server.js
+    │   ├── image-server.js
+    │   ├── long-description-server.js
+    │   ├── long-running-server.js
+    │   ├── many-resources-server.js
+    │   ├── many-tools-server.js
+    │   ├── math-server.js
+    │   ├── named-server.js
+    │   ├── number-param-server.js
+    │   ├── oauth-ping-server.js
+    │   ├── optional-param-server.js
+    │   ├── pattern-param-server.js
+    │   ├── ping-server.js
+    │   ├── resource-server.js
+    │   ├── root-echo-server.js
+    │   ├── shell-exec-server.js
+    │   ├── sse-notification-stream.js
+    │   ├── sse-ping-server.js
+    │   ├── stderr-server.js
+    │   └── stdout-server.js
+    └── .cursor/
+        └── rules/
+            ├── create-server.mdc
+            └── .gitignore
+
+================================================
+FILE: README.md
+================================================
+# MCP Test Servers
+
+A collection of test servers implementing the Model Context Protocol (MCP).
+
+```
+npx -y @msfeldstein/mcp-test-servers <server>
+```
+
+## Available Servers
+
+- `all-types`: Demonstrates various tool parameter types supported by MCP
+- `bad-param`: Server with an intentionally malformed parameter name
+- `big-response`: Server that returns large responses
+- `broken-tool`: Server with intentionally broken tool
+- `crash-on-startup`: Server that crashes on startup
+- `combined`: Server with tools and resources
+- `duplicate-names`: Server with duplicate names for resources
+- `enum-param`: Tool has enum string parameter
+- `env-check`: Checks for SHOULD_RUN environment variable being passed properly
+- `env-echo`: Echoes the environment variables
+- `image`: Tool returns an image of sonic the hedgehog
+- `long-description`: Publicize a very long description configured via env var
+- `long-running`: Server that sends progress notifications every 2 seconds for a 20-second task
+- `many-resources`: Server with multiple resources
+- `many-tools`: Server with 100 tools that each return 'ack'
+- `math`: Server with basic math function tools (add, subtract, multiply, divide, power, sqrt, factorial)
+- `named`: Server with configurable name via MCP_SERVER_NAME environment variable
+- `number-param`: Tool with a number parameter
+- `optional-param`: Tool has an optional param
+- `pattern-param`: Tool has a parameter with a pattern match
+- `ping`: A simple server that responds with 'pong'
+- `resource`: Resource server implementation
+- `roots-echo`: Server that demonstrates MCP roots functionality by echoing back the roots provided by the client
+- `stderr`: Server that logs to stderr
+- `stdout` Servert that illegally logs to stdout
+
+# Remote Servers
+
+```
+# Streamable HTTP
+npm run http-ping
+
+# SSE
+npm run sse-ping
+```
+
+
+
+================================================
+FILE: package.json
+================================================
+{
+  "name": "@msfeldstein/mcp-test-servers",
+  "version": "1.1.57",
+  "type": "module",
+  "bin": {
+    "mcp-test-servers": "./src/cli.js"
+  },
+  "scripts": {
+    "oauth-ping": "node src/oauth-ping-server.js",
+    "http-ping": "node src/http-ping-server.js",
+    "sse-ping": "node src/sse-ping-server.js",
+    "sse-notification-stream": "node src/sse-notification-stream.js",
+    "bump-and-publish": "git commit -a -m 'publish' && npm version patch && git push && npm publish"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol"
+  ],
+  "author": "Michael Feldstein",
+  "license": "ISC",
+  "description": "A collection of MCP test servers including working servers (ping, resource, combined, env-echo) and test failure cases (broken-tool, crash-on-startup)",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.10.1",
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
+
+
+
+================================================
+FILE: pnpm-lock.yaml
+================================================
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      '@modelcontextprotocol/sdk':
+        specifier: ^1.10.1
+        version: 1.10.2
+      cors:
+        specifier: ^2.8.5
+        version: 2.8.5
+      express:
+        specifier: ^4.21.2
+        version: 4.21.2
+
+packages:
+
+  '@modelcontextprotocol/sdk@1.10.2':
+    resolution: {integrity: sha512-rb6AMp2DR4SN+kc6L1ta2NCpApyA9WYNx3CrTSZvGxq9wH71bRur+zRqPfg0vQ9mjywR7qZdX2RGHOPq3ss+tA==}
+    engines: {node: '>=18'}
+
+  accepts@1.3.8:
+    resolution: {integrity: sha512-PYAthTa2m2VKxuvSD3DPC/Gy+U+sOA1LAuT8mkmRuvw+NACSaeXEQ+NHcVF7rONl6qcaxV3Uuemwawk+7+SJLw==}
+    engines: {node: '>= 0.6'}
+
+  accepts@2.0.0:
+    resolution: {integrity: sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng==}
+    engines: {node: '>= 0.6'}
+
+  array-flatten@1.1.1:
+    resolution: {integrity: sha512-PCVAQswWemu6UdxsDFFX/+gVeYqKAod3D3UVm91jHwynguOwAvYPhx8nNlM++NqRcK6CxxpUafjmhIdKiHibqg==}
+
+  body-parser@1.20.3:
+    resolution: {integrity: sha512-7rAxByjUMqQ3/bHJy7D6OGXvx/MMc4IqBn/X0fcM1QUcAItpZrBEYhWGem+tzXH90c+G01ypMcYJBO9Y30203g==}
+    engines: {node: '>= 0.8', npm: 1.2.8000 || >= 1.4.16}
+
+  body-parser@2.2.0:
+    resolution: {integrity: sha512-02qvAaxv8tp7fBa/mw1ga98OGm+eCbqzJOKoRt70sLmfEEi+jyBYVTDGfCL/k06/4EMk/z01gCe7HoCH/f2LTg==}
+    engines: {node: '>=18'}
+
+  bytes@3.1.2:
+    resolution: {integrity: sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==}
+    engines: {node: '>= 0.8'}
+
+  call-bind-apply-helpers@1.0.2:
+    resolution: {integrity: sha512-Sp1ablJ0ivDkSzjcaJdxEunN5/XvksFJ2sMBFfq6x0ryhQV/2b/KwFe21cMpmHtPOSij8K99/wSfoEuTObmuMQ==}
+    engines: {node: '>= 0.4'}
+
+  call-bound@1.0.4:
+    resolution: {integrity: sha512-+ys997U96po4Kx/ABpBCqhA9EuxJaQWDQg7295H4hBphv3IZg0boBKuwYpt4YXp6MZ5AmZQnU/tyMTlRpaSejg==}
+    engines: {node: '>= 0.4'}
+
+  content-disposition@0.5.4:
+    resolution: {integrity: sha512-FveZTNuGw04cxlAiWbzi6zTAL/lhehaWbTtgluJh4/E95DqMwTmha3KZN1aAWA8cFIhHzMZUvLevkw5Rqk+tSQ==}
+    engines: {node: '>= 0.6'}
+
+  content-disposition@1.0.0:
+    resolution: {integrity: sha512-Au9nRL8VNUut/XSzbQA38+M78dzP4D+eqg3gfJHMIHHYa3bg067xj1KxMUWj+VULbiZMowKngFFbKczUrNJ1mg==}
+    engines: {node: '>= 0.6'}
+
+  content-type@1.0.5:
+    resolution: {integrity: sha512-nTjqfcBFEipKdXCv4YDQWCfmcLZKm81ldF0pAopTvyrFGVbcR6P/VAAd5G7N+0tTr8QqiU0tFadD6FK4NtJwOA==}
+    engines: {node: '>= 0.6'}
+
+  cookie-signature@1.0.6:
+    resolution: {integrity: sha512-QADzlaHc8icV8I7vbaJXJwod9HWYp8uCqf1xa4OfNu1T7JVxQIrUgOWtHdNDtPiywmFbiS12VjotIXLrKM3orQ==}
+
+  cookie-signature@1.2.2:
+    resolution: {integrity: sha512-D76uU73ulSXrD1UXF4KE2TMxVVwhsnCgfAyTg9k8P6KGZjlXKrOLe4dJQKI3Bxi5wjesZoFXJWElNWBjPZMbhg==}
+    engines: {node: '>=6.6.0'}
+
+  cookie@0.7.1:
+    resolution: {integrity: sha512-6DnInpx7SJ2AK3+CTUE/ZM0vWTUboZCegxhC2xiIydHR9jNuTAASBrfEpHhiGOZw/nX51bHt6YQl8jsGo4y/0w==}
+    engines: {node: '>= 0.6'}
+
+  cookie@0.7.2:
+    resolution: {integrity: sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w==}
+    engines: {node: '>= 0.6'}
+
+  cors@2.8.5:
+    resolution: {integrity: sha512-KIHbLJqu73RGr/hnbrO9uBeixNGuvSQjul/jdFvS/KFSIH1hWVd1ng7zOHx+YrEfInLG7q4n6GHQ9cDtxv/P6g==}
+    engines: {node: '>= 0.10'}
+
+  cross-spawn@7.0.6:
+    resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
+    engines: {node: '>= 8'}
+
+  debug@2.6.9:
+    resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+
+  debug@4.4.0:
+    resolution: {integrity: sha512-6WTZ/IxCY/T6BALoZHaE4ctp9xm+Z5kY/pzYaCHRFeyVhojxlrm+46y68HA6hr0TcwEssoxNiDEUJQjfPZ/RYA==}
+    engines: {node: '>=6.0'}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+
+  depd@2.0.0:
+    resolution: {integrity: sha512-g7nH6P6dyDioJogAAGprGpCtVImJhpPk/roCzdb3fIh61/s/nPsfR6onyMwkCAR/OlC3yBC0lESvUoQEAssIrw==}
+    engines: {node: '>= 0.8'}
+
+  destroy@1.2.0:
+    resolution: {integrity: sha512-2sJGJTaXIIaR1w4iJSNoN0hnMY7Gpc/n8D4qSCJw8QqFWXf7cuAgnEHxBpweaVcPevC2l3KpjYCx3NypQQgaJg==}
+    engines: {node: '>= 0.8', npm: 1.2.8000 || >= 1.4.16}
+
+  dunder-proto@1.0.1:
+    resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
+    engines: {node: '>= 0.4'}
+
+  ee-first@1.1.1:
+    resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
+
+  encodeurl@1.0.2:
+    resolution: {integrity: sha512-TPJXq8JqFaVYm2CWmPvnP2Iyo4ZSM7/QKcSmuMLDObfpH5fi7RUGmd/rTDf+rut/saiDiQEeVTNgAmJEdAOx0w==}
+    engines: {node: '>= 0.8'}
+
+  encodeurl@2.0.0:
+    resolution: {integrity: sha512-Q0n9HRi4m6JuGIV1eFlmvJB7ZEVxu93IrMyiMsGC0lrMJMWzRgx6WGquyfQgZVb31vhGgXnfmPNNXmxnOkRBrg==}
+    engines: {node: '>= 0.8'}
+
+  es-define-property@1.0.1:
+    resolution: {integrity: sha512-e3nRfgfUZ4rNGL232gUgX06QNyyez04KdjFrF+LTRoOXmrOgFKDg4BCdsjW8EnT69eqdYGmRpJwiPVYNrCaW3g==}
+    engines: {node: '>= 0.4'}
+
+  es-errors@1.3.0:
+    resolution: {integrity: sha512-Zf5H2Kxt2xjTvbJvP2ZWLEICxA6j+hAmMzIlypy4xcBg1vKVnx89Wy0GbS+kf5cwCVFFzdCFh2XSCFNULS6csw==}
+    engines: {node: '>= 0.4'}
+
+  es-object-atoms@1.1.1:
+    resolution: {integrity: sha512-FGgH2h8zKNim9ljj7dankFPcICIK9Cp5bm+c2gQSYePhpaG5+esrLODihIorn+Pe6FGJzWhXQotPv73jTaldXA==}
+    engines: {node: '>= 0.4'}
+
+  escape-html@1.0.3:
+    resolution: {integrity: sha512-NiSupZ4OeuGwr68lGIeym/ksIZMJodUGOSCZ/FSnTxcrekbvqrgdUxlJOMpijaKZVjAJrWrGs/6Jy8OMuyj9ow==}
+
+  etag@1.8.1:
+    resolution: {integrity: sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==}
+    engines: {node: '>= 0.6'}
+
+  eventsource-parser@3.0.1:
+    resolution: {integrity: sha512-VARTJ9CYeuQYb0pZEPbzi740OWFgpHe7AYJ2WFZVnUDUQp5Dk2yJUgF36YsZ81cOyxT0QxmXD2EQpapAouzWVA==}
+    engines: {node: '>=18.0.0'}
+
+  eventsource@3.0.6:
+    resolution: {integrity: sha512-l19WpE2m9hSuyP06+FbuUUf1G+R0SFLrtQfbRb9PRr+oimOfxQhgGCbVaXg5IvZyyTThJsxh6L/srkMiCeBPDA==}
+    engines: {node: '>=18.0.0'}
+
+  express-rate-limit@7.5.0:
+    resolution: {integrity: sha512-eB5zbQh5h+VenMPM3fh+nw1YExi5nMr6HUCR62ELSP11huvxm/Uir1H1QEyTkk5QX6A58pX6NmaTMceKZ0Eodg==}
+    engines: {node: '>= 16'}
+    peerDependencies:
+      express: ^4.11 || 5 || ^5.0.0-beta.1
+
+  express@4.21.2:
+    resolution: {integrity: sha512-28HqgMZAmih1Czt9ny7qr6ek2qddF4FclbMzwhCREB6OFfH+rXAnuNCwo1/wFvrtbgsQDb4kSbX9de9lFbrXnA==}
+    engines: {node: '>= 0.10.0'}
+
+  express@5.1.0:
+    resolution: {integrity: sha512-DT9ck5YIRU+8GYzzU5kT3eHGA5iL+1Zd0EutOmTE9Dtk+Tvuzd23VBU+ec7HPNSTxXYO55gPV/hq4pSBJDjFpA==}
+    engines: {node: '>= 18'}
+
+  finalhandler@1.3.1:
+    resolution: {integrity: sha512-6BN9trH7bp3qvnrRyzsBz+g3lZxTNZTbVO2EV1CS0WIcDbawYVdYvGflME/9QP0h0pYlCDBCTjYa9nZzMDpyxQ==}
+    engines: {node: '>= 0.8'}
+
+  finalhandler@2.1.0:
+    resolution: {integrity: sha512-/t88Ty3d5JWQbWYgaOGCCYfXRwV1+be02WqYYlL6h0lEiUAMPM8o8qKGO01YIkOHzka2up08wvgYD0mDiI+q3Q==}
+    engines: {node: '>= 0.8'}
+
+  forwarded@0.2.0:
+    resolution: {integrity: sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow==}
+    engines: {node: '>= 0.6'}
+
+  fresh@0.5.2:
+    resolution: {integrity: sha512-zJ2mQYM18rEFOudeV4GShTGIQ7RbzA7ozbU9I/XBpm7kqgMywgmylMwXHxZJmkVoYkna9d2pVXVXPdYTP9ej8Q==}
+    engines: {node: '>= 0.6'}
+
+  fresh@2.0.0:
+    resolution: {integrity: sha512-Rx/WycZ60HOaqLKAi6cHRKKI7zxWbJ31MhntmtwMoaTeF7XFH9hhBp8vITaMidfljRQ6eYWCKkaTK+ykVJHP2A==}
+    engines: {node: '>= 0.8'}
+
+  function-bind@1.1.2:
+    resolution: {integrity: sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==}
+
+  get-intrinsic@1.3.0:
+    resolution: {integrity: sha512-9fSjSaos/fRIVIp+xSJlE6lfwhES7LNtKaCBIamHsjr2na1BiABJPo0mOjjz8GJDURarmCPGqaiVg5mfjb98CQ==}
+    engines: {node: '>= 0.4'}
+
+  get-proto@1.0.1:
+    resolution: {integrity: sha512-sTSfBjoXBp89JvIKIefqw7U2CCebsc74kiY6awiGogKtoSGbgjYE/G/+l9sF3MWFPNc9IcoOC4ODfKHfxFmp0g==}
+    engines: {node: '>= 0.4'}
+
+  gopd@1.2.0:
+    resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
+    engines: {node: '>= 0.4'}
+
+  has-symbols@1.1.0:
+    resolution: {integrity: sha512-1cDNdwJ2Jaohmb3sg4OmKaMBwuC48sYni5HUw2DvsC8LjGTLK9h+eb1X6RyuOHe4hT0ULCW68iomhjUoKUqlPQ==}
+    engines: {node: '>= 0.4'}
+
+  hasown@2.0.2:
+    resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
+    engines: {node: '>= 0.4'}
+
+  http-errors@2.0.0:
+    resolution: {integrity: sha512-FtwrG/euBzaEjYeRqOgly7G0qviiXoJWnvEH2Z1plBdXgbyjv34pHTSb9zoeHMyDy33+DWy5Wt9Wo+TURtOYSQ==}
+    engines: {node: '>= 0.8'}
+
+  iconv-lite@0.4.24:
+    resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
+    engines: {node: '>=0.10.0'}
+
+  iconv-lite@0.6.3:
+    resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
+    engines: {node: '>=0.10.0'}
+
+  inherits@2.0.4:
+    resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
+
+  ipaddr.js@1.9.1:
+    resolution: {integrity: sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g==}
+    engines: {node: '>= 0.10'}
+
+  is-promise@4.0.0:
+    resolution: {integrity: sha512-hvpoI6korhJMnej285dSg6nu1+e6uxs7zG3BYAm5byqDsgJNWwxzM6z6iZiAgQR4TJ30JmBTOwqZUw3WlyH3AQ==}
+
+  isexe@2.0.0:
+    resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
+
+  math-intrinsics@1.1.0:
+    resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
+    engines: {node: '>= 0.4'}
+
+  media-typer@0.3.0:
+    resolution: {integrity: sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==}
+    engines: {node: '>= 0.6'}
+
+  media-typer@1.1.0:
+    resolution: {integrity: sha512-aisnrDP4GNe06UcKFnV5bfMNPBUw4jsLGaWwWfnH3v02GnBuXX2MCVn5RbrWo0j3pczUilYblq7fQ7Nw2t5XKw==}
+    engines: {node: '>= 0.8'}
+
+  merge-descriptors@1.0.3:
+    resolution: {integrity: sha512-gaNvAS7TZ897/rVaZ0nMtAyxNyi/pdbjbAwUpFQpN70GqnVfOiXpeUUMKRBmzXaSQ8DdTX4/0ms62r2K+hE6mQ==}
+
+  merge-descriptors@2.0.0:
+    resolution: {integrity: sha512-Snk314V5ayFLhp3fkUREub6WtjBfPdCPY1Ln8/8munuLuiYhsABgBVWsozAG+MWMbVEvcdcpbi9R7ww22l9Q3g==}
+    engines: {node: '>=18'}
+
+  methods@1.1.2:
+    resolution: {integrity: sha512-iclAHeNqNm68zFtnZ0e+1L2yUIdvzNoauKU4WBA3VvH/vPFieF7qfRlwUZU+DA9P9bPXIS90ulxoUoCH23sV2w==}
+    engines: {node: '>= 0.6'}
+
+  mime-db@1.52.0:
+    resolution: {integrity: sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==}
+    engines: {node: '>= 0.6'}
+
+  mime-db@1.54.0:
+    resolution: {integrity: sha512-aU5EJuIN2WDemCcAp2vFBfp/m4EAhWJnUNSSw0ixs7/kXbd6Pg64EmwJkNdFhB8aWt1sH2CTXrLxo/iAGV3oPQ==}
+    engines: {node: '>= 0.6'}
+
+  mime-types@2.1.35:
+    resolution: {integrity: sha512-ZDY+bPm5zTTF+YpCrAU9nK0UgICYPT0QtT1NZWFv4s++TNkcgVaT0g6+4R2uI4MjQjzysHB1zxuWL50hzaeXiw==}
+    engines: {node: '>= 0.6'}
+
+  mime-types@3.0.1:
+    resolution: {integrity: sha512-xRc4oEhT6eaBpU1XF7AjpOFD+xQmXNB5OVKwp4tqCuBpHLS/ZbBDrc07mYTDqVMg6PfxUjjNp85O6Cd2Z/5HWA==}
+    engines: {node: '>= 0.6'}
+
+  mime@1.6.0:
+    resolution: {integrity: sha512-x0Vn8spI+wuJ1O6S7gnbaQg8Pxh4NNHb7KSINmEWKiPE4RKOplvijn+NkmYmmRgP68mc70j2EbeTFRsrswaQeg==}
+    engines: {node: '>=4'}
+    hasBin: true
+
+  ms@2.0.0:
+    resolution: {integrity: sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==}
+
+  ms@2.1.3:
+    resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
+
+  negotiator@0.6.3:
+    resolution: {integrity: sha512-+EUsqGPLsM+j/zdChZjsnX51g4XrHFOIXwfnCVPGlQk/k5giakcKsuxCObBRu6DSm9opw/O6slWbJdghQM4bBg==}
+    engines: {node: '>= 0.6'}
+
+  negotiator@1.0.0:
+    resolution: {integrity: sha512-8Ofs/AUQh8MaEcrlq5xOX0CQ9ypTF5dl78mjlMNfOK08fzpgTHQRQPBxcPlEtIw0yRpws+Zo/3r+5WRby7u3Gg==}
+    engines: {node: '>= 0.6'}
+
+  object-assign@4.1.1:
+    resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}
+    engines: {node: '>=0.10.0'}
+
+  object-inspect@1.13.4:
+    resolution: {integrity: sha512-W67iLl4J2EXEGTbfeHCffrjDfitvLANg0UlX3wFUUSTx92KXRFegMHUVgSqE+wvhAbi4WqjGg9czysTV2Epbew==}
+    engines: {node: '>= 0.4'}
+
+  on-finished@2.4.1:
+    resolution: {integrity: sha512-oVlzkg3ENAhCk2zdv7IJwd/QUD4z2RxRwpkcGY8psCVcCYZNq4wYnVWALHM+brtuJjePWiYF/ClmuDr8Ch5+kg==}
+    engines: {node: '>= 0.8'}
+
+  once@1.4.0:
+    resolution: {integrity: sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==}
+
+  parseurl@1.3.3:
+    resolution: {integrity: sha512-CiyeOxFT/JZyN5m0z9PfXw4SCBJ6Sygz1Dpl0wqjlhDEGGBP1GnsUVEL0p63hoG1fcj3fHynXi9NYO4nWOL+qQ==}
+    engines: {node: '>= 0.8'}
+
+  path-key@3.1.1:
+    resolution: {integrity: sha512-ojmeN0qd+y0jszEtoY48r0Peq5dwMEkIlCOu6Q5f41lfkswXuKtYrhgoTpLnyIcHm24Uhqx+5Tqm2InSwLhE6Q==}
+    engines: {node: '>=8'}
+
+  path-to-regexp@0.1.12:
+    resolution: {integrity: sha512-RA1GjUVMnvYFxuqovrEqZoxxW5NUZqbwKtYz/Tt7nXerk0LbLblQmrsgdeOxV5SFHf0UDggjS/bSeOZwt1pmEQ==}
+
+  path-to-regexp@8.2.0:
+    resolution: {integrity: sha512-TdrF7fW9Rphjq4RjrW0Kp2AW0Ahwu9sRGTkS6bvDi0SCwZlEZYmcfDbEsTz8RVk0EHIS/Vd1bv3JhG+1xZuAyQ==}
+    engines: {node: '>=16'}
+
+  pkce-challenge@5.0.0:
+    resolution: {integrity: sha512-ueGLflrrnvwB3xuo/uGob5pd5FN7l0MsLf0Z87o/UQmRtwjvfylfc9MurIxRAWywCYTgrvpXBcqjV4OfCYGCIQ==}
+    engines: {node: '>=16.20.0'}
+
+  proxy-addr@2.0.7:
+    resolution: {integrity: sha512-llQsMLSUDUPT44jdrU/O37qlnifitDP+ZwrmmZcoSKyLKvtZxpyV0n2/bD/N4tBAAZ/gJEdZU7KMraoK1+XYAg==}
+    engines: {node: '>= 0.10'}
+
+  qs@6.13.0:
+    resolution: {integrity: sha512-+38qI9SOr8tfZ4QmJNplMUxqjbe7LKvvZgWdExBOmd+egZTtjLB67Gu0HRX3u/XOq7UU2Nx6nsjvS16Z9uwfpg==}
+    engines: {node: '>=0.6'}
+
+  qs@6.14.0:
+    resolution: {integrity: sha512-YWWTjgABSKcvs/nWBi9PycY/JiPJqOD4JA6o9Sej2AtvSGarXxKC3OQSk4pAarbdQlKAh5D4FCQkJNkW+GAn3w==}
+    engines: {node: '>=0.6'}
+
+  range-parser@1.2.1:
+    resolution: {integrity: sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==}
+    engines: {node: '>= 0.6'}
+
+  raw-body@2.5.2:
+    resolution: {integrity: sha512-8zGqypfENjCIqGhgXToC8aB2r7YrBX+AQAfIPs/Mlk+BtPTztOvTS01NRW/3Eh60J+a48lt8qsCzirQ6loCVfA==}
+    engines: {node: '>= 0.8'}
+
+  raw-body@3.0.0:
+    resolution: {integrity: sha512-RmkhL8CAyCRPXCE28MMH0z2PNWQBNk2Q09ZdxM9IOOXwxwZbN+qbWaatPkdkWIKL2ZVDImrN/pK5HTRz2PcS4g==}
+    engines: {node: '>= 0.8'}
+
+  router@2.2.0:
+    resolution: {integrity: sha512-nLTrUKm2UyiL7rlhapu/Zl45FwNgkZGaCpZbIHajDYgwlJCOzLSk+cIPAnsEqV955GjILJnKbdQC1nVPz+gAYQ==}
+    engines: {node: '>= 18'}
+
+  safe-buffer@5.2.1:
+    resolution: {integrity: sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==}
+
+  safer-buffer@2.1.2:
+    resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
+
+  send@0.19.0:
+    resolution: {integrity: sha512-dW41u5VfLXu8SJh5bwRmyYUbAoSB3c9uQh6L8h/KtsFREPWpbX1lrljJo186Jc4nmci/sGUZ9a0a0J2zgfq2hw==}
+    engines: {node: '>= 0.8.0'}
+
+  send@1.2.0:
+    resolution: {integrity: sha512-uaW0WwXKpL9blXE2o0bRhoL2EGXIrZxQ2ZQ4mgcfoBxdFmQold+qWsD2jLrfZ0trjKL6vOw0j//eAwcALFjKSw==}
+    engines: {node: '>= 18'}
+
+  serve-static@1.16.2:
+    resolution: {integrity: sha512-VqpjJZKadQB/PEbEwvFdO43Ax5dFBZ2UECszz8bQ7pi7wt//PWe1P6MN7eCnjsatYtBT6EuiClbjSWP2WrIoTw==}
+    engines: {node: '>= 0.8.0'}
+
+  serve-static@2.2.0:
+    resolution: {integrity: sha512-61g9pCh0Vnh7IutZjtLGGpTA355+OPn2TyDv/6ivP2h/AdAVX9azsoxmg2/M6nZeQZNYBEwIcsne1mJd9oQItQ==}
+    engines: {node: '>= 18'}
+
+  setprototypeof@1.2.0:
+    resolution: {integrity: sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==}
+
+  shebang-command@2.0.0:
+    resolution: {integrity: sha512-kHxr2zZpYtdmrN1qDjrrX/Z1rR1kG8Dx+gkpK1G4eXmvXswmcE1hTWBWYUzlraYw1/yZp6YuDY77YtvbN0dmDA==}
+    engines: {node: '>=8'}
+
+  shebang-regex@3.0.0:
+    resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
+    engines: {node: '>=8'}
+
+  side-channel-list@1.0.0:
+    resolution: {integrity: sha512-FCLHtRD/gnpCiCHEiJLOwdmFP+wzCmDEkc9y7NsYxeF4u7Btsn1ZuwgwJGxImImHicJArLP4R0yX4c2KCrMrTA==}
+    engines: {node: '>= 0.4'}
+
+  side-channel-map@1.0.1:
+    resolution: {integrity: sha512-VCjCNfgMsby3tTdo02nbjtM/ewra6jPHmpThenkTYh8pG9ucZ/1P8So4u4FGBek/BjpOVsDCMoLA/iuBKIFXRA==}
+    engines: {node: '>= 0.4'}
+
+  side-channel-weakmap@1.0.2:
+    resolution: {integrity: sha512-WPS/HvHQTYnHisLo9McqBHOJk2FkHO/tlpvldyrnem4aeQp4hai3gythswg6p01oSoTl58rcpiFAjF2br2Ak2A==}
+    engines: {node: '>= 0.4'}
+
+  side-channel@1.1.0:
+    resolution: {integrity: sha512-ZX99e6tRweoUXqR+VBrslhda51Nh5MTQwou5tnUDgbtyM0dBgmhEDtWGP/xbKn6hqfPRHujUNwz5fy/wbbhnpw==}
+    engines: {node: '>= 0.4'}
+
+  statuses@2.0.1:
+    resolution: {integrity: sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==}
+    engines: {node: '>= 0.8'}
+
+  toidentifier@1.0.1:
+    resolution: {integrity: sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==}
+    engines: {node: '>=0.6'}
+
+  type-is@1.6.18:
+    resolution: {integrity: sha512-TkRKr9sUTxEH8MdfuCSP7VizJyzRNMjj2J2do2Jr3Kym598JVdEksuzPQCnlFPW4ky9Q+iA+ma9BGm06XQBy8g==}
+    engines: {node: '>= 0.6'}
+
+  type-is@2.0.1:
+    resolution: {integrity: sha512-OZs6gsjF4vMp32qrCbiVSkrFmXtG/AZhY3t0iAMrMBiAZyV9oALtXO8hsrHbMXF9x6L3grlFuwW2oAz7cav+Gw==}
+    engines: {node: '>= 0.6'}
+
+  unpipe@1.0.0:
+    resolution: {integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==}
+    engines: {node: '>= 0.8'}
+
+  utils-merge@1.0.1:
+    resolution: {integrity: sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==}
+    engines: {node: '>= 0.4.0'}
+
+  vary@1.1.2:
+    resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
+    engines: {node: '>= 0.8'}
+
+  which@2.0.2:
+    resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}
+    engines: {node: '>= 8'}
+    hasBin: true
+
+  wrappy@1.0.2:
+    resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
+
+  zod-to-json-schema@3.24.5:
+    resolution: {integrity: sha512-/AuWwMP+YqiPbsJx5D6TfgRTc4kTLjsh5SOcd4bLsfUg2RcEXrFMJl1DGgdHy2aCfsIA/cr/1JM0xcB2GZji8g==}
+    peerDependencies:
+      zod: ^3.24.1
+
+  zod@3.24.3:
+    resolution: {integrity: sha512-HhY1oqzWCQWuUqvBFnsyrtZRhyPeR7SUGv+C4+MsisMuVfSPx8HpwWqH8tRahSlt6M3PiFAcoeFhZAqIXTxoSg==}
+
+snapshots:
+
+  '@modelcontextprotocol/sdk@1.10.2':
+    dependencies:
+      content-type: 1.0.5
+      cors: 2.8.5
+      cross-spawn: 7.0.6
+      eventsource: 3.0.6
+      express: 5.1.0
+      express-rate-limit: 7.5.0(express@5.1.0)
+      pkce-challenge: 5.0.0
+      raw-body: 3.0.0
+      zod: 3.24.3
+      zod-to-json-schema: 3.24.5(zod@3.24.3)
+    transitivePeerDependencies:
+      - supports-color
+
+  accepts@1.3.8:
+    dependencies:
+      mime-types: 2.1.35
+      negotiator: 0.6.3
+
+  accepts@2.0.0:
+    dependencies:
+      mime-types: 3.0.1
+      negotiator: 1.0.0
+
+  array-flatten@1.1.1: {}
+
+  body-parser@1.20.3:
+    dependencies:
+      bytes: 3.1.2
+      content-type: 1.0.5
+      debug: 2.6.9
+      depd: 2.0.0
+      destroy: 1.2.0
+      http-errors: 2.0.0
+      iconv-lite: 0.4.24
+      on-finished: 2.4.1
+      qs: 6.13.0
+      raw-body: 2.5.2
+      type-is: 1.6.18
+      unpipe: 1.0.0
+    transitivePeerDependencies:
+      - supports-color
+
+  body-parser@2.2.0:
+    dependencies:
+      bytes: 3.1.2
+      content-type: 1.0.5
+      debug: 4.4.0
+      http-errors: 2.0.0
+      iconv-lite: 0.6.3
+      on-finished: 2.4.1
+      qs: 6.14.0
+      raw-body: 3.0.0
+      type-is: 2.0.1
+    transitivePeerDependencies:
+      - supports-color
+
+  bytes@3.1.2: {}
+
+  call-bind-apply-helpers@1.0.2:
+    dependencies:
+      es-errors: 1.3.0
+      function-bind: 1.1.2
+
+  call-bound@1.0.4:
+    dependencies:
+      call-bind-apply-helpers: 1.0.2
+      get-intrinsic: 1.3.0
+
+  content-disposition@0.5.4:
+    dependencies:
+      safe-buffer: 5.2.1
+
+  content-disposition@1.0.0:
+    dependencies:
+      safe-buffer: 5.2.1
+
+  content-type@1.0.5: {}
+
+  cookie-signature@1.0.6: {}
+
+  cookie-signature@1.2.2: {}
+
+  cookie@0.7.1: {}
+
+  cookie@0.7.2: {}
+
+  cors@2.8.5:
+    dependencies:
+      object-assign: 4.1.1
+      vary: 1.1.2
+
+  cross-spawn@7.0.6:
+    dependencies:
+      path-key: 3.1.1
+      shebang-command: 2.0.0
+      which: 2.0.2
+
+  debug@2.6.9:
+    dependencies:
+      ms: 2.0.0
+
+  debug@4.4.0:
+    dependencies:
+      ms: 2.1.3
+
+  depd@2.0.0: {}
+
+  destroy@1.2.0: {}
+
+  dunder-proto@1.0.1:
+    dependencies:
+      call-bind-apply-helpers: 1.0.2
+      es-errors: 1.3.0
+      gopd: 1.2.0
+
+  ee-first@1.1.1: {}
+
+  encodeurl@1.0.2: {}
+
+  encodeurl@2.0.0: {}
+
+  es-define-property@1.0.1: {}
+
+  es-errors@1.3.0: {}
+
+  es-object-atoms@1.1.1:
+    dependencies:
+      es-errors: 1.3.0
+
+  escape-html@1.0.3: {}
+
+  etag@1.8.1: {}
+
+  eventsource-parser@3.0.1: {}
+
+  eventsource@3.0.6:
+    dependencies:
+      eventsource-parser: 3.0.1
+
+  express-rate-limit@7.5.0(express@5.1.0):
+    dependencies:
+      express: 5.1.0
+
+  express@4.21.2:
+    dependencies:
+      accepts: 1.3.8
+      array-flatten: 1.1.1
+      body-parser: 1.20.3
+      content-disposition: 0.5.4
+      content-type: 1.0.5
+      cookie: 0.7.1
+      cookie-signature: 1.0.6
+      debug: 2.6.9
+      depd: 2.0.0
+      encodeurl: 2.0.0
+      escape-html: 1.0.3
+      etag: 1.8.1
+      finalhandler: 1.3.1
+      fresh: 0.5.2
+      http-errors: 2.0.0
+      merge-descriptors: 1.0.3
+      methods: 1.1.2
+      on-finished: 2.4.1
+      parseurl: 1.3.3
+      path-to-regexp: 0.1.12
+      proxy-addr: 2.0.7
+      qs: 6.13.0
+      range-parser: 1.2.1
+      safe-buffer: 5.2.1
+      send: 0.19.0
+      serve-static: 1.16.2
+      setprototypeof: 1.2.0
+      statuses: 2.0.1
+      type-is: 1.6.18
+      utils-merge: 1.0.1
+      vary: 1.1.2
+    transitivePeerDependencies:
+      - supports-color
+
+  express@5.1.0:
+    dependencies:
+      accepts: 2.0.0
+      body-parser: 2.2.0
+      content-disposition: 1.0.0
+      content-type: 1.0.5
+      cookie: 0.7.2
+      cookie-signature: 1.2.2
+      debug: 4.4.0
+      encodeurl: 2.0.0
+      escape-html: 1.0.3
+      etag: 1.8.1
+      finalhandler: 2.1.0
+      fresh: 2.0.0
+      http-errors: 2.0.0
+      merge-descriptors: 2.0.0
+      mime-types: 3.0.1
+      on-finished: 2.4.1
+      once: 1.4.0
+      parseurl: 1.3.3
+      proxy-addr: 2.0.7
+      qs: 6.14.0
+      range-parser: 1.2.1
+      router: 2.2.0
+      send: 1.2.0
+      serve-static: 2.2.0
+      statuses: 2.0.1
+      type-is: 2.0.1
+      vary: 1.1.2
+    transitivePeerDependencies:
+      - supports-color
+
+  finalhandler@1.3.1:
+    dependencies:
+      debug: 2.6.9
+      encodeurl: 2.0.0
+      escape-html: 1.0.3
+      on-finished: 2.4.1
+      parseurl: 1.3.3
+      statuses: 2.0.1
+      unpipe: 1.0.0
+    transitivePeerDependencies:
+      - supports-color
+
+  finalhandler@2.1.0:
+    dependencies:
+      debug: 4.4.0
+      encodeurl: 2.0.0
+      escape-html: 1.0.3
+      on-finished: 2.4.1
+      parseurl: 1.3.3
+      statuses: 2.0.1
+    transitivePeerDependencies:
+      - supports-color
+
+  forwarded@0.2.0: {}
+
+  fresh@0.5.2: {}
+
+  fresh@2.0.0: {}
+
+  function-bind@1.1.2: {}
+
+  get-intrinsic@1.3.0:
+    dependencies:
+      call-bind-apply-helpers: 1.0.2
+      es-define-property: 1.0.1
+      es-errors: 1.3.0
+      es-object-atoms: 1.1.1
+      function-bind: 1.1.2
+      get-proto: 1.0.1
+      gopd: 1.2.0
+      has-symbols: 1.1.0
+      hasown: 2.0.2
+      math-intrinsics: 1.1.0
+
+  get-proto@1.0.1:
+    dependencies:
+      dunder-proto: 1.0.1
+      es-object-atoms: 1.1.1
+
+  gopd@1.2.0: {}
+
+  has-symbols@1.1.0: {}
+
+  hasown@2.0.2:
+    dependencies:
+      function-bind: 1.1.2
+
+  http-errors@2.0.0:
+    dependencies:
+      depd: 2.0.0
+      inherits: 2.0.4
+      setprototypeof: 1.2.0
+      statuses: 2.0.1
+      toidentifier: 1.0.1
+
+  iconv-lite@0.4.24:
+    dependencies:
+      safer-buffer: 2.1.2
+
+  iconv-lite@0.6.3:
+    dependencies:
+      safer-buffer: 2.1.2
+
+  inherits@2.0.4: {}
+
+  ipaddr.js@1.9.1: {}
+
+  is-promise@4.0.0: {}
+
+  isexe@2.0.0: {}
+
+  math-intrinsics@1.1.0: {}
+
+  media-typer@0.3.0: {}
+
+  media-typer@1.1.0: {}
+
+  merge-descriptors@1.0.3: {}
+
+  merge-descriptors@2.0.0: {}
+
+  methods@1.1.2: {}
+
+  mime-db@1.52.0: {}
+
+  mime-db@1.54.0: {}
+
+  mime-types@2.1.35:
+    dependencies:
+      mime-db: 1.52.0
+
+  mime-types@3.0.1:
+    dependencies:
+      mime-db: 1.54.0
+
+  mime@1.6.0: {}
+
+  ms@2.0.0: {}
+
+  ms@2.1.3: {}
+
+  negotiator@0.6.3: {}
+
+  negotiator@1.0.0: {}
+
+  object-assign@4.1.1: {}
+
+  object-inspect@1.13.4: {}
+
+  on-finished@2.4.1:
+    dependencies:
+      ee-first: 1.1.1
+
+  once@1.4.0:
+    dependencies:
+      wrappy: 1.0.2
+
+  parseurl@1.3.3: {}
+
+  path-key@3.1.1: {}
+
+  path-to-regexp@0.1.12: {}
+
+  path-to-regexp@8.2.0: {}
+
+  pkce-challenge@5.0.0: {}
+
+  proxy-addr@2.0.7:
+    dependencies:
+      forwarded: 0.2.0
+      ipaddr.js: 1.9.1
+
+  qs@6.13.0:
+    dependencies:
+      side-channel: 1.1.0
+
+  qs@6.14.0:
+    dependencies:
+      side-channel: 1.1.0
+
+  range-parser@1.2.1: {}
+
+  raw-body@2.5.2:
+    dependencies:
+      bytes: 3.1.2
+      http-errors: 2.0.0
+      iconv-lite: 0.4.24
+      unpipe: 1.0.0
+
+  raw-body@3.0.0:
+    dependencies:
+      bytes: 3.1.2
+      http-errors: 2.0.0
+      iconv-lite: 0.6.3
+      unpipe: 1.0.0
+
+  router@2.2.0:
+    dependencies:
+      debug: 4.4.0
+      depd: 2.0.0
+      is-promise: 4.0.0
+      parseurl: 1.3.3
+      path-to-regexp: 8.2.0
+    transitivePeerDependencies:
+      - supports-color
+
+  safe-buffer@5.2.1: {}
+
+  safer-buffer@2.1.2: {}
+
+  send@0.19.0:
+    dependencies:
+      debug: 2.6.9
+      depd: 2.0.0
+      destroy: 1.2.0
+      encodeurl: 1.0.2
+      escape-html: 1.0.3
+      etag: 1.8.1
+      fresh: 0.5.2
+      http-errors: 2.0.0
+      mime: 1.6.0
+      ms: 2.1.3
+      on-finished: 2.4.1
+      range-parser: 1.2.1
+      statuses: 2.0.1
+    transitivePeerDependencies:
+      - supports-color
+
+  send@1.2.0:
+    dependencies:
+      debug: 4.4.0
+      encodeurl: 2.0.0
+      escape-html: 1.0.3
+      etag: 1.8.1
+      fresh: 2.0.0
+      http-errors: 2.0.0
+      mime-types: 3.0.1
+      ms: 2.1.3
+      on-finished: 2.4.1
+      range-parser: 1.2.1
+      statuses: 2.0.1
+    transitivePeerDependencies:
+      - supports-color
+
+  serve-static@1.16.2:
+    dependencies:
+      encodeurl: 2.0.0
+      escape-html: 1.0.3
+      parseurl: 1.3.3
+      send: 0.19.0
+    transitivePeerDependencies:
+      - supports-color
+
+  serve-static@2.2.0:
+    dependencies:
+      encodeurl: 2.0.0
+      escape-html: 1.0.3
+      parseurl: 1.3.3
+      send: 1.2.0
+    transitivePeerDependencies:
+      - supports-color
+
+  setprototypeof@1.2.0: {}
+
+  shebang-command@2.0.0:
+    dependencies:
+      shebang-regex: 3.0.0
+
+  shebang-regex@3.0.0: {}
+
+  side-channel-list@1.0.0:
+    dependencies:
+      es-errors: 1.3.0
+      object-inspect: 1.13.4
+
+  side-channel-map@1.0.1:
+    dependencies:
+      call-bound: 1.0.4
+      es-errors: 1.3.0
+      get-intrinsic: 1.3.0
+      object-inspect: 1.13.4
+
+  side-channel-weakmap@1.0.2:
+    dependencies:
+      call-bound: 1.0.4
+      es-errors: 1.3.0
+      get-intrinsic: 1.3.0
+      object-inspect: 1.13.4
+      side-channel-map: 1.0.1
+
+  side-channel@1.1.0:
+    dependencies:
+      es-errors: 1.3.0
+      object-inspect: 1.13.4
+      side-channel-list: 1.0.0
+      side-channel-map: 1.0.1
+      side-channel-weakmap: 1.0.2
+
+  statuses@2.0.1: {}
+
+  toidentifier@1.0.1: {}
+
+  type-is@1.6.18:
+    dependencies:
+      media-typer: 0.3.0
+      mime-types: 2.1.35
+
+  type-is@2.0.1:
+    dependencies:
+      content-type: 1.0.5
+      media-typer: 1.1.0
+      mime-types: 3.0.1
+
+  unpipe@1.0.0: {}
+
+  utils-merge@1.0.1: {}
+
+  vary@1.1.2: {}
+
+  which@2.0.2:
+    dependencies:
+      isexe: 2.0.0
+
+  wrappy@1.0.2: {}
+
+  zod-to-json-schema@3.24.5(zod@3.24.3):
+    dependencies:
+      zod: 3.24.3
+
+  zod@3.24.3: {}
+
+
+
+================================================
+FILE: .npmrc
+================================================
+engine-strict=true
+prefer-pnpm=true
+auto-install-peers=true
+shamefully-hoist=true
+strict-peer-dependencies=true
+use-node-version=18
+package-manager=pnpm@8.15.5
+use-pnpm=true 
+
+
+================================================
+FILE: src/all-types-server.js
+================================================
+#!/usr/bin/env node
+
+// Import required dependencies from the MCP SDK and Zod for schema validation
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+
+// Define a nested object schema that will be used as part of the main parameters
+// This demonstrates how to handle complex nested data structures
+const nestedObjectSchema = z.object({
+  nestedString: z.string().describe("A nested string property"),
+  nestedNumber: z.number().describe("A nested number property"),
+  nestedBoolean: z.boolean().describe("A nested boolean property"),
+});
+
+// Define the main parameter schema using Zod
+// This schema demonstrates all the supported parameter types in MCP:
+// - Basic types (string, number, boolean)
+// - Arrays
+// - Nested objects
+// - Enums
+// - Optional parameters
+const allTypesParamsSchema = z.object({
+  requiredString: z.string().describe("A required string parameter"),
+  requiredInteger: z.number().int().describe("A required integer parameter"),
+  requiredNumber: z.number().describe("A required number (float/decimal) parameter"),
+  requiredBoolean: z.boolean().describe("A required boolean parameter"),
+  requiredStringArray: z.array(z.string()).describe("A required array of strings"),
+  requiredNumberArray: z.array(z.number()).describe("A required array of numbers"),
+  requiredObject: nestedObjectSchema.describe("A required object with nested properties"),
+  requiredEnum: z.enum(["option1", "option2", "option3"]).describe("A required enum parameter"),
+  optionalString: z.string().optional().describe("An optional string parameter"),
+  optionalNumber: z.number().optional().describe("An optional number parameter"),
+});
+
+// Initialize the MCP server with metadata and tool capabilities
+// The server is configured to expose a single tool that demonstrates all parameter types
+const server = new McpServer(
+  {
+    name: "all-types-server",
+    version: "1.0.0",
+    capabilities: {
+      tools: {
+        "all_types_tool": {
+          description: "A tool demonstrating various supported parameter types",
+          parameters: allTypesParamsSchema, // Use Zod schema directly for capabilities
+        },
+      },
+    },
+  }
+);
+
+// Register the tool implementation
+// This handler simply echoes back the received parameters to demonstrate
+// that they were correctly parsed according to the schema
+server.tool(
+  "all_types_tool",
+  allTypesParamsSchema,
+  async (params) => {
+    // Simply return the received parameters to demonstrate they were parsed correctly
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Received parameters: ${JSON.stringify(params, null, 2)}`,
+        },
+      ],
+    };
+  }
+);
+
+// Start the server using stdio transport
+// This allows the server to communicate with clients through standard input/output
+await server.connect(new StdioServerTransport());
+
+
+
+================================================
+FILE: src/bad-param-server.js
+================================================
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+// Create a new MCP server with stdio transport
+const server = new McpServer({
+  name: "bad-param-server",
+  version: "1.0.0",
+  capabilities: {
+    tools: {
+      "bad-param": {
+        description: "A simple tool that returns 'pong'",
+        parameters: {
+          type: "object",
+          properties: {},
+          required: [],
+        },
+      },
+    },
+  },
+});
+
+// Register the ping tool
+server.tool(
+  "bad-param",
+  {
+    ["bad%%^Param"]: z
+      .string()
+      .describe("The bad param name"),
+  },
+  async (params) => {
+    return {
+      content: [
+        {
+          type: "text",
+          text: "pong",
+        },
+      ],
+    };
+  }
+);
+
+// Connect to the transport and start the server
+await server.connect(new StdioServerTransport());
+
+// This server implements basic ping and echo functionality with configurable response delays
+
+
+
+================================================
+FILE: src/big-response-server.js
+================================================
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+
+/**
+ * MCP server that can generate a random string of a specified length
+ */
+const server = new McpServer(
+  {
+    name: "big-response-server",
+    version: "1.0.1",
+    capabilities: {
+      tools: {
+        "generate_big_response": {
+          description: "Generates a random string of specified length",
+          parameters: {
+            type: "object",
+            properties: {
+              stringLength: {
+                type: "integer",
+                description: "The length of the random string to generate"
+              }
+            },
+            required: ['stringLength']
+          }
+        }
+      }
+    }
+  }
+);
+
+/**
+ * Generates a random string of a specified length
+ * @param {number} length - The length of the random string to generate
+ * @returns {string} The generated random string
+ */
+function generateRandomString(length) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+}
+
+/**
+ * Register the generate_big_response tool
+ */
+server.tool("generate_big_response", {
+  stringLength: z.number().int().positive().describe("The length of the random string to generate")
+}, async (params) => {
+  const randomString = generateRandomString(params.stringLength);
+  
+  return {
+    content: [{
+      type: "text",
+      text: `Generated random string of length ${params.stringLength}:\n${randomString}`
+    }]
+  };
+});
+
+await server.connect(new StdioServerTransport()); 
+
+
+================================================
+FILE: src/broken-tool-server.js
+================================================
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+
+// Create a new MCP server with stdio transport
+const server = new McpServer(
+  {
+    name: "broken-tool-server",
+    version: "1.0.0",
+    capabilities: {
+      tools: {}
+    }
+  }
+);
+
+// Register a tool that crashes when called
+server.tool("crash", async (params) => {
+  // Simulate a crash by throwing an error
+  throw new Error("This tool is intentionally broken!");
+});
+
+// Connect to the transport and start the server
+await server.connect(new StdioServerTransport());
+
+
+================================================
+FILE: src/cli.js
+================================================
+#!/usr/bin/env node
+
+const serverType = process.argv[2];
+
+if (!serverType) {
+  console.error('Please specify a server type - ping, resource, combined, broken-tool, crash-on-startup, env-check, env-echo, many-resources, duplicate-names, image, big-response, date, time, many-tools, named, long-description, enum-param, number-param, all-types, pattern-param, stdout, math, long-running');
+  console.error('Example: npx @msfeldstein/mcp-test-servers ping');
+  process.exit(1);
+}
+
+switch (serverType) {
+  case 'all-types':
+    import('./all-types-server.js');
+    break;
+  case 'bad-param':
+    import('./bad-param-server.js');
+    break;
+  case 'big-response':
+    import('./big-response-server.js');
+    break;
+  case 'broken-tool':
+    import('./broken-tool-server.js');
+    break;
+  case 'crash-on-startup':
+    import('./crash-on-startup-server.js');
+    break;
+  case 'combined':
+    import('./combined-server.js');
+    break;
+  case 'duplicate-names':
+    import('./duplicate-names-server.js');
+    break;
+  case 'enum-param':
+    import('./enum-param-server.js');
+    break;
+  case 'env-check':
+    import('./env-check-server.js');
+    break;
+  case 'env-echo':
+    import('./env-echo-server.js');
+    break;
+  case 'image':
+    import('./image-server.js');
+    break;
+  case 'long-description':
+    import('./long-description-server.js');
+    break;
+  case 'long-running':
+    import('./long-running-server.js');
+    break;
+  case 'many-resources':
+    import('./many-resources-server.js');
+    break;
+  case 'many-tools':
+    import('./many-tools-server.js');
+    break;
+  case 'math':
+    import('./math-server.js');
+    break;
+  case 'named':
+    import('./named-server.js');
+    break;
+  case 'number-param':
+    import('./number-param-server.js');
+    break;
+  case 'optional-param':
+    import('./optional-param-server.js');
+    break;
+  case 'pattern-param':
+    import('./pattern-param-server.js');
+    break;
+  case 'ping':
+    import('./ping-server.js');
+    break;
+  case 'resource':
+    import('./resource-server.js');
+    break;
+  case 'stderr':
+    import('./stderr-server.js');
+    break;
+  case 'stdout':
+    import('./stdout-server.js');
+    break;
+  case 'dynamic-tools':
+    import('./dynamic-tools-server.js');
+    break;
+  case 'root-echo':
+    import('./root-echo-server.js');
+    break;
+  default:
+    console.error('Unknown server type:', serverType);
+    process.exit(1);
+} 
+
+
+================================================
+FILE: src/combined-server.js
+================================================
+#!/usr/bin/env node
+
+/**
+ * @fileoverview A combined MCP server implementation that provides a ping tool and a hello world resource.
+ */
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+
+/**
+ * @type {McpServer}
+ * @description Creates a new MCP server instance with basic capabilities
+ */
+const server = new McpServer(
+  {
+    name: "combined-server",
+    version: "1.0.0",
+    capabilities: {
+      tools: {
+        fizzbuzz: {
+          description: "Generates a FIZZY sequence up to the specified number",
+          parameters: {
+            type: "object",
+            properties: {
+                  limit: {
+                    type: "number",
+                    description: "The upper limit for the FIZZY sequence"
+              }
+            },
+            required: ["limit"]
+          }
+        }
+      }
+    }
+  }
+);
+
+/**
+ * @function
+ * @name ping
+ * @description A simple ping tool that responds with "pong"
+ * @param {Object} params - The parameters passed to the tool (unused)
+ * @returns {Promise<Object>} A promise that resolves to an object containing the response
+ */
+server.tool("ping", async (params) => {
+  return {
+    content: [{
+      type: "text",
+      text: "pong"
+    }]
+  };
+});
+
+/**
+ * @function
+ * @name fizzbuzz
+ * @description Generates a FizzBuzz sequence up to the specified number
+ * @param {Object} params - The parameters containing the upper limit
+ * @returns {Promise<Object>} A promise that resolves to an object containing the FizzBuzz sequence
+ */
+server.tool("fizzbuzz", async (params) => {
+  const limit = params.limit;
+  const result = [];
+  
+  for (let i = 1; i <= limit; i++) {
+    let output = "";
+    if (i % 3 === 0) output += "Fizz";
+    if (i % 5 === 0) output += "Buzz";
+    result.push(output || i.toString());
+  }
+
+  return {
+    content: [{
+      type: "text",
+      text: result.join("\n")
+    }]
+  };
+});
+
+/**
+ * @description Registers a simple "Hello World" resource with the server
+ * @type {Resource}
+ */
+server.resource(
+  "Hello World Text",
+  "test://hello.txt",
+  {
+    description: "A simple test file containing 'Hello, world'",
+    mimeType: "text/plain"
+  },
+  async () => ({
+    contents: [
+      {
+        uri: "test://hello.txt",
+        mimeType: "text/plain",
+        text: "Hello, world"
+      }
+    ]
+  })
+);
+
+await server.connect(new StdioServerTransport()); 
+
+
+================================================
+FILE: src/crash-on-startup-server.js
+================================================
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+
+// Immediately throw an error during module initialization
+throw new Error("Server crashed during startup!");
+
+// The code below will never be reached
+const server = new McpServer(
+  {
+    name: "crash-on-startup-server",
+    version: "1.0.0",
+    capabilities: {
+      tools: {}
+    }
+  }
+);
+
+await server.connect(new StdioServerTransport()); 
+
+
+================================================
+FILE: src/duplicate-names-server.js
+================================================
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+
+// Create a new MCP server with stdio transport
+const server = new McpServer(
+  {
+    name: "duplicate-names-server",
+    version: "1.0.0"
+  }
+);
+
+// Create sets of resources with duplicate names
+const duplicateNames = [
+  "Common Resource",
+  "Duplicate File",
+  "Same Name Different Content"
+];
+
+duplicateNames.forEach((name, nameIndex) => {
+  // Create 3 resources for each name
+  for (let i = 1; i <= 3; i++) {
+    server.resource(
+      name,
+      `test://duplicate${nameIndex + 1}_${i}.txt`,
+      {
+        description: `Resource ${i} of 3 with name "${name}"`,
+        mimeType: "text/plain"
+      },
+      async () => ({
+        contents: [
+          {
+            uri: `test://duplicate${nameIndex + 1}_${i}.txt`,
+            mimeType: "text/plain",
+            text: `This is version ${i} of the resource named "${name}". Each resource shares the same name but has unique content and URI.`
+          }
+        ]
+      })
+    );
+  }
+});
+
+// Connect to the transport and start the server
+await server.connect(new StdioServerTransport()); 
+
+
+================================================
+FILE: src/dynamic-tools-server.js
+================================================
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+
+// Create a new MCP server with stdio transport
+const server = new McpServer(
+    {
+        name: "dynamic-tools-server",
+        version: "1.0.0",
+        capabilities: {
+            tools: {
+                "enableTools": {
+                    description: "Enable the optional tool",
+                    parameters: {
+                        type: "object",
+                        properties: {},
+                        required: []
+                    }
+                }
+            }
+        }
+    }
+);
+
+// Register the optional tool dynamically
+const optionalTool = server.tool("optionalTool", {
+    message: z.string().optional().describe("Optional message to include with hello")
+}, async (params) => {
+    const message = params?.message ? ` ${params.message}` : "";
+    return {
+        content: [{
+            type: "text",
+            text: `hello${message}`
+        }]
+    };
+});
+optionalTool.disable();
+
+// Register the enableTools tool - this is always available
+server.tool("toggleTool", async (params) => {
+    if (optionalTool.enabled) {
+        optionalTool.disable()
+    } else {
+        optionalTool.enable();
+    }
+
+    return {
+        content: [{
+            type: "text",
+            text: `Success! The 'optionalTool' has been ${optionalTool.enabled ? "enabled" : "disabled"}.`
+        }]
+    };
+});
+
+// Connect to the transport and start the server
+await server.connect(new StdioServerTransport());
+
+// This server demonstrates dynamic tool management where tools can be enabled at runtime 
+
+
+================================================
+FILE: src/enum-param-server.js
+================================================
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+
+// Create a new MCP server with stdio transport and a tool for searching Stripe documentation
+const server = new McpServer(
+  {
+    name: "enum-param-server",
+    version: "1.0.0",
+    capabilities: {
+      tools: {
+        "search_documentation": {
+          description: "Search the Stripe documentation for the given question and language.\n\n    It takes two arguments:\n      ...",
+          parameters: {
+            type: "object",
+            properties: {
+              question: {
+                type: "string",
+                description: "The user question about integrating with Stripe will be used to search the documentation."
+              },
+              language: {
+                type: "string",
+                enum: ["dotnet", "go", "java", "node", "php", "ruby", "python", "curl"],
+                description: "The programming language to search for in the the documentation."
+              }
+            },
+            required: ["question"]
+          }
+        }
+      }
+    }
+  }
+);
+
+// Register the search_documentation tool with a zod enum schema
+server.tool(
+  "search_documentation",
+  {
+    question: z.string().describe("The user question about integrating with Stripe will be used to search the documentation."),
+    language: z.enum(["dotnet", "go", "java", "node", "php", "ruby", "python", "curl"]).describe("The programming language to search for in the the documentation.")
+  },
+  async (params) => {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Question: ${params.question}` + (params.language ? `, Language: ${params.language}` : "")
+        }
+      ]
+    };
+  }
+);
+
+// Connect to the transport and start the server
+await server.connect(new StdioServerTransport());
+
+// This server demonstrates a search_documentation tool with enum type parameter. 
+
+
+================================================
+FILE: src/env-check-server.js
+================================================
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+
+// Check environment variable before proceeding
+if (process.env.SHOULD_RUN !== "true") {
+  throw new Error("SHOULD_RUN environment variable must be set to 'true' to start this server");
+}
+
+// Create a new MCP server with stdio transport
+const server = new McpServer(
+  {
+    name: "env-check-server",
+    version: "1.0.0",
+    capabilities: {
+      tools: {}
+    }
+  }
+);
+
+// Register a simple tool to show the server is running
+server.tool("status", async (params) => {
+  return {
+    content: [{
+      type: "text",
+      text: "Server is running with SHOULD_RUN=true"
+    }]
+  };
+});
+
+// Connect to the transport and start the server
+await server.connect(new StdioServerTransport()); 
+
+
+================================================
+FILE: src/env-echo-server.js
+================================================
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+
+// Create a new MCP server with stdio transport
+const server = new McpServer(
+  {
+    name: "env-echo-server",
+    version: "1.0.0",
+    capabilities: {
+      tools: {}
+    }
+  }
+);
+
+// Register a tool that returns all environment variables
+server.tool("env_echo", async (params) => {
+  // Convert process.env object to a formatted string
+  const envString = Object.entries(process.env)
+    .map(([key, value]) => `${key}=${value}`)
+    .join('\n');
+
+  return {
+    content: [{
+      type: "text",
+      text: `Current environment variables:\n${envString}`
+    }]
+  };
+});
+
+// Connect to the transport and start the server
+await server.connect(new StdioServerTransport()); 
+
+
+================================================
+FILE: src/file-ops-server.js
+================================================
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import fs from 'fs/promises';
+import path from 'path';
+
+const server = new McpServer(
+  {
+    name: "file-ops-server",
+    version: "1.0.0",
+    capabilities: {
+      tools: {
+        readFile: {
+          description: "Read contents of a file",
+          parameters: {
+            type: "object",
+            properties: {
+              filePath: {
+                type: "string",
+                description: "Path to the file to read"
+              }
+            },
+            required: ["filePath"]
+          },
+          async handler(params) {
+            try {
+              const content = await fs.readFile(params.filePath, 'utf-8');
+              return { content };
+            } catch (error) {
+              throw new Error(`Failed to read file: ${error.message}`);
+            }
+          }
+        },
+        writeFile: {
+          description: "Write content to a file",
+          parameters: {
+            type: "object",
+            properties: {
+              filePath: {
+                type: "string",
+                description: "Path to write the file to"
+              },
+              content: {
+                type: "string",
+                description: "Content to write to the file"
+              }
+            },
+            required: ["filePath", "content"]
+          },
+          async handler(params) {
+            try {
+              await fs.writeFile(params.filePath, params.content, 'utf-8');
+              return { success: true };
+            } catch (error) {
+              throw new Error(`Failed to write file: ${error.message}`);
+            }
+          }
+        },
+        listDirectory: {
+          description: "List contents of a directory",
+          parameters: {
+            type: "object",
+            properties: {
+              dirPath: {
+                type: "string",
+                description: "Path to the directory to list"
+              }
+            },
+            required: ["dirPath"]
+          },
+          async handler(params) {
+            try {
+              const files = await fs.readdir(params.dirPath);
+              const fileStats = await Promise.all(
+                files.map(async (file) => {
+                  const filePath = path.join(params.dirPath, file);
+                  const stats = await fs.stat(filePath);
+                  return {
+                    name: file,
+                    isDirectory: stats.isDirectory(),
+                    size: stats.size,
+                    modified: stats.mtime
+                  };
+                })
+              );
+              return { files: fileStats };
+            } catch (error) {
+              throw new Error(`Failed to list directory: ${error.message}`);
+            }
+          }
+        }
+      }
+    }
+  }
+);
+
+await server.connect(new StdioServerTransport()); 
+
+
+================================================
+FILE: src/headers-server.py
+================================================
+from fastmcp import FastMCP
+from fastmcp.server.dependencies import get_http_headers
+
+mcp = FastMCP(name="Headers Demo")
+
+@mcp.tool()
+async def safe_header_info() -> dict:
+    """Safely get header information without raising errors."""
+    # Get headers (returns empty dict if no request context)
+    headers = get_http_headers()
+    
+    # Get authorization header
+    auth_header = headers.get("authorization", "")
+    is_bearer = auth_header.startswith("Bearer ")
+    
+    return {
+        "user_agent": headers.get("user-agent", "Unknown"),
+        "content_type": headers.get("content-type", "Unknown"),
+        "has_auth": bool(auth_header),
+        "auth_type": "Bearer" if is_bearer else "Other" if auth_header else "None",
+        "headers_count": len(headers),
+        "all_headers": dict(headers)  # Return all headers
+    }
+
+
+================================================
+FILE: src/http-ping-server.js
+================================================
+#!/usr/bin/env node
+
+import express from "express";
+import cors from "cors";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
+import { InMemoryEventStore } from "@modelcontextprotocol/sdk/examples/shared/inMemoryEventStore.js";
+
+// Create a new MCP server with stdio transport
+const server = new McpServer(
+  {
+    name: "ping-server",
+    version: "1.0.0",
+    capabilities: {
+      tools: {
+        "ping": {
+          description: "A simple tool that returns 'pong'",
+          parameters: {
+            type: "object",
+            properties: {},
+            required: []
+          }
+        },
+      }
+    }
+  }
+);
+
+// Register the ping tool
+server.tool("ping", async (params) => {
+  console.log("Ping tool called with headers:", params.headers, params);
+  return {
+    content: [{
+      type: "text",
+      text: "pong"
+    }]
+  };
+});
+
+const app = express();
+app.use(express.json());
+
+const transport = new StreamableHTTPServerTransport({
+  sessionIdGenerator: undefined, // set to undefined for stateless servers
+});
+
+// Setup routes for the server
+const setupServer = async () => {
+  await server.connect(transport);
+};
+
+app.post('/mcp', async (req, res) => {
+  console.log('Received MCP request:', req.body);
+  console.log('User-Agent:', req.get("User-Agent"));
+  try {
+      await transport.handleRequest(req, res, req.body);
+  } catch (error) {
+    console.error('Error handling MCP request:', error);
+    if (!res.headersSent) {
+      res.status(500).json({
+        jsonrpc: '2.0',
+        error: {
+          code: -32603,
+          message: 'Internal server error',
+        },
+        id: null,
+      });
+    }
+  }
+});
+
+app.get('/mcp', async (req, res) => {
+  console.log('Received GET MCP request');
+  console.log('User-Agent:', req.get("User-Agent"));
+  res.writeHead(405).end(JSON.stringify({
+    jsonrpc: "2.0",
+    error: {
+      code: -32000,
+      message: "Method not allowed."
+    },
+    id: null
+  }));
+});
+
+app.delete('/mcp', async (req, res) => {
+  console.log('Received DELETE MCP request');
+  console.log('User-Agent:', req.get("User-Agent"));
+  res.writeHead(405).end(JSON.stringify({
+    jsonrpc: "2.0",
+    error: {
+      code: -32000,
+      message: "Method not allowed."
+    },
+    id: null
+  }));
+});
+
+// Start the server
+const PORT = 3001;
+setupServer().then(() => {
+  app.listen(PORT, () => {
+    console.log(`MCP Streamable HTTP Server listening at http://localhost:${PORT}/mcp`);
+  });
+}).catch(error => {
+  console.error('Failed to set up the server:', error);
+  process.exit(1);
+});
+
+
+================================================
+FILE: src/image-server.js
+================================================
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+
+// Create a new MCP server with stdio transport
+const server = new McpServer({
+  name: "image-server",
+  version: "1.0.0",
+  capabilities: {
+    tools: {
+      generate_image: {
+        description: "A tool that returns a red circle image",
+        parameters: {
+          type: "object",
+          properties: {},
+          required: [],
+        },
+      },
+    },
+  },
+});
+ 
+// Replace this placeholder with your actual base64 encoded red circle image
+const RED_CIRCLE_BASE64 =
+"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"
+
+
+// Register the generate_image tool
+server.tool("generate_image", async (params) => {
+  return {
+    content: [
+      {
+        type: "image",
+        data: RED_CIRCLE_BASE64,
+        mimeType: "image/jpeg",
+      },
+    ],
+  };
+});
+
+// Connect to the transport and start the server
+await server.connect(new StdioServerTransport());
+
+
+
+================================================
+FILE: src/long-description-server.js
+================================================
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+
+// Get description tokens from environment variable or use default
+const descriptionTokens = process.env.DESCRIPTION_TOKENS;
+const descriptionChars = process.env.DESCRIPTION_CHARS;
+
+const baseDescription = "this is a 10 token description to repeat. ";
+
+let description;
+if (descriptionTokens) {
+  description = baseDescription.repeat(Math.ceil(parseInt(descriptionTokens, 10) / 10));
+} else {
+  const numChars = parseInt(descriptionChars ?? "2000", 10);
+  description = baseDescription.repeat(Math.ceil(numChars / baseDescription.length) + 1).slice(0, numChars);
+}
+
+// Create a new MCP server with stdio transport
+const server = new McpServer(
+  {
+    name: "long-description-server",
+    version: "1.0.0",
+    capabilities: {
+      tools: {
+        "get-info": {
+          description,
+          parameters: {
+            type: "object",
+            properties: {},
+            required: []
+          }
+        }
+      }
+    }
+  }
+);
+
+// Register the get-info tool
+server.tool("get-info", description, async (params) => {
+  return {
+    content: [{
+      type: "text",
+      text: "Server information retrieved successfully"
+    }]
+  };
+});
+
+// Connect to the transport and start the server
+await server.connect(new StdioServerTransport()); 
+
+
+================================================
+FILE: src/long-running-server.js
+================================================
+#!/usr/bin/env node
+
+import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";import {
+  CallToolRequestSchema,
+  ListToolsRequestSchema,
+} from "@modelcontextprotocol/sdk/types.js";
+
+const server = new Server(
+  {
+    name: "example-servers/everything",
+    version: "1.0.0",
+  },
+  {
+    capabilities: {
+      tools: {},
+    },
+  }
+);
+
+const LongRunningOperationSchema = z.object({
+  duration: z
+    .number()
+    .default(10)
+    .describe("Duration of the operation in seconds"),
+  steps: z.number().default(5).describe("Number of steps in the operation"),
+});
+
+const LongRunningOperationWithNoTotalSchema = z.object({
+  duration: z
+    .number()
+    .default(10)
+    .describe("Duration of the operation in seconds"),
+  steps: z.number().default(5).describe("Number of steps in the operation"),
+});
+
+
+const LongRunningOperationJSONSchema = {
+  "type": "object",
+  "properties": {
+    "duration": {
+      "type": "number",
+      "description": "Duration of the operation in seconds",
+      "default": 10
+    },
+    "steps": {
+      "type": "number",
+      "description": "Number of steps in the operation",
+      "default": 5
+    }
+  },
+  "required": []
+}
+
+const LongRunningOperationWithNoTotalJSONSchema = {
+  "type": "object",
+  "properties": {
+    "duration": {
+      "type": "number",
+      "description": "Duration of the operation in seconds",
+      "default": 10
+    },
+    "steps": {
+      "type": "number",
+      "description": "Number of steps in the operation",
+      "default": 5
+    }
+  },
+  "required": []
+}
+
+server.setRequestHandler(ListToolsRequestSchema, async () => {
+  const tools = [
+    {
+      name: "long-running-task",
+      description:
+        "Demonstrates a long running operation with progress updates",
+      inputSchema: LongRunningOperationJSONSchema
+    },
+    {
+      name: "long-running-task-with-no-total",
+      description:
+        "Demonstrates a long running operation with progress updates",
+      inputSchema: LongRunningOperationWithNoTotalJSONSchema
+    }
+  ];
+
+  return { tools };
+});
+
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  const { name, arguments: args } = request.params;
+
+  if (name === "long-running-task") {
+    const validatedArgs = LongRunningOperationSchema.parse(args);
+    const { duration, steps } = validatedArgs;
+    const stepDuration = duration / steps;
+    const progressToken = request.params._meta?.progressToken;
+
+    for (let i = 0; i < steps + 1; i++) {
+      if (progressToken !== undefined) {
+        await server.notification({
+          method: "notifications/progress",
+          params: {
+            progress: i,
+            total: steps,
+            progressToken,
+          },
+        });
+      }
+      await new Promise((resolve) =>
+        setTimeout(resolve, stepDuration * 1000)
+      );
+    }
+
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Long running operation completed. Duration: ${duration} seconds, Steps: ${steps}.`,
+        },
+      ],
+    };
+  }
+
+  if (name === "long-running-task-with-no-total") {
+    const validatedArgs = LongRunningOperationWithNoTotalSchema.parse(args);
+    const { duration, steps } = validatedArgs;
+    const stepDuration = duration / steps;
+    const progressToken = request.params._meta?.progressToken;
+
+    for (let i = 0; i < steps + 1; i++) {
+      if (progressToken !== undefined) {
+        await server.notification({
+          method: "notifications/progress",
+          params: {
+            progress: i,
+            progressToken,
+          },
+        });
+      }
+      await new Promise((resolve) =>
+        setTimeout(resolve, stepDuration * 1000)
+      );
+    }
+
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Long running operation completed. Duration: ${duration} seconds, Steps: ${steps}.`,
+        },
+      ],
+    };
+  }
+});
+
+// Connect to the transport and start the server
+await server.connect(new StdioServerTransport());
+
+// This server implements a long-running task with progress notifications 
+
+
+================================================
+FILE: src/many-resources-server.js
+================================================
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+
+// Create a new MCP server with stdio transport
+const server = new McpServer(
+  {
+    name: "many-resources-server",
+    version: "1.0.0"
+  }
+);
+
+// Generate 200 resources
+for (let i = 1; i <= 600; i++) {
+  server.resource(
+    `Resource ${i}`,
+    `test://resource${i}.txt`,
+    {
+      description: `Resource number ${i} of 200`,
+      mimeType: "text/plain"
+    },
+    async () => ({
+      contents: [
+        {
+          uri: `test://resource${i}.txt`,
+          mimeType: "text/plain",
+          text: `This is the content of resource ${i} of 200. Each resource has unique content.`
+        }
+      ]
+    })
+  );
+}
+
+// Connect to the transport and start the server
+await server.connect(new StdioServerTransport()); 
+
+
+================================================
+FILE: src/many-tools-server.js
+================================================
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+
+// Create a new MCP server with stdio transport
+const server = new McpServer(
+  {
+    name: "many-tools-server",
+    version: "1.0.0",
+    capabilities: {
+      tools: Object.fromEntries(
+        Array.from({ length: 100 }, (_, i) => [
+          `tool_${i + 1}`,
+          {
+            description: `Tool ${i + 1} that returns 'ack'`,
+            parameters: {
+              type: "object",
+              properties: {},
+              required: []
+            }
+          }
+        ])
+      )
+    }
+  }
+);
+
+// Register all 100 tools
+for (let i = 1; i <= 100; i++) {
+  server.tool(`tool_${i}`, async () => {
+    return {
+      content: [{
+        type: "text",
+        text: "ack"
+      }]
+    };
+  });
+}
+
+// Connect to the transport and start the server
+await server.connect(new StdioServerTransport()); 
+
+
+================================================
+FILE: src/math-server.js
+================================================
+#!/usr/bin/env node
+
+// Import required dependencies from the MCP SDK and zod validation library
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+
+/**
+ * Math Server
+ * This server implements basic mathematical operations as MCP tools.
+ * It uses stdio for communication and provides functions like:
+ * - Basic arithmetic (add, subtract, multiply, divide)
+ * - Advanced operations (power, square root, factorial)
+ */
+
+// Initialize the MCP server with configuration and tool definitions
+const server = new McpServer(
+  {
+    name: "math-server",
+    version: "1.0.0",
+    capabilities: {
+      tools: {
+        "add": {
+          description: "Add two numbers",
+          parameters: {
+            type: "object",
+            properties: {
+              a: { type: "number", description: "First number" },
+              b: { type: "number", description: "Second number" }
+            },
+            required: ["a", "b"]
+          }
+        },
+        "subtract": {
+          description: "Subtract b from a",
+          parameters: {
+            type: "object",
+            properties: {
+              a: { type: "number", description: "Number to subtract from" },
+              b: { type: "number", description: "Number to subtract" }
+            },
+            required: ["a", "b"]
+          }
+        },
+        "multiply": {
+          description: "Multiply two numbers",
+          parameters: {
+            type: "object",
+            properties: {
+              a: { type: "number", description: "First number" },
+              b: { type: "number", description: "Second number" }
+            },
+            required: ["a", "b"]
+          }
+        },
+        "divide": {
+          description: "Divide a by b",
+          parameters: {
+            type: "object",
+            properties: {
+              a: { type: "number", description: "Dividend" },
+              b: { type: "number", description: "Divisor (cannot be zero)" }
+            },
+            required: ["a", "b"]
+          }
+        },
+        "power": {
+          description: "Calculate a raised to the power of b",
+          parameters: {
+            type: "object",
+            properties: {
+              a: { type: "number", description: "Base number" },
+              b: { type: "number", description: "Exponent" }
+            },
+            required: ["a", "b"]
+          }
+        },
+        "sqrt": {
+          description: "Calculate the square root of a number",
+          parameters: {
+            type: "object",
+            properties: {
+              n: { type: "number", description: "Number to find square root of (must be non-negative)" }
+            },
+            required: ["n"]
+          }
+        },
+        "factorial": {
+          description: "Calculate the factorial of a non-negative integer",
+          parameters: {
+            type: "object",
+            properties: {
+              n: { type: "number", description: "Non-negative integer to calculate factorial of" }
+            },
+            required: ["n"]
+          }
+        }
+      }
+    }
+  }
+);
+
+// Tool Implementations
+// Each tool follows the pattern of:
+// 1. Parameter validation using zod
+// 2. Computation of the mathematical operation
+// 3. Returning formatted results
+
+// Addition: Adds two numbers and returns the result
+server.tool("add", {
+  a: z.number().describe("First number"),
+  b: z.number().describe("Second number")
+}, async (params) => {
+  const result = params.a + params.b;
+  return {
+    content: [{
+      type: "text",
+      text: `${params.a} + ${params.b} = ${result}`
+    }]
+  };
+});
+
+// Subtraction: Subtracts the second number from the first
+server.tool("subtract", {
+  a: z.number().describe("Number to subtract from"),
+  b: z.number().describe("Number to subtract")
+}, async (params) => {
+  const result = params.a - params.b;
+  return {
+    content: [{
+      type: "text",
+      text: `${params.a} - ${params.b} = ${result}`
+    }]
+  };
+});
+
+// Multiplication: Multiplies two numbers together
+server.tool("multiply", {
+  a: z.number().describe("First number"),
+  b: z.number().describe("Second number")
+}, async (params) => {
+  const result = params.a * params.b;
+  return {
+    content: [{
+      type: "text",
+      text: `${params.a} × ${params.b} = ${result}`
+    }]
+  };
+});
+
+// Division: Divides first number by second, includes zero check
+server.tool("divide", {
+  a: z.number().describe("Dividend"),
+  b: z.number().describe("Divisor (cannot be zero)")
+}, async (params) => {
+  if (params.b === 0) {
+    return {
+      content: [{
+        type: "text",
+        text: "Error: Division by zero is not allowed"
+      }]
+    };
+  }
+  const result = params.a / params.b;
+  return {
+    content: [{
+      type: "text",
+      text: `${params.a} ÷ ${params.b} = ${result}`
+    }]
+  };
+});
+
+// Power: Calculates exponentiation (a raised to power b)
+server.tool("power", {
+  a: z.number().describe("Base number"),
+  b: z.number().describe("Exponent")
+}, async (params) => {
+  const result = Math.pow(params.a, params.b);
+  return {
+    content: [{
+      type: "text",
+      text: `${params.a}^${params.b} = ${result}`
+    }]
+  };
+});
+
+// Square Root: Calculates the square root, validates for non-negative input
+server.tool("sqrt", {
+  n: z.number().describe("Number to find square root of (must be non-negative)")
+}, async (params) => {
+  if (params.n < 0) {
+    return {
+      content: [{
+        type: "text",
+        text: "Error: Cannot calculate square root of a negative number"
+      }]
+    };
+  }
+  const result = Math.sqrt(params.n);
+  return {
+    content: [{
+      type: "text",
+      text: `√${params.n} = ${result}`
+    }]
+  };
+});
+
+/**
+ * Factorial Calculator
+ * Computes n! (n factorial) for non-negative integers
+ * Includes validation for:
+ * - Non-negative integers only
+ * - Upper limit check to prevent overflow
+ */
+server.tool("factorial", {
+  n: z.number().int().min(0).describe("Non-negative integer to calculate factorial of")
+}, async (params) => {
+  if (params.n > 170) {
+    return {
+      content: [{
+        type: "text",
+        text: "Error: Factorial result would be too large (exceeds Number.MAX_VALUE)"
+      }]
+    };
+  }
+  
+  let result = 1;
+  for (let i = 2; i <= params.n; i++) {
+    result *= i;
+  }
+  
+  return {
+    content: [{
+      type: "text",
+      text: `${params.n}! = ${result}`
+    }]
+  };
+});
+
+// Initialize the server with stdio transport
+// This allows the server to communicate via standard input/output
+await server.connect(new StdioServerTransport());
+
+// This server implements basic math functionality 
+
+
+================================================
+FILE: src/named-server.js
+================================================
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+
+// Get the server name from environment variable, default to 'unnamed-server' if not set
+const serverName = process.env.MCP_SERVER_NAME || 'unnamed-server';
+
+// Create a new MCP server with stdio transport
+const server = new McpServer(
+  {
+    name: serverName,
+    version: "1.0.0",
+    capabilities: {
+      tools: {}
+    }
+  }
+);
+
+// Register a tool that returns the server's name, using the server name in the tool name
+server.tool(serverName, async () => {
+  return {
+    content: [{
+      type: "text",
+      text: `This server's name is: ${serverName}`
+    }]
+  };
+});
+
+// Connect to the transport and start the server
+await server.connect(new StdioServerTransport()); 
+
+
+================================================
+FILE: src/number-param-server.js
+================================================
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+
+// Create a new MCP server with stdio transport
+const server = new McpServer(
+  {
+    name: "number-param-server",
+    version: "1.0.0",
+    capabilities: {
+      tools: {
+        "number-param": {
+          description: "A tool that accepts a number parameter and returns its square",
+          parameters: {
+            type: "object",
+            properties: {
+              number: {
+                type: "number",
+                description: "The number to process"
+              }
+            },
+            required: ["number"]
+          }
+        }
+      }
+    }
+  }
+);
+
+// Register the number-param tool
+server.tool("number-param", {
+  number: z.number().describe("The number to process")
+}, async (params) => {
+  const result = params.number * params.number;
+  return {
+    content: [{
+      type: "text",
+      text: `The square of ${params.number} is ${result}`
+    }]
+  };
+});
+
+// Connect to the transport and start the server
+await server.connect(new StdioServerTransport()); 
+
+
+================================================
+FILE: src/oauth-ping-server.js
+================================================
+import {
+  McpServer,
+  mcpExpressMiddleware,
+  ProxyOAuthServerProvider,
+  mcpAuthRouter,
+} from "@modelcontextprotocol/sdk";
+import express from "express";
+
+const PORT = process.env.PORT || 3000;
+const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
+const AUTH_EXTERNAL_BASE_URL = "https://auth.external.com"; // Replace with your actual auth provider base URL
+const AUTH_EXTERNAL_AUTHORIZE_URL = `${AUTH_EXTERNAL_BASE_URL}/oauth2/v1/authorize`;
+const AUTH_EXTERNAL_TOKEN_URL = `${AUTH_EXTERNAL_BASE_URL}/oauth2/v1/token`;
+const AUTH_EXTERNAL_REVOKE_URL = `${AUTH_EXTERNAL_BASE_URL}/oauth2/v1/revoke`;
+const YOUR_CLIENT_ID = "YOUR_CLIENT_ID"; // Replace with actual client ID
+const YOUR_CLIENT_SECRET = "YOUR_CLIENT_SECRET"; // Replace with actual client secret, if needed by provider
+const SERVICE_DOCUMENTATION_URL = "https://docs.example.com/"; // Replace with your service docs URL
+
+const app = express();
+
+// Configure the OAuth Proxy Provider
+const proxyProvider = new ProxyOAuthServerProvider({
+  endpoints: {
+    authorizationUrl: AUTH_EXTERNAL_AUTHORIZE_URL,
+    tokenUrl: AUTH_EXTERNAL_TOKEN_URL,
+    revocationUrl: AUTH_EXTERNAL_REVOKE_URL,
+  },
+  // Basic token verification - replace with actual verification logic
+  verifyAccessToken: async (token) => {
+    console.log("Verifying access token:", token);
+    // --- Add your real token verification logic here --- 
+    // Example: Call your provider's userinfo endpoint or validate JWT signature
+    // This is a placeholder and insecure for production
+    return {
+      token,
+      clientId: YOUR_CLIENT_ID, // This might come from the token introspection result
+      scopes: ["ping_scope"], // This should ideally come from the token
+    };
+  },
+  // Client verification - replace with actual lookup if needed
+  getClient: async (client_id) => {
+    console.log("Getting client info for:", client_id);
+    // --- Add your real client lookup/verification logic here --- 
+    // This might involve checking a database of registered clients
+    if (client_id === YOUR_CLIENT_ID) {
+      return {
+        client_id,
+        // Ensure this redirect URI matches what's configured in your MCP client and OAuth provider
+        redirect_uris: [`${BASE_URL}/callback`], 
+        // Add other client properties if needed (e.g., client_secret for token endpoint auth)
+        client_secret: YOUR_CLIENT_SECRET, // Include if your provider requires it for token exchange
+      };
+    }
+    return null; // Indicate client not found/invalid
+  },
+});
+
+// Set up MCP Auth routes
+app.use(
+  mcpAuthRouter({
+    provider: proxyProvider,
+    issuerUrl: new URL(AUTH_EXTERNAL_BASE_URL), // Issuer ID for discovery
+    baseUrl: new URL(BASE_URL), // Base URL where this server is hosted
+    serviceDocumentationUrl: new URL(SERVICE_DOCUMENTATION_URL),
+  })
+);
+
+// Configure the MCP Server itself
+const server = new McpServer({
+  // transportOptions removed - handled by express middleware
+  serverInfo: {
+    name: "oauth-ping-server",
+    version: "1.0.0",
+    // Define the authentication strategy using the configured proxy
+    authenticationStrategies: [
+      {
+        id: "oauth2-proxy-example", // Must match provider ID if only one
+        type: "oauth2",
+        title: "Example OAuth2 (Proxy)",
+        authorizationUrl: `${BASE_URL}/authorize`, // Use the local proxy endpoint
+        tokenUrl: `${BASE_URL}/token`, // Use the local proxy endpoint
+        // clientId is often handled by the interaction with the proxy
+        clientId: YOUR_CLIENT_ID, 
+        scopes: ["ping_scope"],
+        pkce: true, // PKCE is handled by the SDK/proxy router
+      },
+    ],
+    // You can also include discovery document URL
+    wellKnownUrl: `${BASE_URL}/.well-known/mcp-configuration`, 
+  },
+  loggerOptions: {
+    level: "debug",
+  },
+});
+
+// Define the simple ping tool
+server.registerTool({
+  toolName: "ping",
+  description: "A simple ping tool that requires authentication.",
+  // Add authentication requirement
+  authentication: {
+    strategies: ["oauth2-proxy-example"], // Reference the strategy ID
+    // Optional: specify required scopes
+    // scopes: ["ping_scope"],
+  },
+  run: async (params, context) => {
+    // Access authentication details from context
+    const authContext = context?.authentication?.find(auth => auth.strategyId === 'oauth2-proxy-example');
+    if (authContext && authContext.type === 'oauth2') {
+      console.log("Ping tool executed with access token:", authContext.accessToken);
+      // You can use the accessToken to make authenticated calls to backend services
+    } else {
+      console.warn("Ping tool executed without expected authentication context.");
+    }
+    console.log("Ping tool executed successfully (OAuth authenticated).");
+    return { pong: true };
+  },
+});
+
+// Add MCP middleware to handle MCP requests (e.g., tool calls)
+// Ensure this comes *after* the auth router if auth is required for tools
+app.use(mcpExpressMiddleware(server));
+
+// Start the Express server
+app.listen(PORT, () => {
+  console.log(`OAuth Ping MCP Server listening on port ${PORT}`);
+  console.log(`Base URL: ${BASE_URL}`);
+  console.log(`MCP Configuration: ${BASE_URL}/.well-known/mcp-configuration`);
+  console.log(`OAuth Authorize Endpoint: ${BASE_URL}/authorize`);
+  console.log(`OAuth Token Endpoint: ${BASE_URL}/token`);
+}); 
+
+
+================================================
+FILE: src/optional-param-server.js
+================================================
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+// Create a new MCP server with stdio transport
+const server = new McpServer(
+  {
+    name: "optional-param-server",
+    version: "1.0.0",
+    capabilities: {
+      tools: {
+        "ping": {
+          description: "A simple tool with an optional message",
+          parameters: {
+            type: "object",
+            properties: {
+              text: {
+                type: "string",
+                description: "The text to echo",
+                optional: true
+              }
+            },
+            required: []
+          }
+        },
+      }
+    }
+  }
+);
+
+server.tool("echo", {
+  text: z.string().describe("The text to echo").optional()
+}, async (params) => {
+  // Return pong after waiting
+  return {
+    content: [{
+      type: "text",
+      text: `User said: ${params.text}` || "No message sent"
+    }]
+  };
+});
+
+// Connect to the transport and start the server
+await server.connect(new StdioServerTransport()); 
+
+// This server implements basic ping and echo functionality with configurable response delays
+
+
+================================================
+FILE: src/pattern-param-server.js
+================================================
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+
+// Define the Zod schema based on the JSON schema
+const BugsnagUrlParamsSchema = z.object({
+  error_url: z.string().url().regex(
+    /^https:\/\/app\.bugsnag\.com\/([^/]+)\/([^/]+)\/errors\/([^/]+)/,
+    "URL must match the pattern https://app.bugsnag.com/{org}/{project}/errors/{error_id}"
+  ).describe("a URL in the form https://app.bugsnag.com/{org}/{project}/errors/{error_id}")
+});
+
+// Create a new MCP server with stdio transport
+const server = new McpServer(
+  {
+    name: "pattern-param-server",
+    version: "1.0.0",
+    capabilities: {
+      tools: {
+        "parse_bugsnag_error_url": {
+          description: "This tool will take a URL of an error in Bugsnag, and will parse out the organization slug, project slug, and error ID. Returns fields for org_slug, project_slug, and error_id",
+          parameters: {
+            type: "object",
+            properties: {
+              error_url: {
+                type: "string",
+                pattern: "^https:.*",
+                description: "a URL in the form https://app.bugsnag.com/{org}/{project}/errors/{error_id}"
+              }
+            },
+            required: ["error_url"]
+          }
+        }
+      }
+    }
+  }
+);
+
+// Register the parse_bugsnag_error_url tool with a parameter shape, not a full Zod object
+server.tool("parse_bugsnag_error_url", {
+  error_url: z.string().regex(
+    /^https:\/\/app\.bugsnag\.com\/([^/]+)\/([^/]+)\/errors\/([^/]+)/,
+    "URL must match the pattern https://app.bugsnag.com/{org}/{project}/errors/{error_id}"
+  ).describe("a URL in the form https://app.bugsnag.com/{org}/{project}/errors/{error_id}")
+}, async (params) => {
+  const url = params.error_url;
+  const match = url.match(/^https:\/\/app\.bugsnag\.com\/([^/]+)\/([^/]+)\/errors\/([^/]+)/);
+
+  if (!match) {
+    // This should ideally be caught by Zod validation, but double-check
+    throw new Error("Invalid Bugsnag URL format.");
+  }
+
+  const [, org_slug, project_slug, error_id] = match;
+
+  return {
+    content: [{
+      type: "json",
+      json: {
+        org_slug,
+        project_slug,
+        error_id
+      }
+    }]
+  };
+});
+
+// Connect to the transport and start the server
+await server.connect(new StdioServerTransport());
+
+
+
+================================================
+FILE: src/ping-server.js
+================================================
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+// Create a new MCP server with stdio transport
+const server = new McpServer(
+  {
+    name: "ping-server",
+    version: "1.0.0",
+    capabilities: {
+      tools: {
+        "ping": {
+          description: "A simple tool that returns 'pong'",
+          parameters: {
+            type: "object",
+            properties: {},
+            required: []
+          }
+        },
+      }
+    }
+  }
+);
+
+// Register the ping tool
+server.tool("ping", "A simple tool that returns 'pong'", async (params) => {
+  return {
+    content: [{
+      type: "text",
+      text: "pong"
+    }]
+  };
+});
+
+// Register the long-running-ping tool
+server.tool("long-running-ping", {
+  waitTimeMs: z.number().optional().default(3000).describe("The time to wait in milliseconds before returning the response")
+}, async (params) => {
+  // Get the wait duration in milliseconds (default to 3000ms if not provided)
+  const waitTime = params?.waitTimeMs || 3000;
+  
+  // Create a promise that resolves after the specified time
+  await new Promise(resolve => setTimeout(resolve, waitTime));
+  
+  // Return pong after waiting
+  return {
+    content: [{
+      type: "text",
+      text: "pong"
+    }]
+  };
+});
+
+server.tool("echo", {
+  text: z.string().describe("The text to echo")
+}, async (params) => {
+  // Return pong after waiting
+  return {
+    content: [{
+      type: "text",
+      text: params.text
+    }]
+  };
+});
+
+// Connect to the transport and start the server
+await server.connect(new StdioServerTransport()); 
+
+// This server implements basic ping and echo functionality with configurable response delays
+
+
+================================================
+FILE: src/resource-server.js
+================================================
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+
+// Create a new MCP server with stdio transport
+const server = new McpServer(
+  {
+    name: "resource-server",
+    version: "1.0.0"
+  }
+);
+
+// Register our test resource
+server.resource(
+  "Hello World Text",
+  "test://hello.txt",
+  {
+    description: "A simple test file containing 'Hello, world'",
+    mimeType: "text/plain"
+  },
+  async () => ({
+    contents: [
+      {
+        uri: "test://hello.txt",
+        mimeType: "text/plain",
+        text: "Hello, world"
+      }
+    ]
+  })
+);
+
+// Connect to the transport and start the server
+await server.connect(new StdioServerTransport()); 
+
+
+================================================
+FILE: src/root-echo-server.js
+================================================
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { ListRootsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
+import { z } from "zod";
+// Create a new MCP server with stdio transport
+const server = new McpServer(
+  {
+    name: "root-echo-server",
+    version: "1.0.0",
+    capabilities: {
+      tools: {
+        "root-echo": {
+          description: "A simple tool that returns 'pong'",
+          parameters: {
+            type: "object",
+            properties: {},
+            required: []
+          }
+        },
+      }
+    }
+  }
+);
+
+// Register the ping tool
+server.tool("root-echo", async (params) => {
+  console.warn("root-echo", params)
+  const roots = await server.server.listRoots()
+  console.warn("roots", roots)
+  return {
+    content: [{
+      type: "text",
+      text: JSON.stringify(roots, null, 2)
+    }]
+  };
+});
+
+await server.connect(new StdioServerTransport()); 
+
+
+================================================
+FILE: src/shell-exec-server.js
+================================================
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { exec, spawn } from 'child_process';
+import { promisify } from 'util';
+
+const execAsync = promisify(exec);
+
+const server = new McpServer(
+  {
+    name: "shell-exec-server",
+    version: "1.0.0",
+    capabilities: {
+      tools: {
+        executeCommand: {
+          description: "Execute a shell command and return its output",
+          parameters: {
+            type: "object",
+            properties: {
+              command: {
+                type: "string",
+                description: "Command to execute"
+              },
+              timeout: {
+                type: "integer",
+                description: "Timeout in milliseconds",
+                default: 30000
+              }
+            },
+            required: ["command"]
+          },
+          async handler(params) {
+            try {
+              // Basic security check - prevent dangerous commands
+              const dangerousCommands = ['rm -rf', 'mkfs', 'dd', '> /dev/'];
+              if (dangerousCommands.some(cmd => params.command.includes(cmd))) {
+                throw new Error('Command contains potentially dangerous operations');
+              }
+
+              const { stdout, stderr } = await execAsync(params.command, {
+                timeout: params.timeout,
+                maxBuffer: 1024 * 1024 // 1MB buffer
+              });
+
+              return {
+                stdout,
+                stderr,
+                success: true
+              };
+            } catch (error) {
+              if (error.signal === 'SIGTERM') {
+                throw new Error('Command timed out');
+              }
+              throw new Error(`Command execution failed: ${error.message}`);
+            }
+          }
+        },
+        executeInteractiveCommand: {
+          description: "Execute an interactive command with real-time output",
+          parameters: {
+            type: "object",
+            properties: {
+              command: {
+                type: "string",
+                description: "Command to execute"
+              },
+              args: {
+                type: "array",
+                items: {
+                  type: "string"
+                },
+                description: "Command arguments"
+              }
+            },
+            required: ["command"]
+          },
+          async handler(params) {
+            return new Promise((resolve, reject) => {
+              try {
+                const child = spawn(params.command, params.args || []);
+                let output = '';
+
+                child.stdout.on('data', (data) => {
+                  output += data.toString();
+                });
+
+                child.stderr.on('data', (data) => {
+                  output += data.toString();
+                });
+
+                child.on('close', (code) => {
+                  resolve({
+                    output,
+                    exitCode: code,
+                    success: code === 0
+                  });
+                });
+
+                child.on('error', (error) => {
+                  reject(new Error(`Failed to start command: ${error.message}`));
+                });
+              } catch (error) {
+                reject(new Error(`Failed to execute command: ${error.message}`));
+              }
+            });
+          }
+        }
+      }
+    }
+  }
+);
+
+await server.connect(new StdioServerTransport()); 
+
+
+================================================
+FILE: src/sse-notification-stream.js
+================================================
+#!/usr/bin/env node
+
+import express from "express";
+import cors from "cors";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
+import { z } from "zod";
+
+// Create an MCP server instance
+const server = new McpServer({
+    name: 'simple-sse-server',
+    version: '1.0.0',
+  }, { capabilities: { logging: {} } });
+  
+  server.tool(
+    'start-notification-stream',
+    'Starts sending periodic notifications',
+    {
+      interval: z.number().describe('Interval in milliseconds between notifications').default(1000),
+      count: z.number().describe('Number of notifications to send').default(10),
+    },
+    async ({ interval, count }, { sendNotification }) => {
+      const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+      let counter = 0;
+  
+      // Send the initial notification
+      await sendNotification({
+        method: "notifications/message",
+        params: {
+          level: "info",
+          data: `Starting notification stream with ${count} messages every ${interval}ms`
+        }
+      });
+  
+      // Send periodic notifications
+      while (counter < count) {
+        counter++;
+        await sleep(interval);
+  
+        try {
+          await sendNotification({
+            method: "notifications/message",
+            params: {
+              level: "info",
+              data: `Notification #${counter} at ${new Date().toISOString()}`
+            }
+          });
+        }
+        catch (error) {
+          console.error("Error sending notification:", error);
+        }
+      }
+  
+      return {
+        content: [
+          {
+            type: 'text',
+            text: `Completed sending ${count} notifications every ${interval}ms`,
+          }
+        ],
+      };
+    }
+  );
+  
+  const app = express();
+  app.use(express.json());
+  
+  // Store transports by session ID
+  const transports = {};
+  
+  // SSE endpoint for establishing the stream
+  app.get('/mcp', async (req, res) => {
+    console.log('Received GET request to /sse (establishing SSE stream)');
+  
+    try {
+      // Create a new SSE transport for the client
+      // The endpoint for POST messages is '/messages'
+      const transport = new SSEServerTransport('/messages', res);
+  
+      // Store the transport by session ID
+      const sessionId = transport.sessionId;
+      transports[sessionId] = transport;
+  
+      // Set up onclose handler to clean up transport when closed
+      transport.onclose = () => {
+        console.log(`SSE transport closed for session ${sessionId}`);
+        delete transports[sessionId];
+      };
+  
+      // Connect the transport to the MCP server
+      await server.connect(transport);
+  
+      // Start the SSE transport to begin streaming
+      // This sends an initial 'endpoint' event with the session ID in the URL
+      await transport.start();
+  
+      console.log(`Established SSE stream with session ID: ${sessionId}`);
+    } catch (error) {
+      console.error('Error establishing SSE stream:', error);
+      if (!res.headersSent) {
+        res.status(500).send('Error establishing SSE stream');
+      }
+    }
+  });
+  
+  // Messages endpoint for receiving client JSON-RPC requests
+  app.post('/messages', async (req, res) => {
+    console.log('Received POST request to /messages');
+  
+    // Extract session ID from URL query parameter
+    // In the SSE protocol, this is added by the client based on the endpoint event
+    const sessionId = req.query.sessionId;
+  
+    if (!sessionId) {
+      console.error('No session ID provided in request URL');
+      res.status(400).send('Missing sessionId parameter');
+      return;
+    }
+  
+    const transport = transports[sessionId];
+    if (!transport) {
+      console.error(`No active transport found for session ID: ${sessionId}`);
+      res.status(404).send('Session not found');
+      return;
+    }
+  
+    try {
+      // Handle the POST message with the transport
+      await transport.handlePostMessage(req, res, req.body);
+    } catch (error) {
+      console.error('Error handling request:', error);
+      if (!res.headersSent) {
+        res.status(500).send('Error handling request');
+      }
+    }
+  });
+  
+  // Start the server
+  const PORT = 3000;
+  app.listen(PORT, () => {
+    console.log(`Simple SSE Server (deprecated protocol version 2024-11-05) listening on port ${PORT}`);
+  });
+  
+  // Handle server shutdown
+  process.on('SIGINT', async () => {
+    console.log('Shutting down server...');
+  
+    // Close all active transports to properly clean up resources
+    for (const sessionId in transports) {
+      try {
+        console.log(`Closing transport for session ${sessionId}`);
+        await transports[sessionId].close();
+        delete transports[sessionId];
+      } catch (error) {
+        console.error(`Error closing transport for session ${sessionId}:`, error);
+      }
+    }
+    await server.close();
+    console.log('Server shutdown complete');
+    process.exit(0);
+  });
+
+
+================================================
+FILE: src/sse-ping-server.js
+================================================
+#!/usr/bin/env node
+
+import express from "express";
+import cors from "cors";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
+import { z } from "zod";
+
+// Create an MCP server instance
+const server = new McpServer({
+    name: 'simple-sse-server',
+    version: '1.0.0',
+  }, { capabilities: { logging: {} } });
+  
+  server.tool(
+    'ping',
+    'Returns "pong"',
+    {},
+    async () => {
+      return {
+        content: [
+          {
+            type: 'text',
+            text: 'pong',
+          }
+        ],
+      };
+    }
+  );
+  
+  
+  const app = express();
+  app.use(express.json());
+  
+  // Store transports by session ID
+  const transports = {};
+  
+  // SSE endpoint for establishing the stream
+  app.get('/mcp', async (req, res) => {
+    console.log('Received GET request to /sse (establishing SSE stream)');
+  
+    try {
+      // Create a new SSE transport for the client
+      // The endpoint for POST messages is '/messages'
+      const transport = new SSEServerTransport('/messages', res);
+  
+      // Store the transport by session ID
+      const sessionId = transport.sessionId;
+      transports[sessionId] = transport;
+  
+      // Set up onclose handler to clean up transport when closed
+      transport.onclose = () => {
+        console.log(`SSE transport closed for session ${sessionId}`);
+        delete transports[sessionId];
+      };
+  
+      // Connect the transport to the MCP server
+      await server.connect(transport);
+  
+      // Start the SSE transport to begin streaming
+      // This sends an initial 'endpoint' event with the session ID in the URL
+      await transport.start();
+  
+      console.log(`Established SSE stream with session ID: ${sessionId}`);
+    } catch (error) {
+      console.error('Error establishing SSE stream:', error);
+      if (!res.headersSent) {
+        res.status(500).send('Error establishing SSE stream');
+      }
+    }
+  });
+  
+  // Messages endpoint for receiving client JSON-RPC requests
+  app.post('/messages', async (req, res) => {
+    console.log('Received POST request to /messages');
+  
+    // Extract session ID from URL query parameter
+    // In the SSE protocol, this is added by the client based on the endpoint event
+    const sessionId = req.query.sessionId;
+  
+    if (!sessionId) {
+      console.error('No session ID provided in request URL');
+      res.status(400).send('Missing sessionId parameter');
+      return;
+    }
+  
+    const transport = transports[sessionId];
+    if (!transport) {
+      console.error(`No active transport found for session ID: ${sessionId}`);
+      res.status(404).send('Session not found');
+      return;
+    }
+  
+    try {
+      // Handle the POST message with the transport
+      await transport.handlePostMessage(req, res, req.body);
+    } catch (error) {
+      console.error('Error handling request:', error);
+      if (!res.headersSent) {
+        res.status(500).send('Error handling request');
+      }
+    }
+  });
+  
+  // Start the server
+  const PORT = 3000;
+  app.listen(PORT, () => {
+    console.log(`Simple SSE Server (deprecated protocol version 2024-11-05) listening on port ${PORT}`);
+  });
+  
+  // Handle server shutdown
+  process.on('SIGINT', async () => {
+    console.log('Shutting down server...');
+  
+    // Close all active transports to properly clean up resources
+    for (const sessionId in transports) {
+      try {
+        console.log(`Closing transport for session ${sessionId}`);
+        await transports[sessionId].close();
+        delete transports[sessionId];
+      } catch (error) {
+        console.error(`Error closing transport for session ${sessionId}:`, error);
+      }
+    }
+    await server.close();
+    console.log('Server shutdown complete');
+    process.exit(0);
+  });
+
+
+================================================
+FILE: src/stderr-server.js
+================================================
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+// Create a new MCP server with stdio transport
+const server = new McpServer(
+  {
+    name: "stderr-server",
+    version: "1.0.0",
+    capabilities: {
+      tools: {
+        "ping": {
+          description: "A server that logs to stderr",
+          parameters: {
+            type: "object",
+            properties: {},
+            required: []
+          }
+        },
+      }
+    }
+  }
+);
+
+// Register the ping tool
+server.tool("log-to-stderr", async (params) => {
+  console.error("This is logging to stderr");
+  return {
+    content: [{
+      type: "text",
+      text: "Should have logged to stderr"
+    }]
+  };
+});
+
+// Connect to the transport and start the server
+await server.connect(new StdioServerTransport()); 
+
+// This server implements basic ping and echo functionality with configurable response delays
+
+
+================================================
+FILE: src/stdout-server.js
+================================================
+#!/usr/bin/env node
+
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+
+// THIS IS THE INTENTIONAL BAD LINE
+console.log("Stdout server started - this should break the protocol!");
+
+// Create a new MCP server with stdio transport
+const server = new McpServer(
+  {
+    name: "stdout-server", // Changed server name
+    version: "1.0.0",
+    capabilities: {
+      tools: {
+        // Keeping a simple tool for completeness, though it might not be reachable
+        "ping": { 
+          description: "A simple tool that returns 'pong'",
+          parameters: {
+            type: "object",
+            properties: {},
+            required: []
+          }
+        },
+      }
+    }
+  }
+);
+
+// Register the ping tool (might not be reachable due to stdout write)
+server.tool("ping", async (params) => {
+  return {
+    content: [{
+      type: "text",
+      text: "pong"
+    }]
+  };
+});
+
+
+// Connect to the transport and start the server
+// This part might fail or hang because of the stdout write
+await server.connect(new StdioServerTransport()); 
+
+// This server intentionally writes to stdout on startup, which violates MCP rules. 
+
+
+================================================
+FILE: .cursor/rules/create-server.mdc
+================================================
+---
+description: 
+globs: 
+alwaysApply: true
+---
+To create a new server, copy the [ping-server.js](mdc:src/ping-server.js) for the pattern and use the MCP SDK documentation
+Make sure to add it to [cli.js](mdc:src/cli.js) and [README.md](mdc:README.md)
+Do not print anything to console.log since this is a stdio service and you can't write to it without breaking the protocol
+
+
+================================================
+FILE: .cursor/rules/.gitignore
+================================================
+personal/
+
+

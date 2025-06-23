@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "coinbase-mcp": {
+      "command": "node",
+      "args": [
+        "/Users/Vladimir_Bichev/projects/coinbase-chat-mcp/mcp-server/dist/index.js"
+      ],
+      "env": {
+        "COINBASE_API_URL": "https://api.coinbase.com/v2",
+        "LOG_LEVEL": "info"
+      }
+    }
+  }
+} 
