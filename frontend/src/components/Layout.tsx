@@ -8,7 +8,8 @@ import {
   HomeIcon,
   CubeIcon,
   ChatBubbleLeftRightIcon,
-  SparklesIcon
+  SparklesIcon,
+  BookOpenIcon
 } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
 
@@ -54,6 +55,13 @@ const navigation = [
     icon: CurrencyDollarIcon,
     description: 'API documentation',
     gradient: 'from-yellow-500 to-orange-600'
+  },
+  { 
+    name: 'Tutorial', 
+    href: '/tutorial', 
+    icon: BookOpenIcon,
+    description: 'Comprehensive guide',
+    gradient: 'from-teal-500 to-cyan-600'
   },
 ];
 

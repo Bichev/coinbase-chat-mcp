@@ -32,6 +32,7 @@ const ChatInterface: React.FC = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [remainingRequests, setRemainingRequests] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Fetch popular pairs for dashboard widgets
@@ -124,6 +125,9 @@ const ChatInterface: React.FC = () => {
     try {
       // Use AI service to process the message
       const aiResponse = await aiService.processMessage(userInput);
+
+      // Update remaining requests
+      setRemainingRequests(aiResponse.remainingRequests ?? null);
 
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
@@ -269,6 +273,27 @@ const ChatInterface: React.FC = () => {
               <span className="text-sm text-gray-600">Ask me about cryptocurrency prices, market analysis, or trading insights</span>
             </div>
             <div className="flex items-center space-x-2">
+              {/* Rate Limit Indicator */}
+              {remainingRequests !== null && (
+                <div className={`flex items-center space-x-2 px-3 py-2 text-sm rounded-lg border ${
+                  remainingRequests > 1 
+                    ? 'text-green-700 bg-green-50 border-green-200' 
+                    : remainingRequests === 1 
+                    ? 'text-yellow-700 bg-yellow-50 border-yellow-200'
+                    : 'text-red-700 bg-red-50 border-red-200'
+                }`}>
+                  <div className={`w-2 h-2 rounded-full ${
+                    remainingRequests > 1 
+                      ? 'bg-green-400' 
+                      : remainingRequests === 1 
+                      ? 'bg-yellow-400'
+                      : 'bg-red-400'
+                  }`}></div>
+                  <span className="font-medium">
+                    {remainingRequests} request{remainingRequests !== 1 ? 's' : ''} left
+                  </span>
+                </div>
+              )}
               <button
                 onClick={() => setShowHistory(true)}
                 className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-white/70 rounded-lg transition-all duration-200 border border-gray-200/50"
@@ -299,10 +324,21 @@ const ChatInterface: React.FC = () => {
               <div className="w-16 h-16 bg-gradient-to-br from-cyan-100 to-blue-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <ChatBubbleLeftRightIcon className="h-8 w-8 text-cyan-600" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Hello! I'm your Coinbase MCP assistant.</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Hello! I'm your specialized Coinbase MCP assistant.</h3>
               <p className="text-gray-600 text-sm max-w-2xl mx-auto leading-relaxed mb-6">
-                I can help you with cryptocurrency prices, market analysis, and trading insights using real-time Coinbase data.
+                I'm focused exclusively on cryptocurrency, blockchain, and MCP technology. I can help you with crypto prices, market analysis, and trading insights using real-time Coinbase data.
               </p>
+              
+              {/* Educational Notice */}
+              <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-4 mb-6 max-w-2xl mx-auto">
+                <div className="flex items-center space-x-2 mb-2">
+                  <span className="text-lg">🎓</span>
+                  <span className="text-sm font-semibold text-amber-800">Educational Use</span>
+                </div>
+                <p className="text-xs text-amber-700 leading-relaxed">
+                  This demo is rate-limited to 3 requests per minute for educational purposes. I only discuss cryptocurrency and MCP-related topics to keep our conversations focused and valuable.
+                </p>
+              </div>
               
               <div className="max-w-3xl mx-auto mb-8">
                 <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 border border-gray-200/50">

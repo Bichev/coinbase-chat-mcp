@@ -1,7 +1,7 @@
 {
   "name": "coinbase-chat-mcp",
   "version": "1.0.0",
-  "description": "Professional-grade MCP agent for Coinbase public API integration",
+  "description": "MCP agent for Coinbase public API integration",
   "author": "Vladimir Bichev",
   "license": "MIT",
   "type": "module",

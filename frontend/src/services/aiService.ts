@@ -7,6 +7,16 @@ const openai = apiKey ? new OpenAI({
   dangerouslyAllowBrowser: true // Note: In production, this should be done server-side
 }) : null;
 
+// Rate limiting configuration
+const RATE_LIMIT_MAX_REQUESTS = 3;
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const RATE_LIMIT_STORAGE_KEY = 'crypto_chat_rate_limit';
+
+interface RateLimitData {
+  requests: number;
+  windowStart: number;
+}
+
 interface ToolCall {
   tool: string;
   parameters: Record<string, any>;
@@ -17,7 +27,23 @@ interface ToolCall {
 interface AIResponse {
   message: string;
   toolCalls: ToolCall[];
+  isRateLimited?: boolean;
+  remainingRequests?: number;
 }
+
+// Define allowed topics for conversation guardrails
+const ALLOWED_TOPICS = [
+  'cryptocurrency', 'crypto', 'bitcoin', 'ethereum', 'blockchain', 'trading',
+  'price', 'market', 'analysis', 'exchange', 'wallet', 'defi', 'nft',
+  'mcp', 'model context protocol', 'coinbase', 'api', 'technical analysis',
+  'volatility', 'support', 'resistance', 'volume', 'trend'
+];
+
+const OFF_TOPIC_KEYWORDS = [
+  'cat', 'dog', 'animal', 'pet', 'weather', 'food', 'movie', 'music',
+  'sports', 'politics', 'health', 'medicine', 'travel', 'cooking',
+  'fashion', 'celebrity', 'news', 'entertainment'
+];
 
 // Define available MCP tools for the AI
 const availableTools = [
@@ -122,27 +148,130 @@ export class AIService {
   private conversation: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
     {
       role: 'system',
-      content: `You are a helpful cryptocurrency assistant powered by MCP (Model Context Protocol). You have access to real-time Coinbase data through various tools.
+      content: `You are a specialized cryptocurrency assistant powered by MCP (Model Context Protocol). You have access to real-time Coinbase data through various tools.
+
+IMPORTANT CONVERSATION GUIDELINES:
+- You ONLY discuss cryptocurrency, blockchain, trading, and MCP-related topics
+- If users ask about unrelated topics (pets, weather, food, etc.), politely redirect them back to cryptocurrency topics
+- Your expertise is strictly limited to cryptocurrency markets, technical analysis, and MCP technology
+- Always encourage users to explore cryptocurrency questions and MCP capabilities
 
 Your capabilities include:
-- Getting current cryptocurrency prices
-- Providing market statistics and analysis
-- Searching for cryptocurrency assets
-- Getting exchange rates
-- Analyzing price trends and volatility
+- Getting current cryptocurrency prices and market data
+- Providing market statistics and technical analysis
+- Searching for cryptocurrency assets and trading pairs
+- Getting exchange rates and currency conversions
+- Analyzing price trends, volatility, support/resistance levels
+- Explaining MCP (Model Context Protocol) technology and its benefits
 
-Always be helpful, accurate, and provide clear explanations. When users ask about cryptocurrencies, use the appropriate tools to get real-time data. Format your responses in a friendly, conversational way while being informative.
+Always be helpful, accurate, and provide clear explanations about cryptocurrency topics. When users ask about cryptocurrencies, use the appropriate tools to get real-time data. Format your responses in a friendly, conversational way while being informative.
 
-If a user asks about a cryptocurrency, try to infer the correct trading pair (usually with USD, like BTC-USD, ETH-USD, etc.).`,
+If a user asks about a cryptocurrency, try to infer the correct trading pair (usually with USD, like BTC-USD, ETH-USD, etc.).
+
+If someone asks about non-cryptocurrency topics, respond with something like: "I'm specialized in cryptocurrency and MCP technology. Let me help you with crypto prices, market analysis, or trading insights instead! What cryptocurrency would you like to know about?"`,
     },
   ];
 
+  // Rate limiting methods
+  private checkRateLimit(): { allowed: boolean; remaining: number } {
+    const now = Date.now();
+    const stored = localStorage.getItem(RATE_LIMIT_STORAGE_KEY);
+    let rateLimitData: RateLimitData;
+
+    if (stored) {
+      rateLimitData = JSON.parse(stored);
+      
+      // Reset if window has expired
+      if (now - rateLimitData.windowStart > RATE_LIMIT_WINDOW_MS) {
+        rateLimitData = { requests: 0, windowStart: now };
+      }
+    } else {
+      rateLimitData = { requests: 0, windowStart: now };
+    }
+
+    const remaining = Math.max(0, RATE_LIMIT_MAX_REQUESTS - rateLimitData.requests);
+    const allowed = rateLimitData.requests < RATE_LIMIT_MAX_REQUESTS;
+
+    return { allowed, remaining };
+  }
+
+  private incrementRateLimit(): void {
+    const now = Date.now();
+    const stored = localStorage.getItem(RATE_LIMIT_STORAGE_KEY);
+    let rateLimitData: RateLimitData;
+
+    if (stored) {
+      rateLimitData = JSON.parse(stored);
+      
+      // Reset if window has expired
+      if (now - rateLimitData.windowStart > RATE_LIMIT_WINDOW_MS) {
+        rateLimitData = { requests: 1, windowStart: now };
+      } else {
+        rateLimitData.requests++;
+      }
+    } else {
+      rateLimitData = { requests: 1, windowStart: now };
+    }
+
+    localStorage.setItem(RATE_LIMIT_STORAGE_KEY, JSON.stringify(rateLimitData));
+  }
+
+  private isTopicAllowed(userMessage: string): boolean {
+    const lowerMessage = userMessage.toLowerCase();
+    
+    // Check for off-topic keywords
+    const hasOffTopicKeywords = OFF_TOPIC_KEYWORDS.some(keyword => 
+      lowerMessage.includes(keyword)
+    );
+    
+    // Check for allowed topics
+    const hasAllowedTopics = ALLOWED_TOPICS.some(topic => 
+      lowerMessage.includes(topic)
+    );
+    
+    // Allow if it has crypto topics or if it's a general greeting/question
+    const isGeneralQuery = lowerMessage.length < 20 || 
+      ['hello', 'hi', 'help', 'what', 'how', 'can you'].some(word => 
+        lowerMessage.includes(word)
+      );
+    
+    return hasAllowedTopics || (isGeneralQuery && !hasOffTopicKeywords);
+  }
+
   async processMessage(userMessage: string): Promise<AIResponse> {
     try {
+      // Check rate limit first
+      const rateCheck = this.checkRateLimit();
+      if (!rateCheck.allowed) {
+        return {
+          message: `🚫 **Rate Limit Reached**\n\nYou've reached the limit of ${RATE_LIMIT_MAX_REQUESTS} requests per minute. This helps keep the service available for educational use.\n\n⏰ Please wait a moment before sending another message.\n\n💡 **Tip**: Try asking more comprehensive questions to get the most out of each request!`,
+          toolCalls: [],
+          isRateLimited: true,
+          remainingRequests: 0
+        };
+      }
+
+      // Check topic guardrails
+      if (!this.isTopicAllowed(userMessage)) {
+        return {
+          message: `🎯 **Let's talk crypto!**\n\nI'm specialized in cryptocurrency and MCP technology. I can help you with:\n\n💰 **Cryptocurrency Prices & Analysis**\n• Real-time prices (Bitcoin, Ethereum, etc.)\n• Market statistics and trends\n• Technical analysis and volatility\n\n🔧 **MCP Technology**\n• Model Context Protocol explanations\n• API integration insights\n• Tool capabilities and usage\n\n🚀 **What would you like to explore?**\nTry asking: "What's the current Bitcoin price?" or "Analyze Ethereum's recent performance"`,
+          toolCalls: [],
+          remainingRequests: rateCheck.remaining
+        };
+      }
+
+      // Increment rate limit for valid requests
+      this.incrementRateLimit();
+      const newRateCheck = this.checkRateLimit();
+
       // Check if OpenAI is available
       if (!openai) {
         // Fallback to basic pattern matching
-        return await this.processMessageFallback(userMessage);
+        const fallbackResponse = await this.processMessageFallback(userMessage);
+        return {
+          ...fallbackResponse,
+          remainingRequests: newRateCheck.remaining
+        };
       }
 
       // Add user message to conversation
@@ -218,14 +347,17 @@ If a user asks about a cryptocurrency, try to infer the correct trading pair (us
       return {
         message: responseMessage,
         toolCalls,
+        remainingRequests: newRateCheck.remaining
       };
     } catch (error) {
       console.error('AI Service error:', error);
+      const rateCheck = this.checkRateLimit();
       return {
         message: `I apologize, but I encountered an error processing your request: ${
           error instanceof Error ? error.message : 'Unknown error'
         }. ${import.meta.env.VITE_OPENAI_API_KEY ? 'Please try again.' : 'Please set your OpenAI API key in the environment variables.'}`,
         toolCalls: [],
+        remainingRequests: rateCheck.remaining
       };
     }
   }
@@ -289,8 +421,6 @@ If a user asks about a cryptocurrency, try to infer the correct trading pair (us
   getConversationLength() {
     return this.conversation.length;
   }
-
-
 
   // Fallback method when OpenAI is not available
   private async processMessageFallback(userMessage: string): Promise<AIResponse> {

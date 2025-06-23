@@ -10,6 +10,7 @@ import Analysis from './pages/Analysis';
 import ChatInterface from './pages/ChatInterface';
 import MCPTester from './pages/MCPTester';
 import APIExplorer from './pages/APIExplorer';
+import Tutorial from './pages/Tutorial';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -36,6 +37,7 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/mcp-tester" element={<MCPTester />} />
               <Route path="/api-explorer" element={<APIExplorer />} />
+              <Route path="/tutorial" element={<Tutorial />} />
             </Routes>
           </Layout>
           <Toaster
