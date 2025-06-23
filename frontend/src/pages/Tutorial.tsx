@@ -1581,7 +1581,7 @@ npm run test`}
               </div>
             </div>
                          <p className="text-gray-700 leading-relaxed mb-4">
-               **Made with ❤️ by{' '}
+               Made with ❤️ by{' '}
                <a 
                  href="https://www.linkedin.com/in/vladimir-bichev-383b1525/" 
                  target="_blank" 
@@ -1590,7 +1590,7 @@ npm run test`}
                >
                  Vladimir Bichev
                </a>
-               {' '}for the crypto and AI communities**
+               {' '}for the crypto and AI communities
              </p>
              <div className="flex items-center justify-center space-x-6 text-sm text-gray-600 mb-4">
                <span className="flex items-center space-x-1">

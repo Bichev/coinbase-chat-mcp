@@ -395,7 +395,9 @@ If someone asks about non-cryptocurrency topics, respond with something like: "I
           throw new Error(`Unknown tool: ${toolCall.tool}`);
       }
 
-      const url = `http://localhost:3002${endpoint}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+      // Use environment variable or default to relative path for production
+      const baseUrl = import.meta.env.VITE_API_URL || '';
+      const url = `${baseUrl}${endpoint}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
       const response = await fetch(url);
       const data = await response.json();
 

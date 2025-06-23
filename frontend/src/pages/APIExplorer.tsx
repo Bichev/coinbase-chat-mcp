@@ -355,7 +355,8 @@ const APIExplorer: React.FC = () => {
   };
 
   const buildRequestUrl = (endpoint: APIEndpoint): string => {
-    let url = `http://localhost:3002${endpoint.path}`;
+            const baseUrl = import.meta.env.VITE_API_URL || '';
+        let url = `${baseUrl}${endpoint.path}`;
     const pathParams: string[] = [];
     const queryParams: string[] = [];
 

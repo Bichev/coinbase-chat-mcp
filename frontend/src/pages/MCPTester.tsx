@@ -203,7 +203,8 @@ export default function MCPTester() {
           throw new Error(`Unknown tool: ${toolName}`);
       }
 
-      const url = `http://localhost:3002${endpoint}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+      const baseUrl = import.meta.env.VITE_API_URL || '';
+      const url = `${baseUrl}${endpoint}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
       const response = await fetch(url);
       
       if (!response.ok) {
