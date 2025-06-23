@@ -253,7 +253,5 @@ app.get('/api/v1/test', async (req, res) => {
   }
 });
 
-// Vercel handler function
-export default function handler(req, res) {
-  return app(req, res);
-} 
+// Export the Express app for Vercel
+export default app; 

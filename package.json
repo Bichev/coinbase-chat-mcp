@@ -15,7 +15,7 @@
     "dev:mcp": "npm run dev --workspace=mcp-server",
     "dev:api": "npm run dev --workspace=api-server", 
     "dev:frontend": "npm run dev --workspace=frontend",
-    "build": "npm run build --workspace=frontend && mkdir -p dist && cp -r frontend/dist/* dist/",
+    "build": "npm run build --workspace=frontend && mkdir -p dist && cp -r frontend/dist/* dist/ && cd api && npm install",
     "build:all": "npm run build --workspaces",
     "test": "npm run test --workspaces",
     "lint": "npm run lint --workspaces",
