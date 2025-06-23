@@ -9,7 +9,7 @@ const openai = apiKey ? new OpenAI({
 
 // Rate limiting configuration
 const RATE_LIMIT_MAX_REQUESTS = 3;
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 const RATE_LIMIT_STORAGE_KEY = 'crypto_chat_rate_limit';
 
 interface RateLimitData {
