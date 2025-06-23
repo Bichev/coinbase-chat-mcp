@@ -1,29 +1,20 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "installCommand": "npm install",
-  "functions": {
-    "api/server.js": {
-      "runtime": "nodejs18.x"
+  "builds": [
+    {
+      "src": "api-server/src/index.ts",
+      "use": "@vercel/node"
     }
-  },
+  ],
   "routes": [
     {
-      "src": "/health",
-      "dest": "/api/server.js"
-    },
-    {
-      "src": "/api-docs(.*)",
-      "dest": "/api/server.js"
-    },
-    {
       "src": "/api/(.*)",
-      "dest": "/api/server.js"
+      "dest": "/api-server/src/index.ts"
     },
     {
       "src": "/(.*)",
-      "dest": "/$1"
+      "dest": "/api-server/src/index.ts"
     }
-  ]
+  ],
+  "buildCommand": "npm install --prefix frontend && npm run build --prefix frontend && npm install --prefix api-server && npm run build --prefix api-server"
 } 
