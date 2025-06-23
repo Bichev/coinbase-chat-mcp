@@ -136,12 +136,10 @@ The core MCP server exposes Coinbase data through 8 specialized tools:
 
 ### Frontend Application
 Modern React application featuring:
-- **Dashboard** - Market overview and price widgets
-- **Chat Interface** - AI-powered crypto conversations with session persistence
+- **MCP Chat** - AI-powered crypto conversations with session persistence
+- **MCP Tester** - Interactive tool testing environment with parameter validation
 - **API Explorer** - Interactive documentation and testing for all MCP tools
-- **Markets** - Real-time market data and statistics
-- **Assets** - Cryptocurrency search and detailed information
-- **Analysis** - Technical analysis and market insights
+- **Tutorial** - Step-by-step guide for integrating and using MCP tools
 
 ## 🔧 Configuration
 
@@ -182,7 +180,7 @@ Response: [Technical analysis with volatility metrics]
 ```
 
 ### Frontend Web Application
-- **Visit**: `http://localhost:5173`
+- **Visit**: `http://localhost:3005`
 - **Chat**: Persistent conversations with session management
 - **API Explorer**: Test all 8 MCP tools interactively
 - **Dashboard**: Real-time market overview
@@ -303,6 +301,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Made with ❤️ for the crypto and AI communities**
-
-*Successfully tested with Bitcoin at $100,608.65 - MCP integration working perfectly! 🚀*
+**Made with ❤️ by Vladimir Bichev for the crypto and AI communities**
