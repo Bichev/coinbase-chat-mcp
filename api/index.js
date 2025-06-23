@@ -15,26 +15,45 @@ class CoinbaseClient {
   }
 
   async getSpotPrice(currencyPair) {
-    const [base] = currencyPair.split('-');
-    const response = await fetch(`${this.baseUrl}/exchange-rates?currency=${base}`);
-    const data = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(data.error?.message || 'Failed to fetch price');
-    }
-
-    const usdRate = data.data?.rates?.USD;
-    if (!usdRate) {
-      throw new Error('USD rate not found');
-    }
-
-    return {
-      data: {
-        amount: usdRate,
-        base: base,
-        currency: 'USD'
+    try {
+      // Use Coinbase's spot price endpoint directly
+      const response = await fetch(`${this.baseUrl}/prices/${currencyPair}/spot`);
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.errors?.[0]?.message || 'Failed to fetch price');
       }
-    };
+
+      return {
+        data: {
+          amount: data.data.amount,
+          base: data.data.base,
+          currency: data.data.currency
+        }
+      };
+    } catch (error) {
+      // Fallback to exchange rates if spot price fails
+      const [base, currency] = currencyPair.split('-');
+      const response = await fetch(`${this.baseUrl}/exchange-rates?currency=${base}`);
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch price data');
+      }
+
+      const rate = data.data?.rates?.[currency] || data.data?.rates?.USD;
+      if (!rate) {
+        throw new Error('Exchange rate not found');
+      }
+
+      return {
+        data: {
+          amount: rate,
+          base: base,
+          currency: currency || 'USD'
+        }
+      };
+    }
   }
 
   async getMarketStats(currencyPair) {
@@ -211,6 +230,27 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     service: 'coinbase-mcp-api'
   });
+});
+
+// Add a test endpoint for debugging
+app.get('/api/v1/test', async (req, res) => {
+  try {
+    // Test the Coinbase API directly
+    const testResponse = await fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot');
+    const testData = await testResponse.json();
+    
+    res.json({
+      message: 'API test successful',
+      coinbaseResponse: testData,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: 'API test failed',
+      message: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // Default handler for Vercel
