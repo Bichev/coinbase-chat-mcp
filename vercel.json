@@ -9,19 +9,21 @@
       }
     },
     {
-      "src": "api-server/dist/index.js",
+      "src": "api-server/src/index.ts",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api-server/dist/index.js"
+      "dest": "/api-server/src/index.ts"
+    },
+    {
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
-      "dest": "frontend/$1"
+      "dest": "/index.html"
     }
-  ],
-  "buildCommand": "npm install && npm install --prefix frontend && npm run build --prefix frontend && npm install --prefix api-server && npm run build --prefix api-server"
+  ]
 } 
