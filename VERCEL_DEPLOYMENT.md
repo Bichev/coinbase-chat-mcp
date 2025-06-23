@@ -1,4 +1,4 @@
-# 🚀 Vercel Deployment Guide
+# Vercel Deployment Guide
 
 ## Quick Deploy
 
