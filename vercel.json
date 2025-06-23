@@ -16,5 +16,5 @@
       "dest": "/api-server/src/index.ts"
     }
   ],
-  "buildCommand": "npm install --prefix frontend && npm run build --prefix frontend && npm install --prefix api-server && npm run build --prefix api-server"
+  "buildCommand": "cd frontend && npm install && npm run build && cd ../api-server && npm install && npm run build"
 } 
