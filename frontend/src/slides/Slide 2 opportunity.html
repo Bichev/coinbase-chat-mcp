@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide 1: The $50B API Integration Problem</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            /* background: linear-gradient(135deg, #fff 0%, #fff 100%); */
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .slide-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 40px 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+        
+        .hook-question {
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            flex: 1;
+            align-items: center;
+        }
+        
+        .left-panel {
+            animation: fadeInLeft 1s ease-out 0.3s both;
+        }
+        
+        .stats-container {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 16px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .stat-item {
+            margin-bottom: 25px;
+            opacity: 0;
+            animation: slideInLeft 0.6s ease-out forwards;
+        }
+        
+        .stat-item:nth-child(1) { animation-delay: 0.5s; }
+        .stat-item:nth-child(2) { animation-delay: 0.7s; }
+        .stat-item:nth-child(3) { animation-delay: 0.9s; }
+        .stat-item:nth-child(4) { animation-delay: 1.1s; }
+        
+        .stat-number {
+            font-size: 36px;
+            font-weight: 700;
+            color: #fbbf24;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .stat-description {
+            font-size: 18px;
+            color: #cbd5e1;
+            line-height: 1.4;
+        }
+        
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            animation: fadeInRight 1s ease-out 0.5s both;
+        }
+        
+        .transformation-visual {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 16px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .transformation-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #e2e8f0;
+        }
+        
+        .api-comparison {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .api-box {
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .api-box:hover {
+            transform: translateY(-5px);
+        }
+        
+        .traditional-api {
+            border-color: #ef4444;
+        }
+        
+        .mcp-enabled {
+            border-color: #10b981;
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
+        }
+        
+        .api-label {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .api-details {
+            font-size: 14px;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+        
+        .arrow-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #60a5fa;
+            animation: pulse 2s infinite;
+        }
+        
+        .ai-tsunami {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            animation: warningPulse 3s ease-in-out infinite;
+        }
+        
+        .tsunami-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fbbf24;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .tsunami-content {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .tsunami-stat {
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+        
+        .tsunami-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #f87171;
+            display: block;
+        }
+        
+        .tsunami-label {
+            font-size: 12px;
+            color: #cbd5e1;
+            margin-top: 5px;
+        }
+        
+        .warning-icon {
+            animation: shake 0.5s ease-in-out infinite alternate;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+        
+        @keyframes warningPulse {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(239, 68, 68, 0.4);
+            }
+        }
+        
+        @keyframes shake {
+            0% {
+                transform: rotate(-5deg);
+            }
+            100% {
+                transform: rotate(5deg);
+            }
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+            font-weight: 700;
+        }
+        
+        .footer-note {
+            position: absolute;
+            bottom: 20px;
+            right: 40px;
+            font-size: 14px;
+            color: #64748b;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <div class="header">
+            <h1 class="hook-question">What if our clients could talk to their APIs and Data?</h1>
+        </div>
+        
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="stats-container">
+                    <h3 style="font-size: 28px; margin-bottom: 25px; color: #f59e0b;">The $100M AI for API Integration Market Opportunity</h3>
+
+                    <div class="stat-item">
+                        <span class="stat-number">1500+</span>
+                        <span class="stat-description">clients in EPAM portfolio</span>
+                    </div>
+
+                    <div class="stat-item">
+                        <span class="stat-number">25%</span>
+                        <span class="stat-description">conservatively will seek for Agents integration in 2026</span>
+                    </div>
+
+                    <div class="stat-item">
+                        <span class="stat-number">3-6 months</span>
+                        <span class="stat-description">typical AI Agent integration timeline</span>
+                    </div>
+
+                    <div class="stat-item">
+                        <span class="stat-number">30-40%</span>
+                        <span class="stat-description">of IT budgets consumed by integration</span>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <span class="stat-number">1,000+</span>
+                        <span class="stat-description">APIs used by average enterprise</span>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="right-panel">
+                <div class="transformation-visual">
+                    <h3 class="transformation-title">The API Revolution is Here</h3>
+                    <div class="api-comparison">
+                        <div class="api-box traditional-api">
+                            <div class="api-label" style="color: #ef4444;">Traditional APIs</div>
+                            <div class="api-details">
+                                • Complex integration<br>
+                                • Technical expertise required<br>
+                                • Months of development<br>
+                                • High maintenance cost
+                            </div>
+                        </div>
+                        
+                        <div class="arrow-container">
+                            <span>→</span>
+                        </div>
+                        
+                        <div class="api-box mcp-enabled">
+                            <div class="api-label" style="color: #10b981;">MCP-Enabled Future</div>
+                            <div class="api-details">
+                                • Natural language interface<br>
+                                • Business user accessible<br>
+                                • Minutes to deploy<br>
+                                • Self-maintaining
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="ai-tsunami">
+                    <h3 class="tsunami-title">
+                        <span class="warning-icon">⚡</span>
+                        The AI Agent Tsunami is Coming
+                        <span class="warning-icon">⚡</span>
+                    </h3>
+                    <div class="tsunami-content">
+                        <div class="tsunami-stat">
+                            <span class="tsunami-number">75%</span>
+                            <span class="tsunami-label">of enterprises deploying AI agents by 2026</span>
+                        </div>
+                        <div class="tsunami-stat">
+                            <span class="tsunami-number">$50B</span>
+                            <span class="tsunami-label">AI agent market by 2030</span>
+                        </div>
+                        <div class="tsunami-stat">
+                            <span class="tsunami-number">10x</span>
+                            <span class="tsunami-label">productivity gains with AI agents</span>
+                        </div>
+                    </div>
+                    <p style="margin-top: 15px; font-size: 16px; color: #fbbf24;">
+                        Every AI agent needs <span class="highlight">API access</span>. Every API needs AI wrapper
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer-note">
+        Model Context Protocol (MCP) - The Bridge Between AI and APIs
+    </div>
+</body>
+</html>

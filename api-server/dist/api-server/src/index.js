@@ -8,6 +8,8 @@ import swaggerUi from 'swagger-ui-express';
 import { config } from 'dotenv';
 import { createLogger, format, transports } from 'winston';
 import { CoinbaseClient } from './coinbase-client.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 // Load environment variables
 config();
 // Logger setup
@@ -516,6 +518,23 @@ app.get('/api/v1/analysis/:currencyPair', async (req, res) => {
         });
     }
 });
+// Serve static files from frontend (for Vercel deployment)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+// Serve static files from the frontend build
+app.use(express.static(path.join(__dirname, '../../frontend/dist')));
+// Handle React routing - serve index.html for all non-API routes
+app.get('*', (req, res) => {
+    // Don't serve index.html for API routes
+    if (req.path.startsWith('/api/')) {
+        return res.status(404).json({
+            error: 'API route not found',
+            path: req.originalUrl
+        });
+    }
+    // Serve index.html for all other routes (React app)
+    res.sendFile(path.join(__dirname, '../../frontend/dist/index.html'));
+});
 // Error handling middleware
 app.use((err, _req, res, _next) => {
     logger.error('Unhandled error:', err);
@@ -524,31 +543,26 @@ app.use((err, _req, res, _next) => {
         message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
     });
 });
-// 404 handler
-app.use('*', (req, res) => {
-    res.status(404).json({
-        error: 'Route not found',
-        path: req.originalUrl
+// For local development, start server
+if (process.env.NODE_ENV !== 'production') {
+    const server = app.listen(PORT, () => {
+        logger.info(`API Server running on port ${PORT}`);
+        logger.info(`API Documentation available at http://localhost:${PORT}/api-docs`);
     });
-});
-// Start server
-const server = app.listen(PORT, () => {
-    logger.info(`API Server running on port ${PORT}`);
-    logger.info(`API Documentation available at http://localhost:${PORT}/api-docs`);
-});
-// Graceful shutdown
-process.on('SIGTERM', () => {
-    logger.info('SIGTERM received, shutting down gracefully');
-    server.close(() => {
-        logger.info('Process terminated');
-        process.exit(0);
+    // Graceful shutdown
+    process.on('SIGTERM', () => {
+        logger.info('SIGTERM received, shutting down gracefully');
+        server.close(() => {
+            logger.info('Process terminated');
+            process.exit(0);
+        });
     });
-});
-process.on('SIGINT', () => {
-    logger.info('SIGINT received, shutting down gracefully');
-    server.close(() => {
-        logger.info('Process terminated');
-        process.exit(0);
+    process.on('SIGINT', () => {
+        logger.info('SIGINT received, shutting down gracefully');
+        server.close(() => {
+            logger.info('Process terminated');
+            process.exit(0);
+        });
     });
-});
+}
 export default app;

@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide 2: MCP - The Universal API Language</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            /* background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); */
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .slide-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 40px 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+        
+        .main-title {
+            font-size: 56px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+            margin-bottom: 15px;
+            line-height: 1.1;
+        }
+        
+        .subtitle {
+            font-size: 28px;
+            color: #e2e8f0;
+            font-weight: 400;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 0.3s forwards;
+        }
+        
+        .comparison-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 40px;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+        
+        .before-section, .after-section {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 24px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .before-header {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid #ef4444;
+            color: #fca5a5;
+            animation: slideInLeft 0.8s ease-out 0.5s both;
+        }
+        
+        .after-header {
+            background: rgba(16, 185, 129, 0.2);
+            border: 2px solid #10b981;
+            color: #86efac;
+            animation: slideInRight 0.8s ease-out 0.5s both;
+        }
+        
+        .content-box {
+            flex: 1;
+            background: rgba(30, 41, 59, 0.8);
+            border-radius: 16px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+        
+        .before-content {
+            animation: fadeInLeft 1s ease-out 0.8s both;
+        }
+        
+        .after-content {
+            animation: fadeInRight 1s ease-out 0.8s both;
+        }
+        
+        .code-block {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            color: #94a3b8;
+            overflow-x: auto;
+            line-height: 1.5;
+        }
+        
+        .code-comment {
+            color: #64748b;
+        }
+        
+        .code-keyword {
+            color: #c084fc;
+        }
+        
+        .code-string {
+            color: #86efac;
+        }
+        
+        .code-function {
+            color: #60a5fa;
+        }
+        
+        .pain-points {
+            list-style: none;
+            space-y: 12px;
+        }
+        
+        .pain-point {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            color: #f87171;
+            line-height: 1.5;
+        }
+        
+        .pain-point::before {
+            content: "❌";
+            margin-right: 12px;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        
+        .chat-interface {
+            background: #1e293b;
+            border: 2px solid #10b981;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+        }
+        
+        .chat-bubble {
+            background: linear-gradient(135deg, #60a5fa 0%, #818cf8 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 20px 20px 20px 5px;
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: 500;
+            animation: bounceIn 0.6s ease-out 1.2s both;
+        }
+        
+        .chat-response {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid #10b981;
+            color: #86efac;
+            padding: 15px 20px;
+            border-radius: 20px 20px 5px 20px;
+            font-size: 16px;
+            animation: bounceIn 0.6s ease-out 1.5s both;
+        }
+        
+        .benefits-list {
+            list-style: none;
+        }
+        
+        .benefit {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            color: #86efac;
+            line-height: 1.5;
+        }
+        
+        .benefit::before {
+            content: "✅";
+            margin-right: 12px;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        
+        .transformation-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: #60a5fa;
+            animation: pulse 2s infinite;
+        }
+        
+        .impact-banner {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #0f172a;
+            padding: 25px;
+            border-radius: 16px;
+            text-align: center;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(251, 191, 36, 0.3);
+            animation: slideUp 0.8s ease-out 1.8s both;
+        }
+        
+        .impact-title {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .impact-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .metric {
+            background: rgba(15, 23, 42, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+        
+        .metric-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #fbbf24;
+            display: block;
+        }
+        
+        .metric-label {
+            font-size: 14px;
+            color: #e2e8f0;
+            margin-top: 5px;
+        }
+        
+        .tech-stack {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .tech-badge {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: #fca5a5;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .mcp-definition {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            animation: fadeIn 1s ease-out 1s both;
+        }
+        
+        .mcp-definition h3 {
+            color: #a5b4fc;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .mcp-definition p {
+            color: #c7d2fe;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <div class="header">
+            <h1 class="main-title">MCP - The Universal AI Agents Language</h1>
+            <p class="subtitle">"Every API becomes a conversation"</p>
+        </div>
+        
+        <div class="comparison-container">
+            <div class="before-section">
+                <div class="section-header before-header">Before MCP</div>
+                <div class="content-box before-content">
+                    <div class="code-block">
+                        <span class="code-comment">// Weeks of development needed...</span><br>
+                        <span class="code-keyword">const</span> <span class="code-function">connectCRMtoInventory</span> = <span class="code-keyword">async</span> () => {<br>
+                        &nbsp;&nbsp;<span class="code-comment">// Authentication setup</span><br>
+                        &nbsp;&nbsp;<span class="code-keyword">const</span> crmAuth = <span class="code-keyword">await</span> <span class="code-function">setupOAuth2</span>(<span class="code-string">'salesforce'</span>);<br>
+                        &nbsp;&nbsp;<span class="code-keyword">const</span> invAuth = <span class="code-keyword">await</span> <span class="code-function">configureAPIKey</span>(<span class="code-string">'sap'</span>);<br>
+                        &nbsp;&nbsp;<br>
+                        &nbsp;&nbsp;<span class="code-comment">// Complex data mapping</span><br>
+                        &nbsp;&nbsp;<span class="code-keyword">const</span> mappingRules = <span class="code-function">defineFieldMappings</span>({<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-string">'crm.customer_id'</span>: <span class="code-string">'inv.cust_ref'</span>,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-comment">// 100+ more field mappings...</span><br>
+                        &nbsp;&nbsp;});<br>
+                        &nbsp;&nbsp;<br>
+                        &nbsp;&nbsp;<span class="code-comment">// Error handling, retries, logging...</span><br>
+                        }
+                    </div>
+                    
+                    <ul class="pain-points">
+                        <li class="pain-point">Requires specialized developers</li>
+                        <li class="pain-point">6-18 weeks implementation time</li>
+                        <li class="pain-point">$50K-$500K integration cost</li>
+                        <li class="pain-point">Ongoing maintenance burden</li>
+                        <li class="pain-point">Breaks with API updates</li>
+                    </ul>
+                    
+                    <div class="tech-stack">
+                        <span class="tech-badge">OAuth 2.0</span>
+                        <span class="tech-badge">REST API</span>
+                        <span class="tech-badge">JSON Schema</span>
+                        <span class="tech-badge">Error Handling</span>
+                        <span class="tech-badge">Rate Limiting</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="transformation-arrow">
+                <span>→</span>
+            </div>
+            
+            <div class="after-section">
+                <div class="section-header after-header">With MCP</div>
+                <div class="content-box after-content">
+                    <div class="chat-interface">
+                        <div class="chat-bubble">
+                            "Connect my Salesforce CRM to SAP inventory system. When a deal closes, automatically update stock levels and create fulfillment orders."
+                        </div>
+                        <div class="chat-response">
+                            ✓ Connected successfully! I've set up real-time sync between Salesforce and SAP. Stock levels will update automatically when deals close.
+                        </div>
+                    </div>
+                    
+                    <ul class="benefits-list">
+                        <li class="benefit">Business users can connect systems</li>
+                        <li class="benefit">Minutes instead of months</li>
+                        <li class="benefit">90% cost reduction</li>
+                        <li class="benefit">Self-maintaining connections</li>
+                        <li class="benefit">Natural language control</li>
+                    </ul>
+                    
+                    <div class="mcp-definition">
+                        <h3>Model Context Protocol</h3>
+                        <p>Universal standard that lets AI understand and operate any API through natural conversation</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="impact-banner">
+            <div class="impact-title">Business Impact</div>
+            <div class="impact-metrics">
+                <div class="metric">
+                    <span class="metric-value">Reduction in Integration Time</span>
+                    <!-- <span class="metric-label">Reduction in Integration Time</span> -->
+                </div>
+                <div class="metric">
+                    <span class="metric-value">Lower Development Costs</span>
+                    <!-- <span class="metric-label">Lower Development Costs</span> -->
+                </div>
+                <div class="metric">
+                    <span class="metric-value">Business Accessible</span>
+                    <!-- <span class="metric-label">Business User Accessible</span> -->
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

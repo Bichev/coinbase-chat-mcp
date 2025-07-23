@@ -1,0 +1,91 @@
+Why MCP really is a big deal | Model Context Protocol with Tim Berglund
+https://www.youtube.com/watch?v=FLpS7OfD5-s
+
+
+00:00:00
+Model Context Protocol. It really is a big deal, but I think most people are missing the point here. Everybody's talking about enhancing desktop applications with agentic functionality. But if you want to write agentic AI applications at work like a professional you're going to need a broader vision. In order for me to give you that vision, I'm going to need to explain to you how it works. And, here's a hint: comparing it to the USB-C of AI applications is probably not going to be helpful.
+
+
+00:00:30
+Didn't help me, I don't think it's going to help you. Now, let's start by remembering how an LLM basically works from an outside perspective, right? You have a prompt and you send that into an LLM. Out of that LLM, you get a response. Now, there are two problems here. That response is just words. And if words are what you want, you're doing fine. But what if you want to do something? That's what agentic AI is all about. You want to cause effects out in the world. The AI needs to be able to take those actions
+
+
+00:01:01
+or invoke what we call tools. It also needs more up-to-date information or maybe just broader information than what's available in that core foundation model. And that's great. This guy is here as an API out on the internet. You might have wrapped that with the so-called Retrieval Augmented Generation pattern. Some people say RAG is old and busted and yesterday's news. In fact, in enterprise context, you may well be using this pattern and there's not a thing in the world wrong with that
+
+
+00:01:34
+to bring the data of the enterprise into the context that the LLM can work with. Whether RAG is there or not doesn't really matter. The fact is there are going to be other resources in our world that we're going to need to get into the prompt, into the scope of what the model can deal with. And these can be anything. Files. It could be binaries. You could have a database out there. You could have things happening in a Kafka topic. That's even a pretty likely source of resources. So there's just this data out in the world
+
+
+00:02:09
+that the agent needs to be aware of. These are two things that are just not going to be present in the base foundation model. Now, let's talk about a little bit of architecture. What we're doing is building an agent. You could think of it as a microservice. There's nothing particularly exotic about this. But, in MCP terms, this is called the host application. And the host application uses the MCP client library to create an instance of a client in there. Out here, we're going to create an MCP server.
+
+
+00:02:45
+This may be a server that already exists that somebody else has built that we want to take advantage of to bring agentic functionality into our service, or this could be a server that we ourselves are creating. Inside the server, what do we have? Well, we've got access to tools, resources, prompts, capabilities that the server makes available and even describes to the outside world. So, this is a server process. There's a URL, port, etc, and a variety of well-known RESTful endpoints described by the MCP specification
+
+
+00:03:21
+that are implemented by this server, including this capabilities list that tells the world, tells the host application, tells the client, whether there are tools present, what sort of resources might be available, what prompts it has, etc, etc. The connection between these two things, between client and server, can be two things. It can be, interestingly, standard IO. So if this is a process running locally on my laptop and I've got some LLM host application, like say, Claude Desktop or something,
+
+
+00:03:49
+that's something that shows up in a lot of the examples, they can just communicate via pipes and standard IO. We don't want that. That's not kind of what we're interested in in the model I'm trying to give you here. So, we also have as an option HTTP and Server Sent Events, and the messages being exchanged here are going to be in JSON RPC. Now, I will not apologize for those technology choices because I didn't make them. Yes, they have raised the occasional eyebrow, but this is what we've got.
+
+
+00:04:20
+There's a little bit of sort of protocol for a client announcing itself to the server and then establishing communications. There are ways for servers to send asynchronous notifications back to the client. We'll come back to that in a minute. So, a relatively rich setup here for client and server to talk. But what does it do? Let's walk through an example. I think that would be helpful. Let's say we're building a service for making appointments. Sort of generalized meet with somebody,
+
+
+00:04:51
+some group of people at some place, and not necessarily a conference room in the office, but maybe we're getting coffee. Maybe we're getting breakfast. Maybe it's a romantic dinner with your spouse. I've just described a number of tools and resources that are necessary to make that happen. Let's think about that. I need to create a calendar invite. I need some kind of calendar API integration. I need to see at least when my calendar is free, I might need to make assumptions about the counterparty.
+
+
+00:05:17
+Maybe I can get access to their calendar as well, depending on what I've got permissions for. That would be kind of cool. Places I might meet. I suppose knowing about the calendar might better fit under Resource. Tool would be making the appointment, maybe making a reservation at a restaurant, knowing what restaurants, what coffee shops, what breakfast joints are in the area. These are resources that I wanna make available to my agentic application. I could just do all that stuff, do the calendar integration,
+
+
+00:05:47
+go talk to Yelp or whatever APIs I wanna do and bake that into my agent, but then it's locked there and nobody else can get at that unless they've got that code. So the whole idea of MCP is I'm putting those things in here. Let's go through a workflow of how this might work. A prompt comes in, and that prompt from the user and that's the actual input and it's something like, "I wanna have coffee with Peter next week." Okay, well, you just ask the LLM, it's like,
+
+
+00:06:16
+"Who's Peter? Where's coffee? I can't help you with this." But here we can start to do better. This application, the host, the client, whatever you wanna call it, can say, "What capabilities do you have?" It knows the URL of this agent. You've had to tell it and maybe very tactically there's a properties file somewhere with a little list of the URLs of servers that are registered with the agent. And so it can interrogate the capabilities and see, "Oh, you have resources.
+
+
+00:06:44
+Okay. Let me get a list of your resources" which will include text descriptions of each resource. And it's important when writing the server, when building a server to make those good. I can take my prompt. I don't know, I'm just a poor little agentic application. I don't know how to figure out from the input whether I need any of those resources, but I can ask my model. I can say, "You know what, on pass number one, I'll say, here is what my user said. Here is a list of resources:
+
+
+00:07:16
+resource one, resource two, resource three. Do I need these?" We are telling the LLM, "I got this request. I have things like this. Do you think I should go get anything from them?" We submit this as a prompt up to our LLM and it tells us in return, "Yes, you need resource two. That resource two, that list of coffee shops in the area, that looks super interesting. Please give me that." And so now my client says, "Oh, resource two? I know where that is. I'll just go ask my MCP server
+
+
+00:07:51
+for the details of resource two." Maybe passing some parameters, maybe not. And then I will get that text back or whatever that data is. I'll get that back and serialize it as text or otherwise attach it to my next prompt. Where I say, again, "Here is my user prompt. And now here is the resource data." And I provide that data in detail and then ask, "What should I do as a result?" That's how I get the model to help me interpret the resources. How do I interpret the tools?
+
+
+00:08:28
+Well, the good news is, so this call is gonna go back to that same LLM and the APIs now for the foundation models, the biggies, I can actually put the description of the tools in the API call. I don't even have to mess with the prompt or anything. It's structured data that goes in there, the name of the tool, the URL, the schema of the parameters, all that. And in the reply, that tells me if there's a tool I should invoke, it'll say, "Yes, invoke this tool, pass these parameters."
+
+
+00:09:01
+I don't have to write any of the code to parse any of the stuff out because I don't know how to do that. That's all very difficult stuff that LLMs are wonderful at. And those APIs will help me with that tool invocation. They won't call them, okay? ChatGPT, Claude, Gemini, they're not gonna go invoke some URL inside my network and go do something. You know, that's a little bit Skynet-y there, right? But they're gonna tell me, "I recommend you do this." And now my client code gets to
+
+
+00:09:28
+make the decision, maybe asking the user first, maybe not, to go call that tool and cause the effect out in the world. So you can kind of see how this works. So instead of just baking all this code in here, we have this that is now pluggable and discoverable. I don't need to know very much about what this tool does. I just plug it in. I just say, "Hey, you have this agent registered with you, go find out about it, go through this process, and you get its functionality." They're also composable.
+
+
+00:09:59
+The server itself can be a client. So, let's say I had some data source that I knew was in Kafka out there, and I don't wanna go write a bunch of extra Kafka code to go do that in here. Well, I can just then go use, let's say the Confluent MCP server and connect to that topic or even do actually a bunch more stuff. It's a pretty cool MCP server. If Kafka and Confluent are a part of your life, it's good stuff. But if I just need to consume from a Kafka topic, this server itself gets to be a client of another server.
+
+
+00:10:31
+So I've got pluggability, discoverability, composability, huge benefits. These are things that we want in our code. So, I hope you can see now how this really is a big deal. There's a broader vision here than just enhancing a desktop application with some way to help me write code locally. This is really a gateway to building true agentic AI in the enterprise, in a professional setting. That is really cool stuff. So check it out, get started, links below with great help. And as always, let me know in the comments what you build.
+
+
+00:11:08
+Thanks.
+

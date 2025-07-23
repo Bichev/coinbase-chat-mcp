@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide 4: Service Offering Portfolio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .slide-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 40px 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+        
+        .main-title {
+            font-size: 52px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+            margin-bottom: 15px;
+            line-height: 1.1;
+        }
+        
+        .subtitle {
+            font-size: 24px;
+            color: #e2e8f0;
+            font-weight: 400;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 0.3s forwards;
+        }
+        
+        .main-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 30px;
+            align-items: start;
+            margin-bottom: 20px;
+        }
+        
+        .service-pillar {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 16px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            height: fit-content;
+            transition: transform 0.3s ease;
+            animation: slideInUp 1s ease-out both;
+        }
+        
+        .service-pillar:nth-child(1) { 
+            animation-delay: 0.5s;
+            border-top: 4px solid #10b981;
+        }
+        .service-pillar:nth-child(2) { 
+            animation-delay: 0.7s;
+            border-top: 4px solid #60a5fa;
+        }
+        .service-pillar:nth-child(3) { 
+            animation-delay: 0.9s;
+            border-top: 4px solid #a78bfa;
+        }
+        
+        .service-pillar:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(96, 165, 250, 0.2);
+        }
+        
+        .pillar-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .pillar-icon {
+            font-size: 32px;
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+        
+        .pillar-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #f59e0b;
+        }
+        
+        .pillar-subtitle {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+        
+        .service-list {
+            list-style: none;
+        }
+        
+        .service-item {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            margin-bottom: 10px;
+            opacity: 0;
+            animation: fadeInLeft 0.6s ease-out forwards;
+        }
+        
+        .service-item:nth-child(1) { animation-delay: 0.8s; }
+        .service-item:nth-child(2) { animation-delay: 1.0s; }
+        .service-item:nth-child(3) { animation-delay: 1.2s; }
+        .service-item:nth-child(4) { animation-delay: 1.4s; }
+        .service-item:nth-child(5) { animation-delay: 1.6s; }
+        .service-item:nth-child(6) { animation-delay: 1.8s; }
+        
+        .service-item:last-child {
+            border-bottom: none;
+        }
+        
+        .service-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 5px;
+        }
+        
+        .service-description {
+            font-size: 14px;
+            color: #cbd5e1;
+            line-height: 1.4;
+        }
+        
+        .service-price {
+            font-size: 14px;
+            color: #10b981;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+        
+        .coe-pillar {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+        }
+        
+        .accelerators-pillar {
+            background: linear-gradient(135deg, rgba(96, 165, 250, 0.1) 0%, rgba(96, 165, 250, 0.05) 100%);
+        }
+        
+        .services-pillar {
+            background: linear-gradient(135deg, rgba(167, 139, 250, 0.1) 0%, rgba(167, 139, 250, 0.05) 100%);
+        }
+        
+        .value-proposition {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: #0f172a;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            font-weight: 700;
+            box-shadow: 0 10px 30px rgba(251, 191, 36, 0.3);
+            animation: slideUp 0.8s ease-out 1.8s both;
+        }
+        
+        .value-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .value-description {
+            font-size: 16px;
+            line-height: 1.4;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+            font-weight: 700;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .footer-note {
+            position: absolute;
+            bottom: 20px;
+            right: 40px;
+            font-size: 14px;
+            color: #64748b;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <div class="header">
+            <h1 class="main-title">EPAM Service Offering Portfolio</h1>
+            <p class="subtitle">Complete AI for API transformation ecosystem</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="service-pillar coe-pillar">
+                <div class="pillar-header">
+                    <div class="pillar-icon">🏢</div>
+                    <div>
+                        <div class="pillar-title">Center of Excellence</div>
+                        <div class="pillar-subtitle">Knowledge & Standards</div>
+                    </div>
+                </div>
+                
+                <ul class="service-list">
+                    <li class="service-item">
+                        <div class="service-name">MCP Architect Certification</div>
+                        <div class="service-description">Professional certification program for MCP expertise</div>
+                        <!-- <div class="service-price">$5-10K per person</div> -->
+                    </li>
+                    <li class="service-item">
+                        <div class="service-name">Best Practices Library</div>
+                        <div class="service-description">Comprehensive methodology and frameworks</div>
+                        <!-- <div class="service-price">Included in COE</div> -->
+                    </li>
+                    <li class="service-item">
+                        <div class="service-name">Reference Architectures</div>
+                        <div class="service-description">Industry-specific solution blueprints</div>
+                        <!-- <div class="service-price">$25-50K per industry</div> -->
+                    </li>
+                    <li class="service-item">
+                        <div class="service-name">Security & Governance</div>
+                        <div class="service-description">Compliance frameworks and security patterns</div>
+                        <!-- <div class="service-price">$50-100K setup</div> -->
+                    </li>
+                    <li class="service-item">
+                        <div class="service-name">24/7 Expert Support</div>
+                        <div class="service-description">Community access and expert guidance</div>
+                        <!-- <div class="service-price">$10-25K monthly</div> -->
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="service-pillar accelerators-pillar">
+                <div class="pillar-header">
+                    <div class="pillar-icon">⚡</div>
+                    <div>
+                        <div class="pillar-title">Accelerators & Assets</div>
+                        <div class="pillar-subtitle">Ready-to-Deploy Solutions</div>
+                    </div>
+                </div>
+                
+                <ul class="service-list">
+                    <li class="service-item">
+                        <div class="service-name">Pre-built MCP Servers</div>
+                        <div class="service-description">Enterprise APIs ready for deployment</div>
+                        <!-- <div class="service-price">$10-50K per server</div> -->
+                    </li>
+                    <li class="service-item">
+                        <div class="service-name">Financial Services Pack</div>
+                        <div class="service-description">Banking, payment, and trading integrations</div>
+                        <!-- <div class="service-price">$100-250K bundle</div> -->
+                    </li>
+                    <li class="service-item">
+                        <div class="service-name">Healthcare Suite</div>
+                        <div class="service-description">HIPAA-compliant healthcare integrations</div>
+                        <!-- <div class="service-price">$150-300K bundle</div> -->
+                    </li>
+                    <li class="service-item">
+                        <div class="service-name">Retail & E-commerce</div>
+                        <div class="service-description">Inventory, CRM, and analytics bundles</div>
+                        <!-- <div class="service-price">$75-200K bundle</div> -->
+                    </li>
+                    <li class="service-item">
+                        <div class="service-name">Security Templates</div>
+                        <div class="service-description">Compliance patterns and security frameworks</div>
+                        <!-- <div class="service-price">$25-75K per template</div> -->
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="service-pillar services-pillar">
+                <div class="pillar-header">
+                    <div class="pillar-icon">🛠️</div>
+                    <div>
+                        <div class="pillar-title">Professional Services</div>
+                        <div class="pillar-subtitle">Implementation & Support</div>
+                    </div>
+                </div>
+                
+                <ul class="service-list">
+                    <li class="service-item">
+                        <div class="service-name">Discovery Workshops</div>
+                        <div class="service-description">Strategic assessment and roadmap development</div>
+                        <!-- <div class="service-price">$25-50K per workshop</div> -->
+                    </li>
+                    <li class="service-item">
+                        <div class="service-name">Implementation Services</div>
+                        <div class="service-description">Full-scale MCP deployment projects</div>
+                        <!-- <div class="service-price">$100-500K per project</div> -->
+                    </li>
+                    <li class="service-item">
+                        <div class="service-name">Managed Operations</div>
+                        <div class="service-description">Ongoing MCP infrastructure management</div>
+                        <!-- <div class="service-price">$20-50K monthly</div> -->
+                    </li>
+                    <li class="service-item">
+                        <div class="service-name">Integration Architecture</div>
+                        <div class="service-description">Custom API integration design</div>
+                        <!-- <div class="service-price">$50-150K per project</div> -->
+                    </li>
+                    <li class="service-item">
+                        <div class="service-name">Change Management</div>
+                        <div class="service-description">Training and organizational transformation</div>
+                        <!-- <div class="service-price">$25-100K per program</div> -->
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="value-proposition">
+            <div class="value-title">Complete Transformation Ecosystem</div>
+            <div class="value-description">
+                From strategy to implementation to ongoing support - everything needed for <span class="highlight">MCP success</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer-note">
+        MCP Service Portfolio - End-to-End Solutions
+    </div>
+</body>
+</html> 
