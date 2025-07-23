@@ -12,6 +12,8 @@ import MCPTester from './pages/MCPTester';
 import APIExplorer from './pages/APIExplorer';
 import Tutorial from './pages/Tutorial';
 import Architecture from './pages/Architecture';
+import Presentations from './pages/Presentations';
+import SlideViewer from './pages/SlideViewer';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -40,6 +42,8 @@ function App() {
               <Route path="/api-explorer" element={<APIExplorer />} />
               <Route path="/tutorial" element={<Tutorial />} />
               <Route path="/architecture" element={<Architecture />} />
+              <Route path="/presentations" element={<Presentations />} />
+              <Route path="/slide/:slideId" element={<SlideViewer />} />
             </Routes>
           </Layout>
           <Toaster

@@ -6,7 +6,8 @@ import {
   ChatBubbleLeftRightIcon,
   SparklesIcon,
   BookOpenIcon,
-  CubeTransparentIcon
+  CubeTransparentIcon,
+  PresentationChartBarIcon
 } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
 
@@ -66,6 +67,13 @@ const navigation = [
     icon: CubeTransparentIcon,
     description: 'MCP deep dive',
     gradient: 'from-violet-500 to-purple-600'
+  },
+  { 
+    name: 'Presentations', 
+    href: '/presentations', 
+    icon: PresentationChartBarIcon,
+    description: 'Business slides',
+    gradient: 'from-rose-500 to-pink-600'
   },
 ];
 
