@@ -5,7 +5,8 @@ import {
   CodeBracketIcon,
   ChatBubbleLeftRightIcon,
   SparklesIcon,
-  BookOpenIcon
+  BookOpenIcon,
+  CubeTransparentIcon
 } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
 
@@ -58,6 +59,13 @@ const navigation = [
     icon: BookOpenIcon,
     description: 'Comprehensive guide',
     gradient: 'from-teal-500 to-cyan-600'
+  },
+  { 
+    name: 'Architecture', 
+    href: '/architecture', 
+    icon: CubeTransparentIcon,
+    description: 'MCP deep dive',
+    gradient: 'from-violet-500 to-purple-600'
   },
 ];
 
