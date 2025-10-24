@@ -163,14 +163,14 @@ const SlideViewer: React.FC = () => {
       </div>
 
       {/* Slide Content */}
-      <div className="flex-1 p-4">
-        <div className="max-w-7xl mx-auto h-full">
-          <div className="bg-white rounded-xl shadow-2xl h-full overflow-hidden">
+      <div className="flex-1 p-4 overflow-auto">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-white rounded-xl shadow-2xl overflow-auto">
             <iframe
               src={`/slides/${currentSlide.filename}`}
-              className="w-full h-full border-0"
+              className="w-full border-0"
               title={currentSlide.title}
-              style={{ minHeight: 'calc(100vh - 200px)' }}
+              style={{ minHeight: 'calc(100vh - 180px)', height: '100%' }}
             />
           </div>
         </div>

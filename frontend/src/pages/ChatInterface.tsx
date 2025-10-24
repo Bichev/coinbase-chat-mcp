@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2, RefreshCw, History } from 'lucide-react';
+import { Send, Bot, User, Loader2, RefreshCw, History, Mic, MicOff } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { 
@@ -33,7 +33,10 @@ const ChatInterface: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [remainingRequests, setRemainingRequests] = useState<number | null>(null);
+  const [isListening, setIsListening] = useState(false);
+  const [speechSupported, setSpeechSupported] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
 
   // Fetch popular pairs for dashboard widgets
   const { data: popularPairs } = useQuery({
@@ -66,6 +69,48 @@ const ChatInterface: React.FC = () => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // Initialize speech recognition
+  useEffect(() => {
+    // Check if speech recognition is supported
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    
+    if (SpeechRecognition) {
+      setSpeechSupported(true);
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event: any) => {
+        const transcript = Array.from(event.results)
+          .map((result: any) => result[0])
+          .map((result: any) => result.transcript)
+          .join('');
+        
+        setInput(transcript);
+      };
+
+      recognition.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+        
+        if (event.error === 'not-allowed') {
+          alert('Microphone access was denied. Please enable microphone permissions in your browser settings.');
+        }
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+    }
+  }, []);
 
   // Load current session on component mount
   useEffect(() => {
@@ -162,6 +207,23 @@ const ChatInterface: React.FC = () => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
+    }
+  };
+
+  const toggleVoiceInput = () => {
+    if (!speechSupported) {
+      alert('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current?.stop();
+    } else {
+      try {
+        recognitionRef.current?.start();
+      } catch (error) {
+        console.error('Error starting speech recognition:', error);
+      }
     }
   };
 
@@ -492,7 +554,7 @@ const ChatInterface: React.FC = () => {
 
         {/* Input */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200/50 p-4">
-          <div className="flex space-x-4">
+          <div className="flex space-x-3">
             <input
               type="text"
               value={input}
@@ -500,8 +562,26 @@ const ChatInterface: React.FC = () => {
               onKeyPress={handleKeyPress}
               placeholder="Ask me about cryptocurrency prices, market analysis, or trading insights..."
               className="flex-1 border-0 bg-transparent focus:outline-none text-gray-900 placeholder-gray-500 text-sm"
-              disabled={isLoading}
+              disabled={isLoading || isListening}
             />
+            
+            {/* Voice Input Button */}
+            {speechSupported && (
+              <button
+                onClick={toggleVoiceInput}
+                disabled={isLoading}
+                className={`p-3 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg ${
+                  isListening 
+                    ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white animate-pulse' 
+                    : 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:from-purple-600 hover:to-indigo-700'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                title={isListening ? 'Stop recording' : 'Start voice input'}
+              >
+                {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+              </button>
+            )}
+            
+            {/* Send Button */}
             <button
               onClick={handleSend}
               disabled={!input.trim() || isLoading}
@@ -510,6 +590,18 @@ const ChatInterface: React.FC = () => {
               <Send className="w-4 h-4" />
             </button>
           </div>
+          
+          {/* Voice Input Status */}
+          {isListening && (
+            <div className="mt-3 flex items-center space-x-2 text-sm text-purple-600">
+              <div className="flex space-x-1">
+                <div className="w-1 h-4 bg-purple-600 rounded-full animate-pulse" style={{ animationDelay: '0s' }}></div>
+                <div className="w-1 h-4 bg-purple-600 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-1 h-4 bg-purple-600 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+              </div>
+              <span className="font-medium">Listening... Speak now</span>
+            </div>
+          )}
         </div>
       </div>
 

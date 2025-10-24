@@ -201,7 +201,7 @@ const Presentations: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {categorySlides.map((slide, index) => {
+                {categorySlides.map((slide) => {
                   const globalIndex = slides.findIndex(s => s.id === slide.id);
                   return (
                                          <div key={slide.id} className="group relative">
@@ -319,16 +319,16 @@ const Presentations: React.FC = () => {
       </div>
 
              {/* Slide Modal */}
-       {selectedSlide && (
-         <div 
-           className="fixed inset-0 bg-black/75 z-[9999] flex items-center justify-center p-4"
-           onClick={(e) => {
-             if (e.target === e.currentTarget) {
-               closeSlideModal();
-             }
-           }}
-         >
-          <div className="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] flex flex-col">
+      {selectedSlide && (
+        <div 
+          className="fixed inset-0 bg-black/75 z-[9999] flex items-center justify-center p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              closeSlideModal();
+            }
+          }}
+        >
+          <div className="bg-white rounded-xl shadow-2xl max-w-7xl w-full h-[95vh] flex flex-col">
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-slate-200">
               <div className="flex items-center space-x-4">
@@ -369,16 +369,19 @@ const Presentations: React.FC = () => {
               </div>
             </div>
 
-                         {/* Modal Content */}
-             <div className="flex-1 overflow-hidden">
-               <iframe
-                 src={`/slides/${selectedSlide.filename}`}
-                 className="w-full h-full border-0"
-                 title={selectedSlide.title}
-                 onLoad={() => console.log('Iframe loaded for:', selectedSlide.title)}
-                 onError={() => console.error('Iframe failed to load for:', selectedSlide.title)}
-               />
-             </div>
+                        {/* Modal Content */}
+            <div className="flex-1 overflow-auto">
+              <div className="w-full h-full" style={{ minHeight: '1200px' }}>
+                <iframe
+                  src={`/slides/${selectedSlide.filename}`}
+                  className="w-full border-0"
+                  title={selectedSlide.title}
+                  style={{ height: '1200px' }}
+                  onLoad={() => console.log('Iframe loaded for:', selectedSlide.title)}
+                  onError={() => console.error('Iframe failed to load for:', selectedSlide.title)}
+                />
+              </div>
+            </div>
           </div>
         </div>
       )}
