@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2, RefreshCw, History, Mic, MicOff } from 'lucide-react';
+import { Send, Bot, User, Loader2, RefreshCw, History, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { 
@@ -12,6 +12,7 @@ import {
 import { aiService } from '../services/aiService';
 import { chatSessionService, ChatMessage } from '../services/chatSessionService';
 import ChatSessionHistory from '../components/ChatSessionHistory';
+import { voiceService } from '../services/voiceService';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
@@ -34,7 +35,10 @@ const ChatInterface: React.FC = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [remainingRequests, setRemainingRequests] = useState<number | null>(null);
   const [isListening, setIsListening] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
+  const [useOpenAI, setUseOpenAI] = useState(false); // Toggle between Web Speech API and OpenAI Whisper
+  const [playingMessageId, setPlayingMessageId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
 
@@ -70,7 +74,7 @@ const ChatInterface: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Initialize speech recognition
+  // Initialize speech recognition and check OpenAI availability
   useEffect(() => {
     // Check if speech recognition is supported
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -109,6 +113,11 @@ const ChatInterface: React.FC = () => {
       };
 
       recognitionRef.current = recognition;
+    }
+
+    // Check if OpenAI voice service is available
+    if (voiceService.isAvailable()) {
+      setUseOpenAI(true); // Prefer OpenAI if available
     }
   }, []);
 
@@ -210,7 +219,16 @@ const ChatInterface: React.FC = () => {
     }
   };
 
-  const toggleVoiceInput = () => {
+  const toggleVoiceInput = async () => {
+    // Use OpenAI Whisper if available, otherwise fall back to Web Speech API
+    if (useOpenAI && voiceService.isAvailable()) {
+      await toggleOpenAIVoiceInput();
+    } else {
+      toggleWebSpeechInput();
+    }
+  };
+
+  const toggleWebSpeechInput = () => {
     if (!speechSupported) {
       alert('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
       return;
@@ -224,6 +242,68 @@ const ChatInterface: React.FC = () => {
       } catch (error) {
         console.error('Error starting speech recognition:', error);
       }
+    }
+  };
+
+  const toggleOpenAIVoiceInput = async () => {
+    if (isRecording) {
+      // Stop recording and transcribe
+      try {
+        setIsRecording(false);
+        setIsListening(true); // Show processing state
+        
+        const audioBlob = await voiceService.stopRecording();
+        const transcript = await voiceService.transcribeAudio(audioBlob);
+        
+        setInput(transcript);
+        setIsListening(false);
+      } catch (error) {
+        console.error('Error transcribing audio:', error);
+        alert(error instanceof Error ? error.message : 'Failed to transcribe audio');
+        setIsListening(false);
+        setIsRecording(false);
+      }
+    } else {
+      // Start recording
+      try {
+        await voiceService.startRecording();
+        setIsRecording(true);
+        setIsListening(true);
+      } catch (error) {
+        console.error('Error starting recording:', error);
+        alert(error instanceof Error ? error.message : 'Failed to start recording');
+        setIsRecording(false);
+        setIsListening(false);
+      }
+    }
+  };
+
+  const speakMessage = async (messageId: string, text: string) => {
+    if (!voiceService.isAvailable()) {
+      alert('Text-to-speech requires OpenAI API key. Please add VITE_OPENAI_API_KEY to your .env file');
+      return;
+    }
+
+    // Stop if already playing this message
+    if (playingMessageId === messageId) {
+      voiceService.stopAudio();
+      setPlayingMessageId(null);
+      return;
+    }
+
+    try {
+      // Stop any currently playing audio
+      voiceService.stopAudio();
+      setPlayingMessageId(messageId);
+
+      const audioBlob = await voiceService.textToSpeech(text, { voice: 'alloy' });
+      await voiceService.playAudio(audioBlob);
+      
+      setPlayingMessageId(null);
+    } catch (error) {
+      console.error('Error playing message:', error);
+      alert(error instanceof Error ? error.message : 'Failed to play audio');
+      setPlayingMessageId(null);
     }
   };
 
@@ -514,7 +594,27 @@ const ChatInterface: React.FC = () => {
                     ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white'
                     : 'bg-white/80 text-gray-900 border border-gray-200/50'
                 }`}>
-                  <div className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</div>
+                  <div className="flex items-start justify-between space-x-3">
+                    <div className="whitespace-pre-wrap text-sm leading-relaxed flex-1">{message.content}</div>
+                    {/* Text-to-Speech button for assistant messages */}
+                    {message.type === 'assistant' && voiceService.isAvailable() && (
+                      <button
+                        onClick={() => speakMessage(message.id, message.content)}
+                        className={`flex-shrink-0 p-2 rounded-lg transition-all duration-200 ${
+                          playingMessageId === message.id 
+                            ? 'bg-green-100 text-green-600' 
+                            : 'hover:bg-gray-100 text-gray-400 hover:text-gray-600'
+                        }`}
+                        title={playingMessageId === message.id ? 'Stop speaking' : 'Read aloud'}
+                      >
+                        {playingMessageId === message.id ? (
+                          <VolumeX className="w-4 h-4" />
+                        ) : (
+                          <Volume2 className="w-4 h-4" />
+                        )}
+                      </button>
+                    )}
+                  </div>
                   {message.toolCalls && message.toolCalls.length > 0 && (
                     <div className="mt-3 pt-3 border-t border-white/20">
                       <div className="text-xs opacity-80 mb-2">🔧 Tool calls executed:</div>
@@ -593,13 +693,22 @@ const ChatInterface: React.FC = () => {
           
           {/* Voice Input Status */}
           {isListening && (
-            <div className="mt-3 flex items-center space-x-2 text-sm text-purple-600">
-              <div className="flex space-x-1">
-                <div className="w-1 h-4 bg-purple-600 rounded-full animate-pulse" style={{ animationDelay: '0s' }}></div>
-                <div className="w-1 h-4 bg-purple-600 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                <div className="w-1 h-4 bg-purple-600 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+            <div className="mt-3 flex items-center justify-between">
+              <div className="flex items-center space-x-2 text-sm text-purple-600">
+                <div className="flex space-x-1">
+                  <div className="w-1 h-4 bg-purple-600 rounded-full animate-pulse" style={{ animationDelay: '0s' }}></div>
+                  <div className="w-1 h-4 bg-purple-600 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                  <div className="w-1 h-4 bg-purple-600 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                </div>
+                <span className="font-medium">
+                  {isRecording ? 'Recording... Click mic to stop' : 'Processing audio...'}
+                </span>
               </div>
-              <span className="font-medium">Listening... Speak now</span>
+              {useOpenAI && voiceService.isAvailable() && (
+                <span className="text-xs text-purple-500 bg-purple-50 px-2 py-1 rounded-full">
+                  🌐 Multi-language (OpenAI Whisper)
+                </span>
+              )}
             </div>
           )}
         </div>

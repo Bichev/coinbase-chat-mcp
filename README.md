@@ -17,6 +17,8 @@ An open-source **Model Context Protocol (MCP)** server and web application for s
 
 ### 💬 Interactive Chat Interface
 - **AI-Powered Conversations** - GPT-4 integration for intelligent crypto discussions
+- **Voice Input** - Speak your questions with multi-language support via OpenAI Whisper
+- **Text-to-Speech** - AI responses read aloud with natural voices
 - **Session Persistence** - Chat history saved across browser tabs and restarts
 - **Session Management** - Create, switch, and manage multiple chat sessions
 - **Auto-Titling** - Sessions automatically titled from first user message
@@ -58,14 +60,22 @@ An open-source **Model Context Protocol (MCP)** server and web application for s
    cd api-server && npm install && cd ..
    ```
 
-3. **Build the MCP server**
+3. **Configure environment variables (Optional for AI features)**
+   ```bash
+   cd frontend
+   # Create .env file with your OpenAI API key for voice features
+   echo "VITE_OPENAI_API_KEY=your_openai_api_key_here" > .env
+   cd ..
+   ```
+
+4. **Build the MCP server**
    ```bash
    cd mcp-server
    npm run build
    cd ..
    ```
 
-4. **Start development servers**
+5. **Start development servers**
    ```bash
    # Start API server (port 3002)
    cd api-server && npm run dev &
@@ -153,8 +163,8 @@ VITE_OPENAI_API_KEY=your_openai_api_key_here
 
 **Security Note**: The frontend includes built-in warnings about client-side API key usage and only enables AI features in development mode.
 
-### 🤖 AI Chat Setup (Optional)
-To enable the AI-powered chat interface:
+### 🤖 AI Chat & Voice Features Setup (Optional)
+To enable the AI-powered chat interface with voice capabilities:
 
 1. **Get OpenAI API Key**: Visit [OpenAI Platform](https://platform.openai.com/api-keys)
 2. **Create frontend/.env file**:
@@ -162,6 +172,21 @@ To enable the AI-powered chat interface:
    VITE_OPENAI_API_KEY=sk-your-actual-api-key-here
    ```
 3. **Restart the frontend**: Chat will use GPT-4 for intelligent crypto discussions!
+
+#### 🎤 Voice Features (Requires OpenAI API Key)
+Once configured, you'll have access to:
+
+- **🌐 Multi-Language Voice Input** - Speak questions in any language using OpenAI Whisper
+  - Supports 50+ languages including English, Spanish, French, German, Russian, Chinese, Japanese, and more
+  - Real-time speech-to-text transcription
+  - Click the purple microphone button to start recording
+  
+- **🔊 Text-to-Speech Responses** - Hear AI responses read aloud
+  - Click the speaker icon on any assistant message
+  - Natural-sounding voices powered by OpenAI TTS
+  - Multiple voice options available
+
+- **⚡ Fallback Mode** - Without OpenAI key, basic Web Speech API provides English-only voice input
 
 **Note**: Without the API key, the chat interface provides a helpful setup message and basic functionality.
 
@@ -182,6 +207,8 @@ Response: [Technical analysis with volatility metrics]
 ### Frontend Web Application
 - **Visit**: `http://localhost:3005`
 - **Chat**: Persistent conversations with session management
+- **Voice Chat**: Click microphone to ask questions by voice in any language
+- **Listen to Responses**: Click speaker icon on messages to hear them read aloud
 - **API Explorer**: Test all 8 MCP tools interactively
 - **Dashboard**: Real-time market overview
 - **Markets**: Detailed trading statistics
