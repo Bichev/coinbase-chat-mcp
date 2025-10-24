@@ -7,7 +7,8 @@ import {
   SparklesIcon,
   BookOpenIcon,
   CubeTransparentIcon,
-  PresentationChartBarIcon
+  PresentationChartBarIcon,
+  WalletIcon
 } from '@heroicons/react/24/outline';
 import { clsx } from 'clsx';
 
@@ -18,6 +19,13 @@ const navigation = [
     icon: ChatBubbleLeftRightIcon,
     description: 'AI conversations',
     gradient: 'from-cyan-500 to-blue-600'
+  },
+  { 
+    name: 'Virtual Wallet', 
+    href: '/wallet', 
+    icon: WalletIcon,
+    description: '🍺₿ Demo transactions',
+    gradient: 'from-purple-500 to-pink-600'
   },
   // { 
   //   name: 'Markets', 
@@ -213,7 +221,7 @@ export default function Layout({ children }: LayoutProps) {
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
                   <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
                 </div>
-                <span className="text-xs text-gray-400">8 MCP tools active</span>
+                <span className="text-xs text-gray-400">12 MCP tools active</span>
               </div>
             </div>
           </div>

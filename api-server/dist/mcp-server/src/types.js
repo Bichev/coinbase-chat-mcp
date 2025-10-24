@@ -97,3 +97,19 @@ export class RateLimitError extends Error {
         this.name = 'RateLimitError';
     }
 }
+// Transaction Tool Input Schemas
+export const CalculateBeerCostInputSchema = z.object({
+    currency: z.string().optional().describe('Crypto currency to buy (default: BTC)'),
+    beerCount: z.number().optional().describe('Number of beers (default: 1)'),
+    pricePerBeer: z.number().optional().describe('Price per beer in USD (default: 5)')
+});
+export const SimulatePurchaseInputSchema = z.object({
+    fromCurrency: z.string().describe('Currency to spend (e.g., USD)'),
+    toCurrency: z.string().describe('Currency to buy (e.g., BTC, ETH)'),
+    amount: z.number().describe('Amount in fromCurrency to spend'),
+    description: z.string().optional().describe('Purchase description (e.g., "Beer at local pub")')
+});
+export const GetTransactionHistoryInputSchema = z.object({
+    limit: z.number().optional().describe('Maximum number of transactions to return (default: 10)'),
+    currency: z.string().optional().describe('Filter by currency')
+});

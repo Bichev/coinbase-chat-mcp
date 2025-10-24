@@ -142,3 +142,30 @@ export interface CoinbaseMCPConfig {
         ttl: number;
     };
 }
+export interface DemoWallet {
+    balances: {
+        [currency: string]: number;
+    };
+    transactions: DemoTransaction[];
+    createdAt: Date;
+    lastUpdated: Date;
+}
+export interface DemoTransaction {
+    id: string;
+    type: 'buy' | 'sell' | 'transfer';
+    fromCurrency: string;
+    toCurrency: string;
+    fromAmount: number;
+    toAmount: number;
+    price: number;
+    description: string;
+    timestamp: Date;
+    status: 'completed' | 'pending' | 'failed';
+}
+export interface PurchaseCalculation {
+    usdAmount: number;
+    cryptoAmount: number;
+    cryptoCurrency: string;
+    currentPrice: number;
+    description: string;
+}

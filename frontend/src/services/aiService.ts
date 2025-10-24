@@ -36,13 +36,19 @@ const ALLOWED_TOPICS = [
   'cryptocurrency', 'crypto', 'bitcoin', 'ethereum', 'blockchain', 'trading',
   'price', 'market', 'analysis', 'exchange', 'wallet', 'defi', 'nft',
   'mcp', 'model context protocol', 'coinbase', 'api', 'technical analysis',
-  'volatility', 'support', 'resistance', 'volume', 'trend'
+  'volatility', 'support', 'resistance', 'volume', 'trend',
+  'buy', 'purchase', 'sell', 'balance', 'transaction', 'portfolio', 'invest'
 ];
 
 const OFF_TOPIC_KEYWORDS = [
-  'cat', 'dog', 'animal', 'pet', 'weather', 'food', 'movie', 'music',
+  'cat', 'dog', 'animal', 'pet', 'weather', 'movie', 'music',
   'sports', 'politics', 'health', 'medicine', 'travel', 'cooking',
   'fashion', 'celebrity', 'news', 'entertainment'
+];
+
+// Keywords that are allowed even if they seem off-topic (for special features)
+const ALLOWED_CONTEXT_KEYWORDS = [
+  'beer', 'coffee', 'pizza', 'food' // For price comparison and transaction demos
 ];
 
 // Define available MCP tools for the AI
@@ -142,6 +148,84 @@ const availableTools = [
       required: ['currency'],
     },
   },
+  // 🍺₿ WALLET TRANSACTION TOOLS 🍺₿
+  {
+    name: 'calculate_beer_cost',
+    description: 'Calculate how much cryptocurrency you can buy with the price of beer(s) - fun way to understand crypto value! Use when user asks about beer and crypto.',
+    parameters: {
+      type: 'object',
+      properties: {
+        currency: {
+          type: 'string',
+          description: 'Cryptocurrency to calculate (e.g., BTC, ETH, SOL)',
+          default: 'BTC',
+        },
+        beerCount: {
+          type: 'number',
+          description: 'Number of beers (default: 1)',
+          default: 1,
+        },
+        pricePerBeer: {
+          type: 'number',
+          description: 'Price per beer in USD (default: 5)',
+          default: 5,
+        },
+      },
+    },
+  },
+  {
+    name: 'simulate_btc_purchase',
+    description: 'Simulate buying cryptocurrency with USD in the demo wallet. Use when user wants to buy, purchase, or invest in crypto.',
+    parameters: {
+      type: 'object',
+      properties: {
+        fromCurrency: {
+          type: 'string',
+          description: 'Currency to spend (usually USD)',
+          default: 'USD',
+        },
+        toCurrency: {
+          type: 'string',
+          description: 'Cryptocurrency to buy (e.g., BTC, ETH, SOL)',
+        },
+        amount: {
+          type: 'number',
+          description: 'Amount in fromCurrency to spend',
+        },
+        description: {
+          type: 'string',
+          description: 'Optional purchase description',
+        },
+      },
+      required: ['toCurrency', 'amount'],
+    },
+  },
+  {
+    name: 'get_virtual_wallet',
+    description: 'Get the demo wallet balance and statistics. Use when user asks about their wallet, balance, or portfolio.',
+    parameters: {
+      type: 'object',
+      properties: {},
+    },
+  },
+  {
+    name: 'get_transaction_history',
+    description: 'Get the demo wallet transaction history. Use when user asks about transaction history or what they bought.',
+    parameters: {
+      type: 'object',
+      properties: {
+        limit: {
+          type: 'number',
+          description: 'Maximum number of transactions to return (default: 10)',
+          default: 10,
+        },
+        currency: {
+          type: 'string',
+          description: 'Optional: filter by currency',
+        },
+      },
+    },
+  },
 ];
 
 export class AIService {
@@ -163,8 +247,14 @@ Your capabilities include:
 - Getting exchange rates and currency conversions
 - Analyzing price trends, volatility, support/resistance levels
 - Explaining MCP (Model Context Protocol) technology and its benefits
+- 🍺₿ Demo wallet transactions: calculate beer-to-crypto conversions, simulate purchases, check wallet balance, view transaction history
 
 Always be helpful, accurate, and provide clear explanations about cryptocurrency topics. When users ask about cryptocurrencies, use the appropriate tools to get real-time data. Format your responses in a friendly, conversational way while being informative.
+
+SPECIAL FEATURES:
+- When users mention "beer" and crypto, use the calculate_beer_cost tool for fun comparisons!
+- When users want to "buy" crypto, use simulate_btc_purchase to demonstrate transactions
+- Show wallet balances and transaction history when asked about portfolio or purchases
 
 If a user asks about a cryptocurrency, try to infer the correct trading pair (usually with USD, like BTC-USD, ETH-USD, etc.).
 
@@ -219,6 +309,11 @@ If someone asks about non-cryptocurrency topics, respond with something like: "I
   private isTopicAllowed(userMessage: string): boolean {
     const lowerMessage = userMessage.toLowerCase();
     
+    // Check for special context keywords (like "beer" for wallet demos)
+    const hasAllowedContextKeywords = ALLOWED_CONTEXT_KEYWORDS.some(keyword => 
+      lowerMessage.includes(keyword)
+    );
+    
     // Check for off-topic keywords
     const hasOffTopicKeywords = OFF_TOPIC_KEYWORDS.some(keyword => 
       lowerMessage.includes(keyword)
@@ -231,11 +326,12 @@ If someone asks about non-cryptocurrency topics, respond with something like: "I
     
     // Allow if it has crypto topics or if it's a general greeting/question
     const isGeneralQuery = lowerMessage.length < 20 || 
-      ['hello', 'hi', 'help', 'what', 'how', 'can you'].some(word => 
+      ['hello', 'hi', 'help', 'what', 'how', 'can you', 'show', 'buy', 'get'].some(word => 
         lowerMessage.includes(word)
       );
     
-    return hasAllowedTopics || (isGeneralQuery && !hasOffTopicKeywords);
+    // Allow if: has crypto topics, has allowed context keywords, or is general query without off-topic keywords
+    return hasAllowedTopics || hasAllowedContextKeywords || (isGeneralQuery && !hasOffTopicKeywords);
   }
 
   async processMessage(userMessage: string): Promise<AIResponse> {
@@ -366,6 +462,8 @@ If someone asks about non-cryptocurrency topics, respond with something like: "I
     try {
       let endpoint = '';
       let queryParams = new URLSearchParams();
+      let method = 'GET';
+      let body: any = null;
 
       switch (toolCall.tool) {
         case 'get_spot_price':
@@ -391,6 +489,31 @@ If someone asks about non-cryptocurrency topics, respond with something like: "I
           endpoint = `/api/v1/exchange-rates`;
           queryParams.append('currency', toolCall.parameters.currency);
           break;
+        // 🍺₿ WALLET TOOLS 🍺₿
+        case 'calculate_beer_cost':
+          endpoint = `/api/v1/wallet/calculate-beer-cost`;
+          if (toolCall.parameters.currency) queryParams.append('currency', toolCall.parameters.currency);
+          if (toolCall.parameters.beerCount) queryParams.append('beerCount', toolCall.parameters.beerCount.toString());
+          if (toolCall.parameters.pricePerBeer) queryParams.append('pricePerBeer', toolCall.parameters.pricePerBeer.toString());
+          break;
+        case 'simulate_btc_purchase':
+          endpoint = `/api/v1/wallet/purchase`;
+          method = 'POST';
+          body = JSON.stringify({
+            fromCurrency: toolCall.parameters.fromCurrency || 'USD',
+            toCurrency: toolCall.parameters.toCurrency,
+            amount: toolCall.parameters.amount,
+            description: toolCall.parameters.description
+          });
+          break;
+        case 'get_virtual_wallet':
+          endpoint = `/api/v1/wallet`;
+          break;
+        case 'get_transaction_history':
+          endpoint = `/api/v1/wallet/transactions`;
+          if (toolCall.parameters.limit) queryParams.append('limit', toolCall.parameters.limit.toString());
+          if (toolCall.parameters.currency) queryParams.append('currency', toolCall.parameters.currency);
+          break;
         default:
           throw new Error(`Unknown tool: ${toolCall.tool}`);
       }
@@ -398,7 +521,19 @@ If someone asks about non-cryptocurrency topics, respond with something like: "I
       // Use environment variable or default to relative path for production
       const baseUrl = import.meta.env.VITE_API_URL || '';
       const url = `${baseUrl}${endpoint}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
-      const response = await fetch(url);
+      
+      const fetchOptions: RequestInit = {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+      
+      if (body) {
+        fetchOptions.body = body;
+      }
+      
+      const response = await fetch(url, fetchOptions);
       const data = await response.json();
 
       if (!response.ok) {

@@ -412,7 +412,7 @@ const ChatInterface: React.FC = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-sm text-gray-600">Ask me about cryptocurrency prices, market analysis, or trading insights</span>
+              <span className="text-sm text-gray-600">Ask me about crypto prices, buy virtual Bitcoin, or check your demo wallet 🍺₿</span>
             </div>
             <div className="flex items-center space-x-2">
               {/* Rate Limit Indicator */}
@@ -492,16 +492,16 @@ const ChatInterface: React.FC = () => {
                         <span className="text-sm text-gray-700">"What's the current Bitcoin price?"</span>
                       </div>
                       <div className="flex items-center space-x-2">
+                        <div className="w-1.5 h-1.5 bg-orange-500 rounded-full"></div>
+                        <span className="text-sm text-gray-700">"🍺 Buy me a beer worth of Bitcoin"</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
                         <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
                         <span className="text-sm text-gray-700">"Show me popular trading pairs"</span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <div className="w-1.5 h-1.5 bg-purple-500 rounded-full"></div>
-                        <span className="text-sm text-gray-700">"Get Ethereum market stats"</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-1.5 h-1.5 bg-orange-500 rounded-full"></div>
-                        <span className="text-sm text-gray-700">"Search for Litecoin assets"</span>
+                        <span className="text-sm text-gray-700">"What's in my virtual wallet?"</span>
                       </div>
                     </div>
                     <div className="space-y-2">
@@ -511,15 +511,15 @@ const ChatInterface: React.FC = () => {
                       </div>
                       <div className="flex items-center space-x-2">
                         <div className="w-1.5 h-1.5 bg-pink-500 rounded-full"></div>
-                        <span className="text-sm text-gray-700">"Get USD exchange rates"</span>
+                        <span className="text-sm text-gray-700">"Buy $10 worth of Ethereum"</span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></div>
-                        <span className="text-sm text-gray-700">"Historical prices for ETH-USD"</span>
+                        <span className="text-sm text-gray-700">"Show my transaction history"</span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <div className="w-1.5 h-1.5 bg-teal-500 rounded-full"></div>
-                        <span className="text-sm text-gray-700">"Bitcoin details and information"</span>
+                        <span className="text-sm text-gray-700">"Get Ethereum market stats"</span>
                       </div>
                     </div>
                   </div>
@@ -555,22 +555,28 @@ const ChatInterface: React.FC = () => {
                   Bitcoin price
                 </button>
                 <button
+                  onClick={() => setInput("Buy me a beer worth of Bitcoin")}
+                  className="px-4 py-2 bg-white/70 hover:bg-white border border-orange-200 rounded-lg text-sm text-orange-700 hover:text-orange-900 transition-all duration-200 shadow-sm hover:shadow-md"
+                >
+                  🍺 Beer → BTC
+                </button>
+                <button
                   onClick={() => setInput("Show me popular trading pairs")}
                   className="px-4 py-2 bg-white/70 hover:bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:text-gray-900 transition-all duration-200 shadow-sm hover:shadow-md"
                 >
                   Popular pairs
                 </button>
                 <button
+                  onClick={() => setInput("Show my wallet balance")}
+                  className="px-4 py-2 bg-white/70 hover:bg-white border border-purple-200 rounded-lg text-sm text-purple-700 hover:text-purple-900 transition-all duration-200 shadow-sm hover:shadow-md"
+                >
+                  👛 My wallet
+                </button>
+                <button
                   onClick={() => setInput("Get Ethereum market stats")}
                   className="px-4 py-2 bg-white/70 hover:bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:text-gray-900 transition-all duration-200 shadow-sm hover:shadow-md"
                 >
                   ETH stats
-                </button>
-                <button
-                  onClick={() => setInput("Analyze Bitcoin volatility over 30 days")}
-                  className="px-4 py-2 bg-white/70 hover:bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:text-gray-900 transition-all duration-200 shadow-sm hover:shadow-md"
-                >
-                  BTC analysis
                 </button>
               </div>
             </div>
@@ -618,13 +624,93 @@ const ChatInterface: React.FC = () => {
                   {message.toolCalls && message.toolCalls.length > 0 && (
                     <div className="mt-3 pt-3 border-t border-white/20">
                       <div className="text-xs opacity-80 mb-2">🔧 Tool calls executed:</div>
-                      {message.toolCalls.map((toolCall, index) => (
-                        <div key={index} className="text-xs bg-white/10 rounded-lg p-2 mb-1 backdrop-blur-sm">
-                          <span className="font-mono">{toolCall.tool}</span>
-                          {toolCall.error && <span className="text-red-300 ml-2">❌ {toolCall.error}</span>}
-                          {toolCall.result && <span className="text-green-300 ml-2">✅ Success</span>}
+                      {message.toolCalls.map((toolCall, index) => {
+                        const isWalletTool = ['calculate_beer_cost', 'simulate_btc_purchase', 'get_virtual_wallet', 'get_transaction_history'].includes(toolCall.tool);
+                        const isTransaction = toolCall.tool === 'simulate_btc_purchase';
+                        
+                        return (
+                          <div key={index} className="mb-2">
+                            <div className={`text-xs rounded-lg p-2 backdrop-blur-sm ${
+                              isWalletTool ? 'bg-purple-100/20 border border-purple-300/30' : 'bg-white/10'
+                            }`}>
+                              <div className="flex items-center justify-between">
+                                <span className="font-mono flex items-center space-x-1">
+                                  {isWalletTool && <span>🍺₿</span>}
+                                  <span>{toolCall.tool}</span>
+                                </span>
+                                {toolCall.error && <span className="text-red-300">❌ {toolCall.error}</span>}
+                                {toolCall.result && !isTransaction && <span className="text-green-300">✅ Success</span>}
+                              </div>
+                              
+                              {/* Show transaction details */}
+                              {isTransaction && toolCall.result?.data && (
+                                <div className="mt-2 p-3 bg-green-900/30 rounded-lg border border-green-400/30">
+                                  <div className="text-xs font-bold text-green-300 mb-1">
+                                    ✅ Transaction Successful!
+                                  </div>
+                                  <div className="space-y-1 text-xs">
+                                    <div className="flex justify-between">
+                                      <span className="text-green-200">Type:</span>
+                                      <span className="font-mono text-white">{toolCall.result.data.type.toUpperCase()}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-green-200">From:</span>
+                                      <span className="font-mono text-white">
+                                        {toolCall.result.data.fromAmount.toFixed(2)} {toolCall.result.data.fromCurrency}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-green-200">To:</span>
+                                      <span className="font-mono text-white">
+                                        {toolCall.result.data.toAmount.toFixed(8)} {toolCall.result.data.toCurrency}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-green-200">Price:</span>
+                                      <span className="font-mono text-white">
+                                        ${toolCall.result.data.price.toLocaleString()}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-green-200">ID:</span>
+                                      <span className="font-mono text-xs text-white opacity-70">
+                                        {toolCall.result.data.id}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {/* Show beer calculation details */}
+                              {toolCall.tool === 'calculate_beer_cost' && toolCall.result?.data && (
+                                <div className="mt-2 p-2 bg-orange-900/30 rounded-lg border border-orange-400/30 text-xs">
+                                  <div className="text-orange-200">
+                                    🍺 ${toolCall.result.data.usdAmount} = {toolCall.result.data.cryptoAmount.toFixed(8)} {toolCall.result.data.cryptoCurrency}
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {/* Show wallet balance */}
+                              {toolCall.tool === 'get_virtual_wallet' && toolCall.result?.data?.wallet && (
+                                <div className="mt-2 p-2 bg-purple-900/30 rounded-lg border border-purple-400/30 text-xs">
+                                  <div className="space-y-1">
+                                    {Object.entries(toolCall.result.data.wallet.balances)
+                                      .filter(([_, balance]: [string, any]) => balance > 0)
+                                      .map(([currency, balance]: [string, any]) => (
+                                        <div key={currency} className="flex justify-between text-purple-100">
+                                          <span>{currency === 'USD' ? '💵' : '🪙'} {currency}:</span>
+                                          <span className="font-mono">
+                                            {currency === 'USD' ? `$${balance.toFixed(2)}` : balance.toFixed(8)}
+                                          </span>
                         </div>
                       ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                   <div className="text-xs opacity-70 mt-2">

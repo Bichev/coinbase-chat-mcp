@@ -3,6 +3,7 @@ import { CoinbaseMCPConfig } from './types.js';
 declare class CoinbaseMCPServer {
     private server;
     private coinbaseClient;
+    private demoWalletClient;
     private config;
     constructor(config: CoinbaseMCPConfig);
     private setupTools;

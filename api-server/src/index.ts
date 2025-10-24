@@ -8,6 +8,7 @@ import swaggerUi from 'swagger-ui-express';
 import { config } from 'dotenv';
 import { createLogger, format, transports } from 'winston';
 import { CoinbaseClient } from './coinbase-client.js';
+import { DemoWalletClient } from './demo-wallet-client.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -61,6 +62,9 @@ app.use('/api/', limiter);
 
 // Coinbase client
 const coinbaseClient = new CoinbaseClient(process.env.COINBASE_API_URL);
+
+// Demo Wallet client
+const demoWalletClient = new DemoWalletClient(coinbaseClient);
 
 // Swagger documentation setup
 const swaggerOptions = {
@@ -560,6 +564,228 @@ app.get('/api/v1/analysis/:currencyPair', async (req, res) => {
     logger.error('Error analyzing price data:', error);
     res.status(500).json({
       error: 'Failed to analyze price data',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// 🍺₿ DEMO TRANSACTION ENDPOINTS 🍺₿
+
+/**
+ * @swagger
+ * /api/v1/wallet/calculate-beer-cost:
+ *   get:
+ *     summary: Calculate beer cost in crypto
+ *     description: Calculate how much crypto you can buy with beer money
+ *     parameters:
+ *       - in: query
+ *         name: currency
+ *         schema:
+ *           type: string
+ *           default: BTC
+ *         description: Cryptocurrency to calculate
+ *       - in: query
+ *         name: beerCount
+ *         schema:
+ *           type: number
+ *           default: 1
+ *         description: Number of beers
+ *       - in: query
+ *         name: pricePerBeer
+ *         schema:
+ *           type: number
+ *           default: 5
+ *         description: Price per beer in USD
+ *     responses:
+ *       200:
+ *         description: Beer cost calculation
+ *       500:
+ *         description: Internal server error
+ */
+app.get('/api/v1/wallet/calculate-beer-cost', async (req, res) => {
+  try {
+    const { currency = 'BTC', beerCount = '1', pricePerBeer = '5' } = req.query;
+    
+    const calculation = await demoWalletClient.calculateBeerCost(
+      currency as string,
+      parseInt(beerCount as string),
+      parseFloat(pricePerBeer as string)
+    );
+    
+    res.json({ data: calculation });
+  } catch (error) {
+    logger.error('Error calculating beer cost:', error);
+    res.status(500).json({
+      error: 'Failed to calculate beer cost',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * @swagger
+ * /api/v1/wallet/purchase:
+ *   post:
+ *     summary: Simulate crypto purchase
+ *     description: Simulate buying cryptocurrency with USD
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - fromCurrency
+ *               - toCurrency
+ *               - amount
+ *             properties:
+ *               fromCurrency:
+ *                 type: string
+ *                 example: USD
+ *               toCurrency:
+ *                 type: string
+ *                 example: BTC
+ *               amount:
+ *                 type: number
+ *                 example: 5
+ *               description:
+ *                 type: string
+ *                 example: Beer money investment
+ *     responses:
+ *       200:
+ *         description: Transaction successful
+ *       400:
+ *         description: Invalid request
+ *       500:
+ *         description: Internal server error
+ */
+app.post('/api/v1/wallet/purchase', async (req, res) => {
+  try {
+    const { fromCurrency, toCurrency, amount, description } = req.body;
+    
+    if (!fromCurrency || !toCurrency || !amount) {
+      return res.status(400).json({
+        error: 'Missing required fields: fromCurrency, toCurrency, amount'
+      });
+    }
+    
+    const transaction = await demoWalletClient.simulatePurchase(
+      fromCurrency,
+      toCurrency,
+      parseFloat(amount),
+      description
+    );
+    
+    res.json({ data: transaction });
+  } catch (error) {
+    logger.error('Error simulating purchase:', error);
+    res.status(500).json({
+      error: 'Failed to simulate purchase',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * @swagger
+ * /api/v1/wallet:
+ *   get:
+ *     summary: Get virtual wallet
+ *     description: Get demo wallet balance and statistics
+ *     responses:
+ *       200:
+ *         description: Wallet information
+ *       500:
+ *         description: Internal server error
+ */
+app.get('/api/v1/wallet', async (_req, res) => {
+  try {
+    const wallet = demoWalletClient.getWallet();
+    const stats = demoWalletClient.getWalletStats();
+    
+    res.json({
+      data: {
+        wallet,
+        stats
+      }
+    });
+  } catch (error) {
+    logger.error('Error fetching wallet:', error);
+    res.status(500).json({
+      error: 'Failed to fetch wallet',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * @swagger
+ * /api/v1/wallet/transactions:
+ *   get:
+ *     summary: Get transaction history
+ *     description: Get demo transaction history with optional filtering
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: number
+ *           default: 10
+ *         description: Maximum number of transactions
+ *       - in: query
+ *         name: currency
+ *         schema:
+ *           type: string
+ *         description: Filter by currency
+ *     responses:
+ *       200:
+ *         description: Transaction history
+ *       500:
+ *         description: Internal server error
+ */
+app.get('/api/v1/wallet/transactions', async (req, res) => {
+  try {
+    const { limit = '10', currency } = req.query;
+    
+    const transactions = demoWalletClient.getTransactionHistory(
+      parseInt(limit as string),
+      currency as string | undefined
+    );
+    
+    res.json({ data: transactions });
+  } catch (error) {
+    logger.error('Error fetching transactions:', error);
+    res.status(500).json({
+      error: 'Failed to fetch transactions',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * @swagger
+ * /api/v1/wallet/reset:
+ *   post:
+ *     summary: Reset virtual wallet
+ *     description: Reset demo wallet to initial state
+ *     responses:
+ *       200:
+ *         description: Wallet reset successful
+ *       500:
+ *         description: Internal server error
+ */
+app.post('/api/v1/wallet/reset', async (_req, res) => {
+  try {
+    demoWalletClient.resetWallet();
+    const wallet = demoWalletClient.getWallet();
+    
+    res.json({
+      data: wallet,
+      message: 'Wallet reset to initial state'
+    });
+  } catch (error) {
+    logger.error('Error resetting wallet:', error);
+    res.status(500).json({
+      error: 'Failed to reset wallet',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
   }

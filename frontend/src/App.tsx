@@ -14,6 +14,7 @@ import Tutorial from './pages/Tutorial';
 import Architecture from './pages/Architecture';
 import Presentations from './pages/Presentations';
 import SlideViewer from './pages/SlideViewer';
+import Wallet from './pages/Wallet';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -38,6 +39,7 @@ function App() {
               <Route path="/assets" element={<Assets />} />
               <Route path="/analysis" element={<Analysis />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/wallet" element={<Wallet />} />
               <Route path="/mcp-tester" element={<MCPTester />} />
               <Route path="/api-explorer" element={<APIExplorer />} />
               <Route path="/tutorial" element={<Tutorial />} />
