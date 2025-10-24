@@ -4,6 +4,7 @@ import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mc
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 import { CoinbaseClient } from './coinbase-client.js';
+import { DemoWalletClient } from './demo-wallet-client.js';
 import {
   GetSpotPriceInputSchema,
   GetHistoricalPricesInputSchema,
@@ -12,12 +13,16 @@ import {
   GetAssetDetailsInputSchema,
   GetMarketStatsInputSchema,
   AnalyzePriceDataInputSchema,
+  CalculateBeerCostInputSchema,
+  SimulatePurchaseInputSchema,
+  GetTransactionHistoryInputSchema,
   CoinbaseMCPConfig
 } from './types.js';
 
 class CoinbaseMCPServer {
   private server: McpServer;
   private coinbaseClient: CoinbaseClient;
+  private demoWalletClient: DemoWalletClient;
   private config: CoinbaseMCPConfig;
 
   constructor(config: CoinbaseMCPConfig) {
@@ -35,6 +40,7 @@ class CoinbaseMCPServer {
     };
 
     this.coinbaseClient = new CoinbaseClient(this.config.apiUrl);
+    this.demoWalletClient = new DemoWalletClient(this.coinbaseClient);
     this.server = new McpServer({
       name: this.config.name,
       version: this.config.version
@@ -338,6 +344,223 @@ Price Change %: ${result.priceChangePercent24h >= 0 ? '+' : ''}${result.priceCha
             content: [{
               type: 'text',
               text: `Error analyzing price data: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }],
+            isError: true
+          };
+        }
+      }
+    );
+
+    // 🍺 DEMO TRANSACTION TOOLS 🍺
+
+    // Calculate beer cost in crypto
+    this.server.registerTool(
+      'calculate_beer_cost',
+      {
+        title: 'Calculate Beer Cost in Crypto',
+        description: 'Calculate how much crypto you can buy with the price of beer(s) - fun way to understand crypto value!',
+        inputSchema: CalculateBeerCostInputSchema.shape
+      },
+      async ({ currency = 'BTC', beerCount = 1, pricePerBeer = 5 }) => {
+        try {
+          const calculation = await this.demoWalletClient.calculateBeerCost(
+            currency,
+            beerCount,
+            pricePerBeer
+          );
+
+          const text = `🍺 Beer-to-Crypto Calculator 🍺
+
+${beerCount} beer${beerCount > 1 ? 's' : ''} at $${pricePerBeer} each = $${calculation.usdAmount} USD
+
+Current ${calculation.cryptoCurrency} Price: $${calculation.currentPrice.toLocaleString()}
+
+You can buy: ${calculation.cryptoAmount.toFixed(8)} ${calculation.cryptoCurrency}
+
+${calculation.description}
+
+💡 That's your beer money in crypto!`;
+
+          return {
+            content: [{
+              type: 'text',
+              text
+            }]
+          };
+        } catch (error) {
+          return {
+            content: [{
+              type: 'text',
+              text: `Error calculating beer cost: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }],
+            isError: true
+          };
+        }
+      }
+    );
+
+    // Simulate crypto purchase
+    this.server.registerTool(
+      'simulate_btc_purchase',
+      {
+        title: 'Simulate Crypto Purchase',
+        description: 'Demo tool to simulate buying cryptocurrency (like buying a beer\'s worth of Bitcoin!)',
+        inputSchema: SimulatePurchaseInputSchema.shape
+      },
+      async ({ fromCurrency, toCurrency, amount, description }) => {
+        try {
+          const transaction = await this.demoWalletClient.simulatePurchase(
+            fromCurrency,
+            toCurrency,
+            amount,
+            description
+          );
+
+          const text = `✅ Transaction Successful!
+
+Transaction ID: ${transaction.id}
+Type: ${transaction.type.toUpperCase()}
+
+From: ${transaction.fromAmount.toFixed(2)} ${transaction.fromCurrency}
+To: ${transaction.toAmount.toFixed(8)} ${transaction.toCurrency}
+
+Price: $${transaction.price.toLocaleString()} per ${transaction.toCurrency}
+Description: ${transaction.description}
+
+Status: ${transaction.status}
+Time: ${transaction.timestamp.toLocaleString()}
+
+🎉 ${description || `You now own ${transaction.toAmount.toFixed(8)} ${transaction.toCurrency}!`}`;
+
+          return {
+            content: [{
+              type: 'text',
+              text
+            }]
+          };
+        } catch (error) {
+          return {
+            content: [{
+              type: 'text',
+              text: `❌ Transaction failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }],
+            isError: true
+          };
+        }
+      }
+    );
+
+    // Get virtual wallet balance
+    this.server.registerTool(
+      'get_virtual_wallet',
+      {
+        title: 'Get Virtual Wallet',
+        description: 'View your demo wallet balance and holdings'
+      },
+      async () => {
+        try {
+          const wallet = this.demoWalletClient.getWallet();
+          const stats = this.demoWalletClient.getWalletStats();
+
+          const balanceList = Object.entries(wallet.balances)
+            .filter(([_, balance]) => balance > 0)
+            .map(([currency, balance]) => {
+              if (currency === 'USD') {
+                return `  💵 ${currency}: $${balance.toFixed(2)}`;
+              } else {
+                return `  🪙 ${currency}: ${balance.toFixed(8)}`;
+              }
+            })
+            .join('\n');
+
+          const text = `👛 Demo Wallet Overview
+
+📊 Balances:
+${balanceList}
+
+📈 Statistics:
+  Total Transactions: ${stats.totalTransactions}
+  Total Spent (USD): $${stats.totalSpentUSD.toFixed(2)}
+  
+🗓️ Account Info:
+  Created: ${wallet.createdAt.toLocaleDateString()}
+  Last Updated: ${wallet.lastUpdated.toLocaleString()}
+
+💡 This is a demo wallet for educational purposes
+   Use 'simulate_btc_purchase' to buy crypto!`;
+
+          return {
+            content: [{
+              type: 'text',
+              text
+            }]
+          };
+        } catch (error) {
+          return {
+            content: [{
+              type: 'text',
+              text: `Error fetching wallet: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }],
+            isError: true
+          };
+        }
+      }
+    );
+
+    // Get transaction history
+    this.server.registerTool(
+      'get_transaction_history',
+      {
+        title: 'Get Transaction History',
+        description: 'View your demo transaction history',
+        inputSchema: GetTransactionHistoryInputSchema.shape
+      },
+      async ({ limit = 10, currency }) => {
+        try {
+          const transactions = this.demoWalletClient.getTransactionHistory(limit, currency);
+
+          if (transactions.length === 0) {
+            return {
+              content: [{
+                type: 'text',
+                text: `📝 Transaction History
+
+No transactions yet. Start by buying some crypto with 'simulate_btc_purchase'!
+
+Example: Buy $5 worth of Bitcoin (a beer's worth!)
+  From: USD
+  To: BTC  
+  Amount: 5`
+              }]
+            };
+          }
+
+          const txList = transactions.map((tx, index) => {
+            const emoji = tx.type === 'buy' ? '🟢' : '🔴';
+            return `${emoji} ${index + 1}. ${tx.type.toUpperCase()} - ${tx.timestamp.toLocaleDateString()}
+   ${tx.fromAmount.toFixed(2)} ${tx.fromCurrency} → ${tx.toAmount.toFixed(8)} ${tx.toCurrency}
+   Price: $${tx.price.toLocaleString()}
+   ${tx.description}
+   Status: ${tx.status}`;
+          }).join('\n\n');
+
+          const text = `📝 Transaction History${currency ? ` (${currency})` : ''}
+
+${txList}
+
+${transactions.length >= limit ? `\nShowing last ${limit} transactions` : ''}`;
+
+          return {
+            content: [{
+              type: 'text',
+              text
+            }]
+          };
+        } catch (error) {
+          return {
+            content: [{
+              type: 'text',
+              text: `Error fetching transaction history: ${error instanceof Error ? error.message : 'Unknown error'}`
             }],
             isError: true
           };

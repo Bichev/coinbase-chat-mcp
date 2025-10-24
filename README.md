@@ -10,7 +10,9 @@ An open-source **Model Context Protocol (MCP)** server and web application for s
 
 ### 🔌 MCP Server
 - **Full MCP Compliance** - Implements complete Model Context Protocol specification
-- **8 Powerful Tools** - Real-time prices, historical data, market stats, asset search, and technical analysis
+- **12 Powerful Tools** - Real-time prices, historical data, market stats, asset search, technical analysis, and transaction simulation
+- **🍺₿ Demo Transactions** - Simulate crypto purchases like "buy a beer worth of Bitcoin"
+- **Virtual Wallet** - Track demo balances and transaction history
 - **Cursor Integration** - Pre-configured for Cursor IDE with `.cursor/mcp.json`
 - **Claude Desktop Compatible** - Works with any MCP-compatible client
 - **Secure & Fast** - Built-in rate limiting and intelligent caching
@@ -112,6 +114,8 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 ```
 
 ### Available MCP Tools
+
+#### 📊 Market Data Tools (8)
 1. **get_spot_price** - Current cryptocurrency prices
 2. **get_historical_prices** - Historical price data with time ranges
 3. **get_exchange_rates** - Fiat currency exchange rates
@@ -120,6 +124,15 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 6. **get_market_stats** - 24-hour market statistics
 7. **get_popular_pairs** - Popular trading pairs
 8. **analyze_price_data** - Technical analysis (volatility, trends, support/resistance)
+
+#### 🍺₿ Demo Transaction Tools (4) - NEW!
+9. **calculate_beer_cost** - Convert beer money to crypto amounts
+10. **simulate_btc_purchase** - Simulate buying crypto with USD
+11. **get_virtual_wallet** - View demo wallet balance and stats
+12. **get_transaction_history** - View simulated transaction history
+
+🎯 **Try asking**: "Buy me a beer worth of Bitcoin!" or "Show my wallet"
+📖 **Full docs**: See [DEMO_TRANSACTIONS.md](./DEMO_TRANSACTIONS.md)
 
 ## 🏗️ Architecture
 
@@ -202,6 +215,16 @@ Response: [Historical price data with analysis]
 
 User: "Analyze Bitcoin's volatility this month"
 Response: [Technical analysis with volatility metrics]
+
+User: "Buy me a beer worth of Bitcoin!" 🍺
+Response: At $100,608 per BTC, $5 = 0.00004971 BTC
+          ✅ Transaction complete! Check your wallet.
+
+User: "Show my wallet"
+Response: 👛 Virtual Wallet
+          💵 USD: $995.00
+          🪙 BTC: 0.00004971
+          Total transactions: 1
 ```
 
 ### Frontend Web Application

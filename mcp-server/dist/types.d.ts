@@ -286,4 +286,73 @@ export interface PriceAnalysis {
     priceChange24h: number;
     priceChangePercent24h: number;
 }
+export interface DemoWallet {
+    balances: {
+        [currency: string]: number;
+    };
+    transactions: DemoTransaction[];
+    createdAt: Date;
+    lastUpdated: Date;
+}
+export interface DemoTransaction {
+    id: string;
+    type: 'buy' | 'sell' | 'transfer';
+    fromCurrency: string;
+    toCurrency: string;
+    fromAmount: number;
+    toAmount: number;
+    price: number;
+    description: string;
+    timestamp: Date;
+    status: 'completed' | 'pending' | 'failed';
+}
+export interface PurchaseCalculation {
+    usdAmount: number;
+    cryptoAmount: number;
+    cryptoCurrency: string;
+    currentPrice: number;
+    description: string;
+}
+export declare const CalculateBeerCostInputSchema: z.ZodObject<{
+    currency: z.ZodOptional<z.ZodString>;
+    beerCount: z.ZodOptional<z.ZodNumber>;
+    pricePerBeer: z.ZodOptional<z.ZodNumber>;
+}, "strip", z.ZodTypeAny, {
+    currency?: string | undefined;
+    beerCount?: number | undefined;
+    pricePerBeer?: number | undefined;
+}, {
+    currency?: string | undefined;
+    beerCount?: number | undefined;
+    pricePerBeer?: number | undefined;
+}>;
+export declare const SimulatePurchaseInputSchema: z.ZodObject<{
+    fromCurrency: z.ZodString;
+    toCurrency: z.ZodString;
+    amount: z.ZodNumber;
+    description: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    amount: number;
+    fromCurrency: string;
+    toCurrency: string;
+    description?: string | undefined;
+}, {
+    amount: number;
+    fromCurrency: string;
+    toCurrency: string;
+    description?: string | undefined;
+}>;
+export declare const GetTransactionHistoryInputSchema: z.ZodObject<{
+    limit: z.ZodOptional<z.ZodNumber>;
+    currency: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    currency?: string | undefined;
+    limit?: number | undefined;
+}, {
+    currency?: string | undefined;
+    limit?: number | undefined;
+}>;
+export type CalculateBeerCostInput = z.infer<typeof CalculateBeerCostInputSchema>;
+export type SimulatePurchaseInput = z.infer<typeof SimulatePurchaseInputSchema>;
+export type GetTransactionHistoryInput = z.infer<typeof GetTransactionHistoryInputSchema>;
 //# sourceMappingURL=types.d.ts.map

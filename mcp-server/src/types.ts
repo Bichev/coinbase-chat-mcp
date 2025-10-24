@@ -154,4 +154,58 @@ export interface PriceAnalysis {
   volume24h?: number | undefined;
   priceChange24h: number;
   priceChangePercent24h: number;
-} 
+}
+
+// Demo Wallet & Transaction Types
+export interface DemoWallet {
+  balances: {
+    [currency: string]: number;
+  };
+  transactions: DemoTransaction[];
+  createdAt: Date;
+  lastUpdated: Date;
+}
+
+export interface DemoTransaction {
+  id: string;
+  type: 'buy' | 'sell' | 'transfer';
+  fromCurrency: string;
+  toCurrency: string;
+  fromAmount: number;
+  toAmount: number;
+  price: number;
+  description: string;
+  timestamp: Date;
+  status: 'completed' | 'pending' | 'failed';
+}
+
+export interface PurchaseCalculation {
+  usdAmount: number;
+  cryptoAmount: number;
+  cryptoCurrency: string;
+  currentPrice: number;
+  description: string;
+}
+
+// Transaction Tool Input Schemas
+export const CalculateBeerCostInputSchema = z.object({
+  currency: z.string().optional().describe('Crypto currency to buy (default: BTC)'),
+  beerCount: z.number().optional().describe('Number of beers (default: 1)'),
+  pricePerBeer: z.number().optional().describe('Price per beer in USD (default: 5)')
+});
+
+export const SimulatePurchaseInputSchema = z.object({
+  fromCurrency: z.string().describe('Currency to spend (e.g., USD)'),
+  toCurrency: z.string().describe('Currency to buy (e.g., BTC, ETH)'),
+  amount: z.number().describe('Amount in fromCurrency to spend'),
+  description: z.string().optional().describe('Purchase description (e.g., "Beer at local pub")')
+});
+
+export const GetTransactionHistoryInputSchema = z.object({
+  limit: z.number().optional().describe('Maximum number of transactions to return (default: 10)'),
+  currency: z.string().optional().describe('Filter by currency')
+});
+
+export type CalculateBeerCostInput = z.infer<typeof CalculateBeerCostInputSchema>;
+export type SimulatePurchaseInput = z.infer<typeof SimulatePurchaseInputSchema>;
+export type GetTransactionHistoryInput = z.infer<typeof GetTransactionHistoryInputSchema>; 
