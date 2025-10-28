@@ -6,13 +6,31 @@
 
 An open-source **Model Context Protocol (MCP)** server and web application for seamless integration with Coinbase's public API. This project enables AI agents, LLMs, and developers to interact with cryptocurrency data, market information, and trading insights through a standardized, secure interface.
 
+### 🎯 What's Real vs. Simulated?
+
+| Component | Status | Source |
+|-----------|--------|--------|
+| 💰 **Cryptocurrency Prices** | ✅ **Real** | Coinbase Public API |
+| 📊 **Market Statistics** | ✅ **Real** | Coinbase Public API |
+| 📈 **Historical Data** | ✅ **Real** | Coinbase Public API |
+| 🤖 **GPT-4 AI Chat** | ✅ **Real** | OpenAI |
+| 🎤 **Voice Input (Whisper)** | ✅ **Real** | OpenAI |
+| 🔊 **Text-to-Speech** | ✅ **Real** | OpenAI |
+| 🔌 **MCP Protocol** | ✅ **Real** | Official SDK |
+| 💵 **Wallet Balances** | 🎮 **Simulated** | In-memory demo |
+| 💸 **Transactions** | 🎮 **Simulated** | Educational only |
+| 🍺 **Beer Purchases** | 🎮 **Simulated** | Virtual economy |
+
+**Perfect for learning crypto without financial risk!** 🎓
+
 ## 🌟 Features
 
 ### 🔌 MCP Server
 - **Full MCP Compliance** - Implements complete Model Context Protocol specification
-- **12 Powerful Tools** - Real-time prices, historical data, market stats, asset search, technical analysis, and transaction simulation
-- **🍺₿ Demo Transactions** - Simulate crypto purchases like "buy a beer worth of Bitcoin"
-- **Virtual Wallet** - Track demo balances and transaction history
+- **13 Powerful Tools** - Real-time prices, historical data, market stats, asset search, technical analysis, and transaction simulation
+- **🍺₿ Circular Economy** - Complete flow: USD → Crypto → Virtual Beer!
+- **Smart Suggestions** - AI guides you to buy crypto if needed before purchases
+- **Virtual Wallet & Inventory** - Track balances, transactions, and beer collection
 - **Cursor Integration** - Pre-configured for Cursor IDE with `.cursor/mcp.json`
 - **Claude Desktop Compatible** - Works with any MCP-compatible client
 - **Secure & Fast** - Built-in rate limiting and intelligent caching
@@ -125,44 +143,95 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 7. **get_popular_pairs** - Popular trading pairs
 8. **analyze_price_data** - Technical analysis (volatility, trends, support/resistance)
 
-#### 🍺₿ Demo Transaction Tools (4) - NEW!
+#### 🍺₿ Demo Transaction Tools (5) - NEW!
 9. **calculate_beer_cost** - Convert beer money to crypto amounts
 10. **simulate_btc_purchase** - Simulate buying crypto with USD
-11. **get_virtual_wallet** - View demo wallet balance and stats
-12. **get_transaction_history** - View simulated transaction history
+11. **buy_virtual_beer** 🔥 - Buy virtual beer WITH crypto! (Circular economy)
+12. **get_virtual_wallet** - View demo wallet balance and stats
+13. **get_transaction_history** - View simulated transaction history
 
-🎯 **Try asking**: "Buy me a beer worth of Bitcoin!" or "Show my wallet"
-📖 **Full docs**: See [DEMO_TRANSACTIONS.md](./DEMO_TRANSACTIONS.md)
+🎯 **Try asking**: "Buy me a beer!" → AI will guide you through USD→BTC→Beer!
+📖 **Full docs**: [DEMO_TRANSACTIONS.md](./DEMO_TRANSACTIONS.md) • [CIRCULAR_ECONOMY.md](./CIRCULAR_ECONOMY.md)
 
 ## 🏗️ Architecture
 
+### System Overview
+
+This project uses a **hybrid architecture** combining:
+- **Real market data** from Coinbase Public API
+- **Simulated wallet** for educational crypto transactions  
+- **Official MCP protocol** for AI agent integration
+- **Modern web stack** for beautiful UX
+
+```
+┌─────────────┐  ┌─────────────┐  ┌─────────────┐
+│ Cursor IDE  │  │ Web Browser │  │Claude Desktop│
+│ (MCP Client)│  │ (React App) │  │ (MCP Client)│
+└──────┬──────┘  └──────┬──────┘  └──────┬──────┘
+       │                │                │
+       └────────────────┴────────────────┘
+                        │
+       ┌────────────────┴────────────────┐
+       │                                 │
+       ▼                                 ▼
+┌──────────────┐              ┌──────────────────┐
+│  MCP Server  │              │   API Server     │
+│  (13 tools)  │              │   (REST API)     │
+└──────┬───────┘              └────────┬─────────┘
+       │                               │
+       └───────────┬───────────────────┘
+                   │
+       ┌───────────┴───────────┐
+       │                       │
+       ▼                       ▼
+┌──────────────┐      ┌─────────────────┐
+│ Coinbase API │      │ Demo Wallet     │
+│ (Real Data)  │      │ (Simulated)     │
+└──────────────┘      └─────────────────┘
+```
+
+📖 **Detailed Architecture**: See [ARCHITECTURE.md](./ARCHITECTURE.md) for:
+- Component diagrams
+- Code examples
+- Real vs. simulated breakdown
+- Comparison with Base MCP and x402
+- Technical deep dive
+
+### Key Components
+
 ```
 coinbase-chat-mcp/
-├── mcp-server/          # MCP Protocol Server (8 tools)
+├── mcp-server/          # MCP Protocol Server (13 tools)
 ├── api-server/          # Express REST API Server  
 ├── frontend/            # React + TypeScript Frontend
-│   ├── src/pages/       # Dashboard, Chat, API Explorer, etc.
+│   ├── src/pages/       # Chat, Wallet, API Explorer
 │   ├── src/components/  # Reusable UI components
-│   └── src/services/    # Chat sessions & AI integration
-├── docs/                # Documentation & MCP setup notes
+│   └── src/services/    # AI, Voice, Chat sessions
+├── docs/                # Comprehensive documentation
 └── .cursor/             # Cursor IDE MCP configuration
 ```
 
 ### MCP Server
-The core MCP server exposes Coinbase data through 8 specialized tools:
+Exposes 13 tools through Model Context Protocol:
 
-- **Price Tools**: Real-time and historical cryptocurrency prices
-- **Market Tools**: Trading statistics and popular pairs
-- **Asset Tools**: Search and detailed asset information  
-- **Analysis Tools**: Technical analysis and market insights
-- **Exchange Tools**: Fiat currency exchange rates
+**Market Data Tools (8)**:
+- Real-time prices, historical data, market stats
+- Asset search and details, exchange rates
+- Technical analysis (volatility, trends, support/resistance)
+
+**Transaction Tools (5)**:
+- 🍺₿ Beer-to-crypto calculator
+- Virtual wallet simulation (USD → Crypto)
+- Circular economy (Crypto → Beer!)
+- Balance & transaction history
 
 ### Frontend Application
 Modern React application featuring:
-- **MCP Chat** - AI-powered crypto conversations with session persistence
-- **MCP Tester** - Interactive tool testing environment with parameter validation
-- **API Explorer** - Interactive documentation and testing for all MCP tools
-- **Tutorial** - Step-by-step guide for integrating and using MCP tools
+- **AI Chat** - GPT-4 powered with voice input 🎤 and TTS 🔊
+- **Virtual Wallet** - Demo crypto purchases and beer economy 🍺₿
+- **API Explorer** - Interactive documentation and testing
+- **Tutorial** - Step-by-step MCP integration guide
+- **Presentations** - Business slide deck viewer
 
 ## 🔧 Configuration
 
@@ -217,14 +286,21 @@ User: "Analyze Bitcoin's volatility this month"
 Response: [Technical analysis with volatility metrics]
 
 User: "Buy me a beer worth of Bitcoin!" 🍺
-Response: At $100,608 per BTC, $5 = 0.00004971 BTC
-          ✅ Transaction complete! Check your wallet.
+Response: At $110,360 per BTC, $5 = 0.00004531 BTC
+          ✅ Purchased! You now have 0.00004531 BTC
+
+User: "Now buy a beer WITH that Bitcoin!"
+Response: 🍺 Beer Purchased with Crypto!
+          Paid: 0.00004531 BTC
+          Received: 1 🍺
+          🎉 Total beers in inventory: 1
 
 User: "Show my wallet"
 Response: 👛 Virtual Wallet
           💵 USD: $995.00
-          🪙 BTC: 0.00004971
-          Total transactions: 1
+          🪙 BTC: 0.00000000
+          🍺 Beers: 1
+          Total transactions: 2
 ```
 
 ### Frontend Web Application
@@ -248,13 +324,18 @@ curl http://localhost:3002/api/v1/assets/search?query=bitcoin
 ## 🛠️ Development
 
 ### Key Features Implemented
-- ✅ **MCP Server** - 8 tools, full protocol compliance
+- ✅ **MCP Server** - 13 tools, full protocol compliance
 - ✅ **Cursor Integration** - Pre-configured MCP setup
+- ✅ **Circular Economy** 🍺₿ - Complete USD→Crypto→Beer simulation
+- ✅ **Voice Interface** 🎤 - Multi-language input via Whisper
+- ✅ **Text-to-Speech** 🔊 - AI responses read aloud
+- ✅ **Virtual Wallet** - Demo crypto purchases and inventory
 - ✅ **Chat Sessions** - Persistent conversations with localStorage
 - ✅ **API Explorer** - Interactive documentation for all tools
 - ✅ **Session Management** - Create, switch, delete chat sessions
-- ✅ **AI Integration** - GPT-4 powered conversations
-- ✅ **Security** - Client-side API key warnings and protections
+- ✅ **AI Integration** - GPT-4 powered conversations with tool orchestration
+- ✅ **Transaction UI** - Beautiful receipts and visual feedback
+- ✅ **Security** - Rate limiting, validation, error handling
 
 ### Development Scripts
 ```bash
@@ -272,19 +353,70 @@ cd mcp-server && npm test
 ```
 
 ### Project Structure
-- **mcp-server/**: TypeScript MCP server with 8 Coinbase tools
-- **api-server/**: Express.js REST API server
-- **frontend/**: React + TypeScript with TailwindCSS
-- **docs/**: MCP setup notes and documentation
+- **mcp-server/**: TypeScript MCP server with 13 tools (8 market data + 5 wallet)
+- **api-server/**: Express.js REST API server with wallet simulation
+- **frontend/**: React + TypeScript with TailwindCSS, voice features, wallet UI
+- **docs/**: Comprehensive documentation (ARCHITECTURE.md, guides, etc.)
 - **.cursor/**: Cursor IDE MCP configuration
 
 ## 📖 Documentation
 
-- **[MCP Setup Notes](./MCP_SETUP_NOTES.md)** - Complete MCP integration guide
-- **[API Explorer](http://localhost:5173/api-explorer)** - Interactive tool documentation
-- **[Contributing Guide](./CONTRIBUTING.md)** - Development contribution guidelines
+### Core Documentation
+- **[README.md](./README.md)** - This file! Project overview and quick start
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** 🏗️ - Complete technical architecture guide
+  - System diagrams and component breakdown
+  - Real vs. simulated components explained
+  - Code examples and data flow
+  - Comparison with Base MCP and x402
+  - Technology stack deep dive
+
+### Feature Guides
+- **[DEMO_TRANSACTIONS.md](./DEMO_TRANSACTIONS.md)** 🍺₿ - Transaction tools reference
+  - All 5 wallet tools explained
+  - Usage examples and scenarios
+  - API reference
+  
+- **[CIRCULAR_ECONOMY.md](./CIRCULAR_ECONOMY.md)** 🔄 - Complete economy guide
+  - USD → Crypto → Beer flow
+  - Smart suggestions when insufficient balance
+  - Inventory tracking
+  - Fun challenges and scenarios
+
+- **[CHAT_WALLET_INTEGRATION.md](./CHAT_WALLET_INTEGRATION.md)** 💬 - Chat integration
+  - Using wallet tools in conversation
+  - Visual transaction receipts
+  - Example conversations
+
+### Setup & Configuration
+- **[MCP_SETUP_NOTES.md](./MCP_SETUP_NOTES.md)** - MCP integration guide for Cursor/Claude
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Deployment instructions
+- **[CONTRIBUTING.md](./CONTRIBUTING.md)** - Development contribution guidelines
+
+### Interactive Docs
+- **[API Explorer](http://localhost:5173/api-explorer)** - Interactive API testing (when running)
+- **[Swagger UI](http://localhost:3002/api-docs)** - REST API documentation (when running)
 
 ## ✨ Recent Updates
+
+### 🍺₿ Circular Economy (Latest!)
+- **Buy virtual beer WITH cryptocurrency!** - Complete USD→Crypto→Beer flow
+- **Smart AI guidance** - Suggests buying crypto if insufficient balance
+- **Inventory tracking** - See your beer collection in wallet
+- **Transaction receipts** - Beautiful visual feedback in chat
+- **13 total MCP tools** - 8 market data + 5 transaction tools
+
+### 🎤 Voice & AI Features
+- **Multi-language voice input** - Speak questions in 50+ languages (OpenAI Whisper)
+- **Text-to-speech** - Hear AI responses read aloud (OpenAI TTS)
+- **GPT-4 integration** - Intelligent conversations with tool orchestration
+- **Visual tool indicators** - See which MCP tools were used
+
+### 💰 Virtual Wallet System
+- **Demo transactions** - Safe crypto purchase simulation
+- **Beer calculator** - Fun way to understand crypto value
+- **Real-time pricing** - Uses live Coinbase data
+- **Transaction history** - Track all purchases
+- **Portfolio view** - See all balances in one place
 
 ### Chat Session Management
 - Persistent chat sessions across browser tabs

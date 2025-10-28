@@ -791,6 +791,70 @@ app.post('/api/v1/wallet/reset', async (_req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/v1/wallet/buy-beer:
+ *   post:
+ *     summary: Buy virtual beer with cryptocurrency
+ *     description: Purchase virtual beer using crypto (creates circular economy - BTC → Beer)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               quantity:
+ *                 type: number
+ *                 example: 1
+ *                 default: 1
+ *               currency:
+ *                 type: string
+ *                 example: BTC
+ *                 default: BTC
+ *               pricePerBeer:
+ *                 type: number
+ *                 example: 5
+ *                 default: 5
+ *     responses:
+ *       200:
+ *         description: Beer purchase successful or needs more crypto
+ *       500:
+ *         description: Internal server error
+ */
+app.post('/api/v1/wallet/buy-beer', async (req, res) => {
+  try {
+    const { quantity = 1, currency = 'BTC', pricePerBeer = 5 } = req.body;
+    
+    const result = await demoWalletClient.buyVirtualBeer(
+      quantity,
+      currency,
+      pricePerBeer
+    );
+    
+    if (!result.success) {
+      return res.status(200).json({
+        success: false,
+        needsMoreCrypto: result.needsMoreCrypto,
+        suggestedAmount: result.suggestedAmount,
+        message: result.message
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: result.transaction,
+      message: result.message
+    });
+  } catch (error) {
+    logger.error('Error buying virtual beer:', error);
+    res.status(500).json({
+      error: 'Failed to buy virtual beer',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 // Serve static files from frontend (for Vercel deployment)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

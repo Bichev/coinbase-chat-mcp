@@ -2,7 +2,7 @@ import { CoinbaseClient } from './coinbase-client.js';
 import { 
   DemoWallet, 
   DemoTransaction, 
-  PurchaseCalculation 
+  PurchaseCalculation
 } from './types.js';
 
 /**
@@ -25,6 +25,10 @@ export class DemoWalletClient {
         USDC: 0
       },
       transactions: [],
+      inventory: {
+        beers: 0,
+        items: []
+      },
       createdAt: new Date(),
       lastUpdated: new Date()
     };
@@ -184,6 +188,10 @@ export class DemoWalletClient {
         USDC: 0
       },
       transactions: [],
+      inventory: {
+        beers: 0,
+        items: []
+      },
       createdAt: new Date(),
       lastUpdated: new Date()
     };
@@ -242,6 +250,104 @@ export class DemoWalletClient {
     }
 
     return totalValue;
+  }
+
+  /**
+   * Buy a virtual beer with cryptocurrency!
+   * This creates a complete circular economy: USD → BTC → Beer
+   */
+  async buyVirtualBeer(
+    quantity: number = 1,
+    currency: string = 'BTC',
+    pricePerBeer: number = 5
+  ): Promise<{
+    success: boolean;
+    message: string;
+    transaction?: DemoTransaction;
+    needsMoreCrypto?: boolean;
+    suggestedAmount?: number;
+  }> {
+    const crypto = currency.toUpperCase();
+    const totalUsdCost = quantity * pricePerBeer;
+
+    try {
+      // Get current crypto price
+      const currencyPair = `${crypto}-USD`;
+      const priceData = await this.coinbaseClient.getSpotPrice(currencyPair);
+      const cryptoPrice = parseFloat(priceData.data.amount);
+      const cryptoNeeded = totalUsdCost / cryptoPrice;
+
+      // Check if user has enough crypto
+      const currentBalance = this.getBalance(crypto);
+
+      if (currentBalance < cryptoNeeded) {
+        return {
+          success: false,
+          needsMoreCrypto: true,
+          suggestedAmount: totalUsdCost,
+          message: `❌ Insufficient ${crypto} balance!\n\n` +
+            `You need: ${cryptoNeeded.toFixed(8)} ${crypto}\n` +
+            `You have: ${currentBalance.toFixed(8)} ${crypto}\n\n` +
+            `💡 Suggestion: First buy $${totalUsdCost.toFixed(2)} worth of ${crypto}, then try again!\n` +
+            `Say: "Buy $${totalUsdCost} worth of ${crypto}"`
+        };
+      }
+
+      // User has enough crypto - execute the beer purchase!
+      const transactionType: 'buy' | 'sell' | 'transfer' = 'buy';
+      const transaction: DemoTransaction = {
+        id: `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        type: transactionType,
+        fromCurrency: crypto,
+        toCurrency: 'BEER',
+        fromAmount: cryptoNeeded,
+        toAmount: quantity,
+        price: cryptoPrice,
+        description: `🍺 Bought ${quantity} virtual beer${quantity > 1 ? 's' : ''} with ${crypto}`,
+        timestamp: new Date(),
+        status: 'completed'
+      };
+
+      // Deduct crypto from balance
+      this.wallet.balances[crypto] = (this.wallet.balances[crypto] || 0) - cryptoNeeded;
+
+      // Add beers to inventory
+      this.wallet.inventory.beers += quantity;
+
+      // Add item to inventory list
+      this.wallet.inventory.items.push({
+        id: transaction.id,
+        name: 'Beer',
+        emoji: '🍺',
+        quantity: quantity,
+        purchasePrice: cryptoNeeded,
+        purchaseCurrency: crypto,
+        purchaseDate: new Date()
+      });
+
+      // Record transaction
+      this.wallet.transactions.unshift(transaction);
+      this.wallet.lastUpdated = new Date();
+
+      return {
+        success: true,
+        transaction,
+        message: `🍺 Beer Purchase Successful!\n\n` +
+          `You bought ${quantity} virtual beer${quantity > 1 ? 's' : ''} for ${cryptoNeeded.toFixed(8)} ${crypto}\n` +
+          `Price: $${cryptoPrice.toLocaleString()} per ${crypto}\n\n` +
+          `🎉 Total beers in inventory: ${this.wallet.inventory.beers}\n` +
+          `Remaining ${crypto}: ${this.wallet.balances[crypto].toFixed(8)}`
+      };
+    } catch (error) {
+      throw new Error(`Failed to buy virtual beer: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Get inventory
+   */
+  getInventory() {
+    return this.wallet.inventory;
   }
 }
 

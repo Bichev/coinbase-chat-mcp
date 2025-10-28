@@ -221,7 +221,7 @@ export default function Layout({ children }: LayoutProps) {
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
                   <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
                 </div>
-                <span className="text-xs text-gray-400">12 MCP tools active</span>
+                <span className="text-xs text-gray-400">13 MCP tools active</span>
               </div>
             </div>
           </div>

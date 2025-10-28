@@ -4,7 +4,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod';
 import { CoinbaseClient } from './coinbase-client.js';
 import { DemoWalletClient } from './demo-wallet-client.js';
-import { GetSpotPriceInputSchema, GetHistoricalPricesInputSchema, GetExchangeRatesInputSchema, SearchAssetsInputSchema, GetAssetDetailsInputSchema, GetMarketStatsInputSchema, AnalyzePriceDataInputSchema, CalculateBeerCostInputSchema, SimulatePurchaseInputSchema, GetTransactionHistoryInputSchema } from './types.js';
+import { GetSpotPriceInputSchema, GetHistoricalPricesInputSchema, GetExchangeRatesInputSchema, SearchAssetsInputSchema, GetAssetDetailsInputSchema, GetMarketStatsInputSchema, AnalyzePriceDataInputSchema, CalculateBeerCostInputSchema, SimulatePurchaseInputSchema, GetTransactionHistoryInputSchema, BuyVirtualBeerInputSchema } from './types.js';
 class CoinbaseMCPServer {
     server;
     coinbaseClient;
@@ -454,6 +454,51 @@ ${transactions.length >= limit ? `\nShowing last ${limit} transactions` : ''}`;
                     content: [{
                             type: 'text',
                             text: `Error fetching transaction history: ${error instanceof Error ? error.message : 'Unknown error'}`
+                        }],
+                    isError: true
+                };
+            }
+        });
+        // Buy virtual beer with crypto
+        this.server.registerTool('buy_virtual_beer', {
+            title: 'Buy Virtual Beer with Crypto',
+            description: 'Actually buy virtual beer using your cryptocurrency! Creates a full circular economy: USD → BTC → Beer. If insufficient crypto, suggests buying more first.',
+            inputSchema: BuyVirtualBeerInputSchema.shape
+        }, async ({ quantity = 1, currency = 'BTC', pricePerBeer = 5 }) => {
+            try {
+                const result = await this.demoWalletClient.buyVirtualBeer(quantity, currency, pricePerBeer);
+                if (!result.success && result.needsMoreCrypto) {
+                    // Not enough crypto - suggest buying more
+                    return {
+                        content: [{
+                                type: 'text',
+                                text: result.message
+                            }],
+                        isError: true
+                    };
+                }
+                // Success - show transaction details
+                const text = `${result.message}
+
+📋 Transaction Details:
+  ID: ${result.transaction?.id}
+  Type: ${result.transaction?.type.toUpperCase()}
+  Paid: ${result.transaction?.fromAmount.toFixed(8)} ${result.transaction?.fromCurrency}
+  Received: ${result.transaction?.toAmount} 🍺
+  
+🎉 Cheers! Enjoy your virtual beer${quantity > 1 ? 's' : ''}!`;
+                return {
+                    content: [{
+                            type: 'text',
+                            text
+                        }]
+                };
+            }
+            catch (error) {
+                return {
+                    content: [{
+                            type: 'text',
+                            text: `❌ Failed to buy beer: ${error instanceof Error ? error.message : 'Unknown error'}`
                         }],
                     isError: true
                 };

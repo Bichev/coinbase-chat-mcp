@@ -113,3 +113,8 @@ export const GetTransactionHistoryInputSchema = z.object({
     limit: z.number().optional().describe('Maximum number of transactions to return (default: 10)'),
     currency: z.string().optional().describe('Filter by currency')
 });
+export const BuyVirtualBeerInputSchema = z.object({
+    quantity: z.number().optional().describe('Number of beers to buy (default: 1)'),
+    currency: z.string().optional().describe('Cryptocurrency to pay with (default: BTC)'),
+    pricePerBeer: z.number().optional().describe('Price per beer in USD (default: 5)')
+});

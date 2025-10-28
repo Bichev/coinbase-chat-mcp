@@ -140,8 +140,24 @@ export interface DemoWallet {
     [currency: string]: number;
   };
   transactions: DemoTransaction[];
+  inventory: VirtualInventory;
   createdAt: Date;
   lastUpdated: Date;
+}
+
+export interface VirtualInventory {
+  beers: number;
+  items: VirtualItem[];
+}
+
+export interface VirtualItem {
+  id: string;
+  name: string;
+  emoji: string;
+  quantity: number;
+  purchasePrice: number;
+  purchaseCurrency: string;
+  purchaseDate: Date;
 }
 
 export interface DemoTransaction {

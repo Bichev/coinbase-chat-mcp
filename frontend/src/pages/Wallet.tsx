@@ -17,6 +17,10 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 interface DemoWallet {
   balances: { [currency: string]: number };
   transactions: DemoTransaction[];
+  inventory?: {
+    beers: number;
+    items: any[];
+  };
   createdAt: string;
   lastUpdated: string;
 }
@@ -201,6 +205,12 @@ const Wallet: React.FC = () => {
                           </div>
                         </div>
                       ))}
+                    {wallet.inventory && wallet.inventory.beers > 0 && (
+                      <div className="bg-orange-500/20 backdrop-blur rounded-xl p-4 border border-orange-400/30">
+                        <div className="text-sm opacity-90">🍺 Virtual Beers</div>
+                        <div className="text-2xl font-bold mt-1">{wallet.inventory.beers}</div>
+                      </div>
+                    )}
                   </div>
                 )}
 

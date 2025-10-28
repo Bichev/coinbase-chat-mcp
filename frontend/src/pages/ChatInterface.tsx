@@ -625,8 +625,9 @@ const ChatInterface: React.FC = () => {
                     <div className="mt-3 pt-3 border-t border-white/20">
                       <div className="text-xs opacity-80 mb-2">🔧 Tool calls executed:</div>
                       {message.toolCalls.map((toolCall, index) => {
-                        const isWalletTool = ['calculate_beer_cost', 'simulate_btc_purchase', 'get_virtual_wallet', 'get_transaction_history'].includes(toolCall.tool);
+                        const isWalletTool = ['calculate_beer_cost', 'simulate_btc_purchase', 'get_virtual_wallet', 'get_transaction_history', 'buy_virtual_beer'].includes(toolCall.tool);
                         const isTransaction = toolCall.tool === 'simulate_btc_purchase';
+                        const isBeerPurchase = toolCall.tool === 'buy_virtual_beer';
                         
                         return (
                           <div key={index} className="mb-2">
@@ -702,9 +703,56 @@ const ChatInterface: React.FC = () => {
                                           <span className="font-mono">
                                             {currency === 'USD' ? `$${balance.toFixed(2)}` : balance.toFixed(8)}
                                           </span>
-                        </div>
-                      ))}
+                                        </div>
+                                      ))}
+                                    {toolCall.result.data.wallet.inventory?.beers > 0 && (
+                                      <div className="flex justify-between text-purple-100 pt-2 border-t border-purple-400/30 mt-2">
+                                        <span>🍺 Beers:</span>
+                                        <span className="font-mono">{toolCall.result.data.wallet.inventory.beers}</span>
+                                      </div>
+                                    )}
                                   </div>
+                                </div>
+                              )}
+                              
+                              {/* Show beer purchase */}
+                              {isBeerPurchase && toolCall.result && (
+                                <div className={`mt-2 p-3 rounded-lg border ${
+                                  toolCall.result.success === false 
+                                    ? 'bg-yellow-900/30 border-yellow-400/30'
+                                    : 'bg-orange-900/30 border-orange-400/30'
+                                }`}>
+                                  {toolCall.result.success === false && toolCall.result.needsMoreCrypto ? (
+                                    // Not enough crypto - show suggestion
+                                    <div className="text-xs text-yellow-100 space-y-1">
+                                      <div className="font-bold text-yellow-300">⚠️ Need More Crypto!</div>
+                                      <div className="text-yellow-200">
+                                        💡 Suggested: Buy ${toolCall.result.suggestedAmount} worth of crypto first
+                                      </div>
+                                    </div>
+                                  ) : toolCall.result.data && (
+                                    // Success - show beer purchase
+                                    <div className="text-xs space-y-1">
+                                      <div className="font-bold text-orange-300 mb-1">
+                                        🍺 Beer Purchased with Crypto!
+                                      </div>
+                                      <div className="flex justify-between text-orange-100">
+                                        <span>Paid:</span>
+                                        <span className="font-mono">
+                                          {toolCall.result.data.fromAmount?.toFixed(8)} {toolCall.result.data.fromCurrency}
+                                        </span>
+                                      </div>
+                                      <div className="flex justify-between text-orange-100">
+                                        <span>Received:</span>
+                                        <span className="font-mono">
+                                          {toolCall.result.data.toAmount} 🍺
+                                        </span>
+                                      </div>
+                                      <div className="text-orange-200 text-center mt-2 pt-2 border-t border-orange-400/30">
+                                        🎉 Cheers! Enjoy your virtual beer!
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
                               )}
                             </div>

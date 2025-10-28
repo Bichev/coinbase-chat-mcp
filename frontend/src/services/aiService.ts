@@ -226,6 +226,30 @@ const availableTools = [
       },
     },
   },
+  {
+    name: 'buy_virtual_beer',
+    description: 'Buy virtual beer using cryptocurrency (BTC, ETH, etc.)! Creates full circular economy: USD → Crypto → Beer. If user lacks crypto, system will suggest buying crypto first. Use when user wants to buy/purchase a beer WITH crypto.',
+    parameters: {
+      type: 'object',
+      properties: {
+        quantity: {
+          type: 'number',
+          description: 'Number of beers to buy (default: 1)',
+          default: 1,
+        },
+        currency: {
+          type: 'string',
+          description: 'Cryptocurrency to pay with (default: BTC)',
+          default: 'BTC',
+        },
+        pricePerBeer: {
+          type: 'number',
+          description: 'Price per beer in USD equivalent (default: 5)',
+          default: 5,
+        },
+      },
+    },
+  },
 ];
 
 export class AIService {
@@ -513,6 +537,15 @@ If someone asks about non-cryptocurrency topics, respond with something like: "I
           endpoint = `/api/v1/wallet/transactions`;
           if (toolCall.parameters.limit) queryParams.append('limit', toolCall.parameters.limit.toString());
           if (toolCall.parameters.currency) queryParams.append('currency', toolCall.parameters.currency);
+          break;
+        case 'buy_virtual_beer':
+          endpoint = `/api/v1/wallet/buy-beer`;
+          method = 'POST';
+          body = JSON.stringify({
+            quantity: toolCall.parameters.quantity || 1,
+            currency: toolCall.parameters.currency || 'BTC',
+            pricePerBeer: toolCall.parameters.pricePerBeer || 5
+          });
           break;
         default:
           throw new Error(`Unknown tool: ${toolCall.tool}`);

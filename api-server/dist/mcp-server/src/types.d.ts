@@ -291,8 +291,22 @@ export interface DemoWallet {
         [currency: string]: number;
     };
     transactions: DemoTransaction[];
+    inventory: VirtualInventory;
     createdAt: Date;
     lastUpdated: Date;
+}
+export interface VirtualInventory {
+    beers: number;
+    items: VirtualItem[];
+}
+export interface VirtualItem {
+    id: string;
+    name: string;
+    emoji: string;
+    quantity: number;
+    purchasePrice: number;
+    purchaseCurrency: string;
+    purchaseDate: Date;
 }
 export interface DemoTransaction {
     id: string;
@@ -352,6 +366,20 @@ export declare const GetTransactionHistoryInputSchema: z.ZodObject<{
     currency?: string | undefined;
     limit?: number | undefined;
 }>;
+export declare const BuyVirtualBeerInputSchema: z.ZodObject<{
+    quantity: z.ZodOptional<z.ZodNumber>;
+    currency: z.ZodOptional<z.ZodString>;
+    pricePerBeer: z.ZodOptional<z.ZodNumber>;
+}, "strip", z.ZodTypeAny, {
+    currency?: string | undefined;
+    pricePerBeer?: number | undefined;
+    quantity?: number | undefined;
+}, {
+    currency?: string | undefined;
+    pricePerBeer?: number | undefined;
+    quantity?: number | undefined;
+}>;
 export type CalculateBeerCostInput = z.infer<typeof CalculateBeerCostInputSchema>;
 export type SimulatePurchaseInput = z.infer<typeof SimulatePurchaseInputSchema>;
 export type GetTransactionHistoryInput = z.infer<typeof GetTransactionHistoryInputSchema>;
+export type BuyVirtualBeerInput = z.infer<typeof BuyVirtualBeerInputSchema>;

@@ -162,8 +162,24 @@ export interface DemoWallet {
     [currency: string]: number;
   };
   transactions: DemoTransaction[];
+  inventory: VirtualInventory;
   createdAt: Date;
   lastUpdated: Date;
+}
+
+export interface VirtualInventory {
+  beers: number;
+  items: VirtualItem[];
+}
+
+export interface VirtualItem {
+  id: string;
+  name: string;
+  emoji: string;
+  quantity: number;
+  purchasePrice: number;
+  purchaseCurrency: string;
+  purchaseDate: Date;
 }
 
 export interface DemoTransaction {
@@ -206,6 +222,13 @@ export const GetTransactionHistoryInputSchema = z.object({
   currency: z.string().optional().describe('Filter by currency')
 });
 
+export const BuyVirtualBeerInputSchema = z.object({
+  quantity: z.number().optional().describe('Number of beers to buy (default: 1)'),
+  currency: z.string().optional().describe('Cryptocurrency to pay with (default: BTC)'),
+  pricePerBeer: z.number().optional().describe('Price per beer in USD (default: 5)')
+});
+
 export type CalculateBeerCostInput = z.infer<typeof CalculateBeerCostInputSchema>;
 export type SimulatePurchaseInput = z.infer<typeof SimulatePurchaseInputSchema>;
-export type GetTransactionHistoryInput = z.infer<typeof GetTransactionHistoryInputSchema>; 
+export type GetTransactionHistoryInput = z.infer<typeof GetTransactionHistoryInputSchema>;
+export type BuyVirtualBeerInput = z.infer<typeof BuyVirtualBeerInputSchema>; 
